@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   Home,
   CalendarDays,
@@ -11,6 +12,9 @@ import {
   Phone,
   MessageCircle,
   LogOut,
+  ShieldCheck,
+  ChevronDown,
+  History,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import {
@@ -29,13 +33,17 @@ import {
 
 const mainNav = [
   { title: "Home", url: "/", icon: Home },
-  { title: "Planned Events", url: "/planned-events", icon: CalendarDays },
-  { title: "New Blog", url: "/new-blog", icon: PenSquare },
   { title: "Messages", url: "/messages", icon: MessageSquare },
-  { title: "Members", url: "/members", icon: Users },
-  { title: "Member Payments", url: "/member-payments", icon: CreditCard },
   { title: "Payment Invoices", url: "/payment-invoices", icon: FileText },
   { title: "User Information", url: "/user-info", icon: UserCircle },
+];
+
+const adminNav = [
+  { title: "Planned Events", url: "/planned-events", icon: CalendarDays },
+  { title: "Past Events", url: "/past-events", icon: History },
+  { title: "New Blog", url: "/new-blog", icon: PenSquare },
+  { title: "Members", url: "/members", icon: Users },
+  { title: "Member Payments", url: "/member-payments", icon: CreditCard },
 ];
 
 const contactNav = [
@@ -47,6 +55,7 @@ const contactNav = [
 export function DashboardSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
+  const [adminOpen, setAdminOpen] = useState(false);
 
   return (
     <Sidebar collapsible="icon" className="border-r-0">
@@ -78,6 +87,36 @@ export function DashboardSidebar() {
                       to={item.url}
                       end={item.url === "/"}
                       className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
+                      activeClassName="bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+                    >
+                      <item.icon className="h-4 w-4" />
+                      <span>{item.title}</span>
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+
+              {/* Admin dropdown */}
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  tooltip="Admin"
+                  onClick={() => setAdminOpen(!adminOpen)}
+                  className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
+                >
+                  <ShieldCheck className="h-4 w-4" />
+                  <span>Admin</span>
+                  {!collapsed && (
+                    <ChevronDown className={`ml-auto h-4 w-4 transition-transform ${adminOpen ? "rotate-180" : ""}`} />
+                  )}
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+
+              {adminOpen && !collapsed && adminNav.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild tooltip={item.title}>
+                    <NavLink
+                      to={item.url}
+                      className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors pl-8"
                       activeClassName="bg-sidebar-accent text-sidebar-accent-foreground font-medium"
                     >
                       <item.icon className="h-4 w-4" />
