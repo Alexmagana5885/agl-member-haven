@@ -185,14 +185,14 @@ export function DashboardSidebar() {
 
       {/* Create Planned Event Dialog */}
       <Dialog open={activeDialog === "planned-event"} onOpenChange={(open) => { if (!open) setActiveDialog(null); }}>
-        <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 font-display">
               <CalendarDays className="h-5 w-5 text-primary" /> Create Planned Event
             </DialogTitle>
             <DialogDescription>Add a new upcoming event for members.</DialogDescription>
           </DialogHeader>
-          <div className="space-y-3 py-2">
+          <div className="space-y-3 py-2 overflow-y-auto flex-1 pr-2">
             <div className="space-y-1.5">
               <Label>Event Title</Label>
               <Input placeholder="Enter event title" />
@@ -241,14 +241,14 @@ export function DashboardSidebar() {
 
       {/* Create Past Event Dialog */}
       <Dialog open={activeDialog === "past-event"} onOpenChange={(open) => { if (!open) setActiveDialog(null); }}>
-        <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 font-display">
               <History className="h-5 w-5 text-primary" /> Add Past Event
             </DialogTitle>
             <DialogDescription>Record a past event.</DialogDescription>
           </DialogHeader>
-          <div className="space-y-3 py-2">
+          <div className="space-y-3 py-2 overflow-y-auto flex-1 pr-2">
             <div className="space-y-1.5">
               <Label>Event Title</Label>
               <Input placeholder="Enter event title" />
@@ -289,14 +289,14 @@ export function DashboardSidebar() {
 
       {/* New Blog Dialog */}
       <Dialog open={activeDialog === "new-blog"} onOpenChange={(open) => { if (!open) setActiveDialog(null); }}>
-        <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 font-display">
               <PenSquare className="h-5 w-5 text-primary" /> Create New Blog
             </DialogTitle>
             <DialogDescription>Write and publish a new blog post.</DialogDescription>
           </DialogHeader>
-          <div className="space-y-3 py-2">
+          <div className="space-y-3 py-2 overflow-y-auto flex-1 pr-2">
             <div className="space-y-1.5">
               <Label>Blog Title</Label>
               <Input placeholder="Enter blog title" />
@@ -323,14 +323,14 @@ export function DashboardSidebar() {
 
       {/* Send Message Dialog */}
       <Dialog open={activeDialog === "send-message"} onOpenChange={(open) => { if (!open) setActiveDialog(null); }}>
-        <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 font-display">
               <Send className="h-5 w-5 text-primary" /> Send Message
             </DialogTitle>
             <DialogDescription>Send a message to members.</DialogDescription>
           </DialogHeader>
-          <div className="space-y-3 py-2">
+          <div className="space-y-3 py-2 overflow-y-auto flex-1 pr-2">
             <div className="space-y-1.5">
               <Label>Recipient</Label>
               <Input placeholder="All members or specific email" />
