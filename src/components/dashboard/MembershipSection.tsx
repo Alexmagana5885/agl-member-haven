@@ -1,32 +1,87 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CreditCard, CalendarCheck, CalendarClock, DollarSign } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { CreditCard, CalendarCheck, CalendarClock, DollarSign, Phone, Mail } from "lucide-react";
+
+type PaymentType = "fee" | "premium" | null;
+
+const paymentInfo = {
+  fee: { amount: "3,600", label: "annual membership fees" },
+  premium: { amount: "7,200", label: "membership premium" },
+};
 
 export function MembershipSection() {
+  const [openPayment, setOpenPayment] = useState<PaymentType>(null);
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+
+  const info = openPayment ? paymentInfo[openPayment] : null;
+
   return (
-    <Card className="shadow-card hover:shadow-card-hover transition-shadow">
-      <CardHeader className="pb-3">
-        <CardTitle className="flex items-center gap-2 font-display text-lg">
-          <CreditCard className="h-5 w-5 text-accent-foreground" />
-          Membership & Payments
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-          <StatCard icon={CalendarCheck} label="Last Payment" value="12 Dec 2025" />
-          <StatCard icon={CalendarClock} label="Next Payment" value="12 Dec 2026" />
-          <StatCard icon={DollarSign} label="Last Amount Paid" value="KES 5,000" />
-        </div>
-        <div className="flex flex-wrap gap-3">
-          <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
-            Pay Membership Fee
-          </Button>
-          <Button variant="outline" className="border-primary text-accent-foreground hover:bg-accent">
-            Pay Membership Premium
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+    <>
+      <Card className="shadow-card hover:shadow-card-hover transition-shadow">
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 font-display text-lg">
+            <CreditCard className="h-5 w-5 text-accent-foreground" />
+            Membership & Payments
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+            <StatCard icon={CalendarCheck} label="Last Payment" value="12 Dec 2025" />
+            <StatCard icon={CalendarClock} label="Next Payment" value="12 Dec 2026" />
+            <StatCard icon={DollarSign} label="Last Amount Paid" value="KES 5,000" />
+          </div>
+          <div className="flex flex-wrap gap-3">
+            <Button className="bg-primary text-primary-foreground hover:bg-primary/90" onClick={() => setOpenPayment("fee")}>
+              Pay Membership Fee
+            </Button>
+            <Button variant="outline" className="border-primary text-accent-foreground hover:bg-accent" onClick={() => setOpenPayment("premium")}>
+              Pay Membership Premium
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Dialog open={!!openPayment} onOpenChange={(open) => { if (!open) setOpenPayment(null); }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 font-display">
+              <CreditCard className="h-5 w-5 text-primary" />
+              M-Pesa Payment
+            </DialogTitle>
+            <DialogDescription>
+              Confirm that you are making a payment of <span className="font-semibold text-foreground">{info?.amount} Ksh</span> as {info?.label} to the Association of Government Librarians.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <Label htmlFor="pay-email" className="flex items-center gap-1.5">
+                <Mail className="h-3.5 w-3.5" /> User Email
+              </Label>
+              <Input id="pay-email" type="email" placeholder="Enter your email" value={email} onChange={(e) => setEmail(e.target.value)} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="pay-phone" className="flex items-center gap-1.5">
+                <Phone className="h-3.5 w-3.5" /> Number
+              </Label>
+              <Input id="pay-phone" type="tel" placeholder="Enter your phone number" value={phone} onChange={(e) => setPhone(e.target.value)} />
+            </div>
+            <div className="space-y-2">
+              <Label>Amount</Label>
+              <Input readOnly value={`KES ${info?.amount || ""}`} className="bg-accent" />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setOpenPayment(null)}>Cancel</Button>
+            <Button className="bg-primary text-primary-foreground hover:bg-primary/90">Confirm Payment</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
 
