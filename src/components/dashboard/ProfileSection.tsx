@@ -1,4 +1,4 @@
-import avatarImg from "@/assets/avatar-placeholder.jpg";
+import avatarImg from "@/assets/alex.jpg";
 import { Card, CardContent } from "@/components/ui/card";
 import { CalendarDays, Mail, User } from "lucide-react";
 
@@ -14,15 +14,15 @@ export function ProfileSection() {
             className="h-24 w-24 rounded-full border-4 border-card object-cover shadow-card"
           />
           <div className="text-center sm:text-left pb-1">
-            <h2 className="font-display text-xl font-bold text-foreground">John Mwangi</h2>
+            <h2 className="font-display text-xl font-bold text-foreground">ALEX Magana</h2>
             <p className="text-sm text-muted-foreground">Government Librarian — Senior Member</p>
           </div>
         </div>
 
         <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <InfoItem icon={User} label="Full Name" value="John Mwangi Kamau" />
-          <InfoItem icon={Mail} label="Email" value="john.mwangi@gov.ke" />
-          <InfoItem icon={CalendarDays} label="Registration Date" value="15 Jan 2022" />
+          <InfoItem icon={User} label="Full Name" value="Alex Magana" />
+          <InfoItem icon={Mail} label="Email" value="maganaalex634@gmail.com" />
+          <InfoItem icon={CalendarDays} label="Registration Date" value="15 Jan 2026" />
         </div>
       </CardContent>
     </Card>
