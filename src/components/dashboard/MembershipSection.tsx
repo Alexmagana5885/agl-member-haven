@@ -5,6 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { CreditCard, CalendarCheck, CalendarClock, DollarSign, Phone, Mail } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { submitPayment } from "@/services/api";
 
 type PaymentType = "fee" | "premium" | null;
 
@@ -17,8 +19,30 @@ export function MembershipSection() {
   const [openPayment, setOpenPayment] = useState<PaymentType>(null);
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const { toast } = useToast();
 
   const info = openPayment ? paymentInfo[openPayment] : null;
+
+  const handleClose = () => {
+    setOpenPayment(null);
+    setEmail("");
+    setPhone("");
+  };
+
+  const handleConfirm = async () => {
+    if (!openPayment || !info) return;
+    setSubmitting(true);
+    try {
+      await submitPayment({ email, phone, amount: info.amount, type: openPayment });
+      toast({ title: "Success", description: "Payment submitted successfully" });
+      handleClose();
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message || "Payment failed", variant: "destructive" });
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
     <>
@@ -46,7 +70,7 @@ export function MembershipSection() {
         </CardContent>
       </Card>
 
-      <Dialog open={!!openPayment} onOpenChange={(open) => { if (!open) setOpenPayment(null); }}>
+      <Dialog open={!!openPayment} onOpenChange={(open) => { if (!open) handleClose(); }}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 font-display">
@@ -76,8 +100,10 @@ export function MembershipSection() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setOpenPayment(null)}>Cancel</Button>
-            <Button className="bg-primary text-primary-foreground hover:bg-primary/90">Confirm Payment</Button>
+            <Button variant="outline" onClick={handleClose} disabled={submitting}>Cancel</Button>
+            <Button className="bg-primary text-primary-foreground hover:bg-primary/90" disabled={submitting} onClick={handleConfirm}>
+              {submitting ? "Processing..." : "Confirm Payment"}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

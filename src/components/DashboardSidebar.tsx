@@ -39,6 +39,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
+import {
+  createPlannedEvent,
+  createPastEvent,
+  createBlog,
+  sendMessage as sendMessageApi,
+  type PlannedEventPayload,
+  type PastEventPayload,
+  type BlogPayload,
+  type MessagePayload,
+} from "@/services/api";
 
 const mainNav = [
   { title: "Home", url: "/", icon: Home },
@@ -55,12 +66,45 @@ const contactNav = [
 
 type AdminDialog = "planned-event" | "past-event" | "new-blog" | "send-message" | null;
 
+const emptyPlannedEvent: PlannedEventPayload = { title: "", type: "", date: "", venue: "", description: "", objectives: "", whyAttend: "", subthemes: "", regAmount: "" };
+const emptyPastEvent: PastEventPayload = { title: "", type: "", date: "", venue: "", description: "", attendees: "", highlights: "" };
+const emptyBlog: BlogPayload = { title: "", author: "", shortDescription: "", content: "" };
+const emptyMessage: MessagePayload = { recipient: "", subject: "", message: "" };
+
 export function DashboardSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const [adminOpen, setAdminOpen] = useState(false);
   const [activeDialog, setActiveDialog] = useState<AdminDialog>(null);
+  const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const [plannedEvent, setPlannedEvent] = useState(emptyPlannedEvent);
+  const [pastEvent, setPastEvent] = useState(emptyPastEvent);
+  const [blog, setBlog] = useState(emptyBlog);
+  const [message, setMessage] = useState(emptyMessage);
+
+  const closeDialog = () => {
+    setActiveDialog(null);
+    setPlannedEvent(emptyPlannedEvent);
+    setPastEvent(emptyPastEvent);
+    setBlog(emptyBlog);
+    setMessage(emptyMessage);
+  };
+
+  const handleSubmit = async (fn: () => Promise<unknown>, successMsg: string) => {
+    setSubmitting(true);
+    try {
+      await fn();
+      toast({ title: "Success", description: successMsg });
+      closeDialog();
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message || "Something went wrong", variant: "destructive" });
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   const adminItems = [
     { title: "Planned Events", icon: CalendarDays, action: () => setActiveDialog("planned-event") },
@@ -184,8 +228,8 @@ export function DashboardSidebar() {
       </Sidebar>
 
       {/* Create Planned Event Dialog */}
-      <Dialog open={activeDialog === "planned-event"} onOpenChange={(open) => { if (!open) setActiveDialog(null); }}>
-      <DialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col">
+      <Dialog open={activeDialog === "planned-event"} onOpenChange={(open) => { if (!open) closeDialog(); }}>
+        <DialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 font-display">
               <CalendarDays className="h-5 w-5 text-primary" /> Create Planned Event
@@ -195,53 +239,55 @@ export function DashboardSidebar() {
           <div className="space-y-3 py-2 overflow-y-auto flex-1 pr-2">
             <div className="space-y-1.5">
               <Label>Event Title</Label>
-              <Input placeholder="Enter event title" />
+              <Input placeholder="Enter event title" value={plannedEvent.title} onChange={(e) => setPlannedEvent({ ...plannedEvent, title: e.target.value })} />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label>Event Type</Label>
-                <Input placeholder="e.g. Conference, Workshop" />
+                <Input placeholder="e.g. Conference, Workshop" value={plannedEvent.type} onChange={(e) => setPlannedEvent({ ...plannedEvent, type: e.target.value })} />
               </div>
               <div className="space-y-1.5">
                 <Label>Event Date</Label>
-                <Input type="date" />
+                <Input type="date" value={plannedEvent.date} onChange={(e) => setPlannedEvent({ ...plannedEvent, date: e.target.value })} />
               </div>
             </div>
             <div className="space-y-1.5">
               <Label>Venue</Label>
-              <Input placeholder="Enter venue" />
+              <Input placeholder="Enter venue" value={plannedEvent.venue} onChange={(e) => setPlannedEvent({ ...plannedEvent, venue: e.target.value })} />
             </div>
             <div className="space-y-1.5">
               <Label>Description</Label>
-              <Textarea placeholder="Describe the event" rows={2} />
+              <Textarea placeholder="Describe the event" rows={2} value={plannedEvent.description} onChange={(e) => setPlannedEvent({ ...plannedEvent, description: e.target.value })} />
             </div>
             <div className="space-y-1.5">
               <Label>Objectives</Label>
-              <Textarea placeholder="Event objectives" rows={2} />
+              <Textarea placeholder="Event objectives" rows={2} value={plannedEvent.objectives} onChange={(e) => setPlannedEvent({ ...plannedEvent, objectives: e.target.value })} />
             </div>
             <div className="space-y-1.5">
               <Label>Why Attend</Label>
-              <Input placeholder="Reasons to attend" />
+              <Input placeholder="Reasons to attend" value={plannedEvent.whyAttend} onChange={(e) => setPlannedEvent({ ...plannedEvent, whyAttend: e.target.value })} />
             </div>
             <div className="space-y-1.5">
               <Label>Subthemes (comma-separated)</Label>
-              <Input placeholder="e.g. AI, Digital Literacy" />
+              <Input placeholder="e.g. AI, Digital Literacy" value={plannedEvent.subthemes} onChange={(e) => setPlannedEvent({ ...plannedEvent, subthemes: e.target.value })} />
             </div>
             <div className="space-y-1.5">
               <Label>Registration Amount (Ksh)</Label>
-              <Input type="number" placeholder="0" />
+              <Input type="number" placeholder="0" value={plannedEvent.regAmount} onChange={(e) => setPlannedEvent({ ...plannedEvent, regAmount: e.target.value })} />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setActiveDialog(null)}>Cancel</Button>
-            <Button className="bg-primary text-primary-foreground hover:bg-primary/90">Publish Event</Button>
+            <Button variant="outline" onClick={closeDialog} disabled={submitting}>Cancel</Button>
+            <Button className="bg-primary text-primary-foreground hover:bg-primary/90" disabled={submitting} onClick={() => handleSubmit(() => createPlannedEvent(plannedEvent), "Planned event created successfully")}>
+              {submitting ? "Publishing..." : "Publish Event"}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
       {/* Create Past Event Dialog */}
-      <Dialog open={activeDialog === "past-event"} onOpenChange={(open) => { if (!open) setActiveDialog(null); }}>
-      <DialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col">
+      <Dialog open={activeDialog === "past-event"} onOpenChange={(open) => { if (!open) closeDialog(); }}>
+        <DialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 font-display">
               <History className="h-5 w-5 text-primary" /> Add Past Event
@@ -251,45 +297,47 @@ export function DashboardSidebar() {
           <div className="space-y-3 py-2 overflow-y-auto flex-1 pr-2">
             <div className="space-y-1.5">
               <Label>Event Title</Label>
-              <Input placeholder="Enter event title" />
+              <Input placeholder="Enter event title" value={pastEvent.title} onChange={(e) => setPastEvent({ ...pastEvent, title: e.target.value })} />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label>Event Type</Label>
-                <Input placeholder="e.g. Symposium, Forum" />
+                <Input placeholder="e.g. Symposium, Forum" value={pastEvent.type} onChange={(e) => setPastEvent({ ...pastEvent, type: e.target.value })} />
               </div>
               <div className="space-y-1.5">
                 <Label>Event Date</Label>
-                <Input type="date" />
+                <Input type="date" value={pastEvent.date} onChange={(e) => setPastEvent({ ...pastEvent, date: e.target.value })} />
               </div>
             </div>
             <div className="space-y-1.5">
               <Label>Venue</Label>
-              <Input placeholder="Enter venue" />
+              <Input placeholder="Enter venue" value={pastEvent.venue} onChange={(e) => setPastEvent({ ...pastEvent, venue: e.target.value })} />
             </div>
             <div className="space-y-1.5">
               <Label>Description</Label>
-              <Textarea placeholder="Describe the event" rows={2} />
+              <Textarea placeholder="Describe the event" rows={2} value={pastEvent.description} onChange={(e) => setPastEvent({ ...pastEvent, description: e.target.value })} />
             </div>
             <div className="space-y-1.5">
               <Label>Attendees</Label>
-              <Input placeholder="e.g. 350+" />
+              <Input placeholder="e.g. 350+" value={pastEvent.attendees} onChange={(e) => setPastEvent({ ...pastEvent, attendees: e.target.value })} />
             </div>
             <div className="space-y-1.5">
               <Label>Highlights</Label>
-              <Textarea placeholder="Key highlights of the event" rows={2} />
+              <Textarea placeholder="Key highlights of the event" rows={2} value={pastEvent.highlights} onChange={(e) => setPastEvent({ ...pastEvent, highlights: e.target.value })} />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setActiveDialog(null)}>Cancel</Button>
-            <Button className="bg-primary text-primary-foreground hover:bg-primary/90">Save Event</Button>
+            <Button variant="outline" onClick={closeDialog} disabled={submitting}>Cancel</Button>
+            <Button className="bg-primary text-primary-foreground hover:bg-primary/90" disabled={submitting} onClick={() => handleSubmit(() => createPastEvent(pastEvent), "Past event saved successfully")}>
+              {submitting ? "Saving..." : "Save Event"}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
       {/* New Blog Dialog */}
-      <Dialog open={activeDialog === "new-blog"} onOpenChange={(open) => { if (!open) setActiveDialog(null); }}>
-      <DialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col">
+      <Dialog open={activeDialog === "new-blog"} onOpenChange={(open) => { if (!open) closeDialog(); }}>
+        <DialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 font-display">
               <PenSquare className="h-5 w-5 text-primary" /> Create New Blog
@@ -299,31 +347,33 @@ export function DashboardSidebar() {
           <div className="space-y-3 py-2 overflow-y-auto flex-1 pr-2">
             <div className="space-y-1.5">
               <Label>Blog Title</Label>
-              <Input placeholder="Enter blog title" />
+              <Input placeholder="Enter blog title" value={blog.title} onChange={(e) => setBlog({ ...blog, title: e.target.value })} />
             </div>
             <div className="space-y-1.5">
               <Label>Author</Label>
-              <Input placeholder="Author name" />
+              <Input placeholder="Author name" value={blog.author} onChange={(e) => setBlog({ ...blog, author: e.target.value })} />
             </div>
             <div className="space-y-1.5">
               <Label>Short Description</Label>
-              <Textarea placeholder="Brief summary of the blog" rows={2} />
+              <Textarea placeholder="Brief summary of the blog" rows={2} value={blog.shortDescription} onChange={(e) => setBlog({ ...blog, shortDescription: e.target.value })} />
             </div>
             <div className="space-y-1.5">
               <Label>Full Content</Label>
-              <Textarea placeholder="Write the full blog content here..." rows={6} />
+              <Textarea placeholder="Write the full blog content here..." rows={6} value={blog.content} onChange={(e) => setBlog({ ...blog, content: e.target.value })} />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setActiveDialog(null)}>Cancel</Button>
-            <Button className="bg-primary text-primary-foreground hover:bg-primary/90">Publish Blog</Button>
+            <Button variant="outline" onClick={closeDialog} disabled={submitting}>Cancel</Button>
+            <Button className="bg-primary text-primary-foreground hover:bg-primary/90" disabled={submitting} onClick={() => handleSubmit(() => createBlog(blog), "Blog published successfully")}>
+              {submitting ? "Publishing..." : "Publish Blog"}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
       {/* Send Message Dialog */}
-      <Dialog open={activeDialog === "send-message"} onOpenChange={(open) => { if (!open) setActiveDialog(null); }}>
-      <DialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col">
+      <Dialog open={activeDialog === "send-message"} onOpenChange={(open) => { if (!open) closeDialog(); }}>
+        <DialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 font-display">
               <Send className="h-5 w-5 text-primary" /> Send Message
@@ -333,20 +383,22 @@ export function DashboardSidebar() {
           <div className="space-y-3 py-2 overflow-y-auto flex-1 pr-2">
             <div className="space-y-1.5">
               <Label>Recipient</Label>
-              <Input placeholder="All members or specific email" />
+              <Input placeholder="All members or specific email" value={message.recipient} onChange={(e) => setMessage({ ...message, recipient: e.target.value })} />
             </div>
             <div className="space-y-1.5">
               <Label>Subject</Label>
-              <Input placeholder="Message subject" />
+              <Input placeholder="Message subject" value={message.subject} onChange={(e) => setMessage({ ...message, subject: e.target.value })} />
             </div>
             <div className="space-y-1.5">
               <Label>Message</Label>
-              <Textarea placeholder="Type your message here..." rows={5} />
+              <Textarea placeholder="Type your message here..." rows={5} value={message.message} onChange={(e) => setMessage({ ...message, message: e.target.value })} />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setActiveDialog(null)}>Cancel</Button>
-            <Button className="bg-primary text-primary-foreground hover:bg-primary/90">Send Message</Button>
+            <Button variant="outline" onClick={closeDialog} disabled={submitting}>Cancel</Button>
+            <Button className="bg-primary text-primary-foreground hover:bg-primary/90" disabled={submitting} onClick={() => handleSubmit(() => sendMessageApi(message), "Message sent successfully")}>
+              {submitting ? "Sending..." : "Send Message"}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
