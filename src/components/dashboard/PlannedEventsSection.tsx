@@ -6,6 +6,8 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { CalendarDays, MapPin, Target, Tag, Users, Mail, Phone, UserCheck } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
+import { registerForEvent } from "@/services/api";
 
 const events = [
   {
@@ -37,6 +39,29 @@ export function PlannedEventsSection() {
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [contact, setContact] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const { toast } = useToast();
+
+  const handleClose = () => {
+    setRegEvent(null);
+    setEmail("");
+    setName("");
+    setContact("");
+  };
+
+  const handleRegister = async () => {
+    if (!regEvent) return;
+    setSubmitting(true);
+    try {
+      await registerForEvent({ eventTitle: regEvent.title, email, name, contact, regAmount: regEvent.regAmount });
+      toast({ title: "Success", description: "Registration submitted successfully" });
+      handleClose();
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message || "Registration failed", variant: "destructive" });
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
     <>
@@ -101,7 +126,7 @@ export function PlannedEventsSection() {
         </CardContent>
       </Card>
 
-      <Dialog open={!!regEvent} onOpenChange={(open) => { if (!open) setRegEvent(null); }}>
+      <Dialog open={!!regEvent} onOpenChange={(open) => { if (!open) handleClose(); }}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 font-display">
@@ -137,8 +162,10 @@ export function PlannedEventsSection() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setRegEvent(null)}>Cancel</Button>
-            <Button className="bg-primary text-primary-foreground hover:bg-primary/90">Register</Button>
+            <Button variant="outline" onClick={handleClose} disabled={submitting}>Cancel</Button>
+            <Button className="bg-primary text-primary-foreground hover:bg-primary/90" disabled={submitting} onClick={handleRegister}>
+              {submitting ? "Registering..." : "Register"}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
