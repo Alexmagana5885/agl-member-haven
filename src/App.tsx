@@ -6,6 +6,9 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import MembersPage from "./pages/Members";
 import MemberPaymentsPage from "./pages/MemberPayments";
+import MessagesPage from "./pages/Messages";
+import PaymentInvoicesPage from "./pages/PaymentInvoices";
+import UserInformationPage from "./pages/UserInformation";
 import PastEventDetail from "./pages/PastEventDetail";
 import BlogDetail from "./pages/BlogDetail";
 import NotFound from "./pages/NotFound";
@@ -22,6 +25,9 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/members" element={<MembersPage />} />
           <Route path="/member-payments" element={<MemberPaymentsPage />} />
+          <Route path="/messages" element={<MessagesPage />} />
+          <Route path="/payment-invoices" element={<PaymentInvoicesPage />} />
+          <Route path="/user-info" element={<UserInformationPage />} />
           <Route path="/past-events/:id" element={<PastEventDetail />} />
           <Route path="/blogs/:id" element={<BlogDetail />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
