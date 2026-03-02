@@ -60,6 +60,37 @@ This project is built with:
 - shadcn-ui
 - Tailwind CSS
 
+### Backend (Flask + MySQL)
+
+A simple Python/Flask backend lives in the `backend/` directory. It exposes a few endpoints and stores member registrations in a MySQL database.
+
+To run the backend locally:
+
+```sh
+cd backend
+python -m venv .venv            # create a virtual environment
+. .venv/Scripts/activate        # windows; use `source .venv/bin/activate` on mac/linux
+pip install -r requirements.txt
+```
+
+Create a `.env` file or export the following environment variables to point at your remote database:
+
+```env
+DB_HOST=your-db-host
+DB_USER=your-db-user
+DB_PASSWORD=your-db-password
+DB_NAME=your-db-name
+UPLOAD_DIR=uploads          # optional, defaults to "uploads"
+```
+
+Then start the server with:
+
+```sh
+python app.py
+```
+
+The frontend uses `/api/auth/register/individual` and `/api/auth/register/organisation` to send form data. These handlers insert records into the `personalmembership` and `organizationmembership` tables respectively (see `backend/DBstructure.sql` for the schema).
+
 ## How can I deploy this project?
 
 Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
