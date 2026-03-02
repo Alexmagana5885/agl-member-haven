@@ -11,6 +11,10 @@ import PaymentInvoicesPage from "./pages/PaymentInvoices";
 import UserInformationPage from "./pages/UserInformation";
 import PastEventDetail from "./pages/PastEventDetail";
 import BlogDetail from "./pages/BlogDetail";
+import Login from "./pages/Login";
+import ResetPassword from "./pages/ResetPassword";
+import RegisterIndividual from "./pages/RegisterIndividual";
+import RegisterOrganisation from "./pages/RegisterOrganisation";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -22,6 +26,10 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/register/individual" element={<RegisterIndividual />} />
+          <Route path="/register/organisation" element={<RegisterOrganisation />} />
           <Route path="/" element={<Index />} />
           <Route path="/members" element={<MembersPage />} />
           <Route path="/member-payments" element={<MemberPaymentsPage />} />
