@@ -29,8 +29,8 @@ const App = () => (
           <Route path="/login" element={<Login />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/register/individual" element={<RegisterIndividual />} />
-          <Route path="/register/organisation" element={<RegisterOrganisation />} />
-          <Route path="/" element={<Index />} />
+          <Route path="/dashboard" element={<Index />} />
+          <Route path="/" element={<Login />} />
           <Route path="/members" element={<MembersPage />} />
           <Route path="/member-payments" element={<MemberPaymentsPage />} />
           <Route path="/messages" element={<MessagesPage />} />
