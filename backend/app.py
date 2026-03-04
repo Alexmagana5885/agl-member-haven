@@ -1,12 +1,16 @@
 import os
-import uuid
-from flask import Flask, jsonify, request
-from werkzeug.security import generate_password_hash
-from werkzeug.utils import secure_filename
+from dotenv import load_dotenv
+load_dotenv()
+from flask import Flask, jsonify, request, session
+from flask_cors import CORS
+from flask_session import Session
 
 import mysql.connector
 
 app = Flask(__name__)
+
+# CORS configuration
+CORS(app, supports_credentials=True, origins=["http://localhost:5173", "http://localhost:3000"])
 
 # Database configuration variables (override with environment variables in production)
 DB_HOST = os.environ.get("DB_HOST", "localhost")
@@ -14,8 +18,21 @@ DB_USER = os.environ.get("DB_USER", "rke_adminM")
 DB_PASSWORD = os.environ.get("DB_PASSWORD", "Mex#588599")
 DB_NAME = os.environ.get("DB_NAME", "aglorke_agldatabase")
 
+# Session configuration
+app.config['SESSION_TYPE'] = 'filesystem'
+app.config['SESSION_PERMANENT'] = True
+app.config['PERMANENT_SESSION_LIFETIME'] = 86400  # 24 hours
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
+Session(app)
+
 # directory where uploaded files will be stored
 UPLOAD_DIR = os.environ.get("UPLOAD_DIR", "uploads")
+
+# Register blueprints
+from login.routes import login_bp
+from register.routes import register_bp
+app.register_blueprint(login_bp)
+app.register_blueprint(register_bp)
 
 
 def get_db_connection():
@@ -28,18 +45,6 @@ def get_db_connection():
     )
 
 
-def save_file(file, subfolder=""):
-    """Save an uploaded file under UPLOAD_DIR/subfolder and return its path."""
-    if not file:
-        return None
-    filename = secure_filename(file.filename)
-    target_dir = os.path.join(UPLOAD_DIR, subfolder)
-    os.makedirs(target_dir, exist_ok=True)
-    filepath = os.path.join(target_dir, filename)
-    file.save(filepath)
-    return filepath
-
-
 @app.route("/")
 def home():
     return jsonify({"message": "Flask backend running 🚀"})
@@ -49,106 +54,37 @@ def get_student(id):
     return jsonify({"student_id": id})
 
 
-@app.route("/api/auth/register/organisation", methods=["POST"])
-def register_organisation():
-    # parse form data
-    form = request.form
-    files = request.files
-
-    org_id = uuid.uuid4().hex[:15]
-
-    logo_path = save_file(files.get("logoFile"), "organisation_logos")
-    cert_path = save_file(files.get("certificateFile"), "organisation_certs")
-
-    # hash password before storing
-    password_hash = generate_password_hash(form.get("password", ""))
-
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    try:
-        sql = (
-            "INSERT INTO organizationmembership ("
-            "id, organization_name, organization_email, contact_person, "
-            "logo_image, contact_phone_number, date_of_registration, organization_address, "
-            "location_country, location_county, location_town, registration_certificate, "
-            "organization_type, start_date, what_you_do, password) "
-            "VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
-        )
-        values = (
-            org_id,
-            form.get("organizationName"),
-            form.get("organizationEmail"),
-            form.get("contactPerson"),
-            logo_path,
-            form.get("contactPhone"),
-            form.get("registrationDate") or None,
-            form.get("organizationAddress"),
-            form.get("country"),
-            form.get("county"),
-            form.get("town"),
-            cert_path,
-            form.get("organizationType"),
-            form.get("startDate") or None,
-            form.get("whatYouDo"),
-            password_hash,
-        )
-        cursor.execute(sql, values)
-        conn.commit()
-    finally:
-        cursor.close()
-        conn.close()
-
-    return jsonify({"status": "success", "id": org_id})
+# Protected routes
+from login.decorators import login_required, user_type_required
+from login.auth import get_user_info
 
 
-@app.route("/api/auth/register/individual", methods=["POST"])
-def register_individual():
-    form = request.form
-    files = request.files
+@app.route("/api/portal", methods=["GET"])
+@login_required
+def portal():
+    """
+    Protected portal endpoint - requires login.
+    Returns user's dashboard data.
+    """
+    user_id = session.get('user_id')
+    user_type = session.get('user_type')
+    
+    if not user_id:
+        return jsonify({"status": "error", "message": "User not found in session"}), 401
+    
+    user_info = get_user_info(user_id, user_type)
+    
+    return jsonify({
+        "status": "success",
+        "message": "Welcome to your portal",
+        "user": {
+            "id": user_id,
+            "email": session.get('user_email'),
+            "type": user_type,
+            "name": user_info.get('name') if user_type == 'individual' else user_info.get('organization_name')
+        }
+    }), 200
 
-    person_id = uuid.uuid4().hex[:11]
-
-    passport_path = save_file(files.get("passportFile"), "passports")
-    completion_path = save_file(files.get("completionLetterFile"), "completion_letters")
-
-    password_hash = generate_password_hash(form.get("password", ""))
-
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    try:
-        sql = (
-            "INSERT INTO personalmembership ("
-            "id, name, email, phone, gender, home_address, passport_image, "
-            "highest_degree, institution, graduation_year, completion_letter, "
-            "profession, experience, current_company, position, work_address, password) "
-            "VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
-        )
-        values = (
-            person_id,
-            form.get("name"),
-            form.get("email"),
-            form.get("phone"),
-            form.get("gender"),
-            form.get("homeAddress"),
-            passport_path,
-            form.get("highestDegree"),
-            form.get("institution"),
-            form.get("graduationYear"),
-            completion_path,
-            form.get("profession"),
-            form.get("experience"),
-            form.get("currentCompany"),
-            form.get("position"),
-            form.get("workAddress"),
-            password_hash,
-        )
-        cursor.execute(sql, values)
-        conn.commit()
-    finally:
-        cursor.close()
-        conn.close()
-
-    return jsonify({"status": "success", "id": person_id})
 
 if __name__ == "__main__":
     app.run(debug=True)

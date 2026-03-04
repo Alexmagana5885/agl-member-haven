@@ -9,7 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, ArrowRight, Eye, EyeOff, Upload, CheckCircle2 } from "lucide-react";
-
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const steps = ["Organization Details", "Location", "Classification", "Security", "Review & Agree"];
 
 const RegisterOrganisation = () => {
@@ -59,7 +59,7 @@ const RegisterOrganisation = () => {
         else if (typeof v === "boolean") fd.append(k, String(v));
         else if (v) fd.append(k, v as string);
       });
-      await fetch("/api/auth/register/organisation", { method: "POST", body: fd });
+      await fetch("API_BASE_URL/api/auth/register/organisation", { method: "POST", body: fd });
       toast({ title: "Registration Successful", description: "You can now log in" });
       navigate("/login");
     } catch {
