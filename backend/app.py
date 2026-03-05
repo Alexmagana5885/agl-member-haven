@@ -10,7 +10,7 @@ import mysql.connector
 app = Flask(__name__)
 
 # CORS configuration
-CORS(app, supports_credentials=True, origins=["http://localhost:5173", "http://localhost:3000"])
+CORS(app, supports_credentials=True, origins=["http://localhost:5173", "http://localhost:3000", "http://localhost:8080"])
 
 # Database configuration variables (read from .env)
 DB_HOST = os.environ.get("DB_HOST")
@@ -48,6 +48,40 @@ def get_db_connection():
 @app.route("/")
 def home():
     return jsonify({"message": "Flask backend running 🚀"})
+
+@app.route("/api/debug/db-status", methods=["GET"])
+def db_status():
+    """Debug endpoint to test database connectivity."""
+    try:
+        print(f"Attempting to connect to DB: {DB_HOST}, User: {DB_USER}, DB: {DB_NAME}")
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT 1")
+        cursor.fetchone()
+        cursor.close()
+        conn.close()
+        return jsonify({
+            "status": "success",
+            "message": "Database connection successful",
+            "config": {
+                "host": DB_HOST,
+                "user": DB_USER,
+                "database": DB_NAME,
+            }
+        }), 200
+    except Exception as e:
+        error_msg = str(e)
+        print(f"Database connection error: {error_msg}")
+        return jsonify({
+            "status": "error",
+            "message": "Database connection failed",
+            "error": error_msg,
+            "config": {
+                "host": DB_HOST,
+                "user": DB_USER,
+                "database": DB_NAME,
+            }
+        }), 500
 
 @app.route("/students/<int:id>", methods=["GET"])
 def get_student(id):

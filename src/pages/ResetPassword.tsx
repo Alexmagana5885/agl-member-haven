@@ -9,6 +9,8 @@ import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Mail, Lock, Eye, EyeOff, ShieldCheck } from "lucide-react";
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 const ResetPassword = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -35,7 +37,7 @@ const ResetPassword = () => {
     if (!email) { toast({ title: "Error", description: "Enter your email", variant: "destructive" }); return; }
     setSubmitting(true);
     try {
-      await fetch("/api/auth/reset-password", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email }) });
+      await fetch(`${API_BASE_URL}/api/auth/reset-password`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email }) });
       toast({ title: "Code Sent", description: "Check your email for the verification code" });
       setOtpOpen(true);
     } catch {
@@ -49,7 +51,7 @@ const ResetPassword = () => {
     if (otp.length < 6) { toast({ title: "Error", description: "Enter the full 6-digit code", variant: "destructive" }); return; }
     setSubmitting(true);
     try {
-      const res = await fetch("/api/auth/verify-code", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, code: otp }) });
+      const res = await fetch(`${API_BASE_URL}/api/auth/verify-code`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, code: otp }) });
       if (!res.ok) throw new Error();
       setOtpOpen(false);
       setStep("newPassword");
@@ -67,7 +69,7 @@ const ResetPassword = () => {
     if (newPassword !== confirmPassword) { toast({ title: "Mismatch", description: "Passwords do not match", variant: "destructive" }); return; }
     setSubmitting(true);
     try {
-      await fetch("/api/auth/set-new-password", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, password: newPassword, code: otp }) });
+      await fetch(`${API_BASE_URL}/api/auth/set-new-password`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, password: newPassword, code: otp }) });
       toast({ title: "Success", description: "Password reset successfully" });
       navigate("/login");
     } catch {
