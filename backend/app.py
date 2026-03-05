@@ -12,11 +12,11 @@ app = Flask(__name__)
 # CORS configuration
 CORS(app, supports_credentials=True, origins=["http://localhost:5173", "http://localhost:3000"])
 
-# Database configuration variables (override with environment variables in production)
-DB_HOST = os.environ.get("DB_HOST", "localhost")
-DB_USER = os.environ.get("DB_USER", "rke_adminM")
-DB_PASSWORD = os.environ.get("DB_PASSWORD", "Mex#588599")
-DB_NAME = os.environ.get("DB_NAME", "aglorke_agldatabase")
+# Database configuration variables (read from .env)
+DB_HOST = os.environ.get("DB_HOST")
+DB_USER = os.environ.get("DB_USER")
+DB_PASSWORD = os.environ.get("DB_PASSWORD")
+DB_NAME = os.environ.get("DB_NAME")
 
 # Session configuration
 app.config['SESSION_TYPE'] = 'filesystem'
