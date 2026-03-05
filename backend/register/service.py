@@ -8,11 +8,11 @@ from werkzeug.utils import secure_filename
 
 
 def get_db_connection():
-    """Return a new MySQL connection using configuration variables."""
-    DB_HOST = os.environ.get("DB_HOST", "localhost")
-    DB_USER = os.environ.get("DB_USER", "rke_adminM")
-    DB_PASSWORD = os.environ.get("DB_PASSWORD", "Mex#588599")
-    DB_NAME = os.environ.get("DB_NAME", "aglorke_agldatabase")
+    """Return a new MySQL connection using configuration variables from .env."""
+    DB_HOST = os.environ.get("DB_HOST")
+    DB_USER = os.environ.get("DB_USER")
+    DB_PASSWORD = os.environ.get("DB_PASSWORD")
+    DB_NAME = os.environ.get("DB_NAME")
     
     return mysql.connector.connect(
         host=DB_HOST,
