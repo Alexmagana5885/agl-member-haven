@@ -58,7 +58,7 @@ const RegisterIndividual = () => {
         else if (typeof v === "boolean") fd.append(k, String(v));
         else if (v) fd.append(k, v as string);
       });
-      await fetch("API_BASE_URL/api/auth/register/individual", { method: "POST", body: fd });
+      await fetch(`${API_BASE_URL}/api/auth/register/individual`, { method: "POST", body: fd });
       toast({ title: "Registration Successful", description: "You can now log in" });
       navigate("/login");
     } catch {
