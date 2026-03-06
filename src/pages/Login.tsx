@@ -25,17 +25,24 @@ const Login = () => {
       toast({ title: "Error", description: "Please fill in all fields", variant: "destructive" });
       return;
     }
+    
+    const payload = { email, password, memberType };
+    console.log("[LOGIN] Payload being sent to backend:", payload);
+    
     setSubmitting(true);
     try {
+      console.log("[LOGIN] Sending request to:", `${API_BASE_URL}/api/auth/login`);
       const res = await fetch(`${API_BASE_URL}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, memberType }),
+        body: JSON.stringify(payload),
       });
+      console.log("[LOGIN] Response status:", res.status);
       if (!res.ok) throw new Error("Login failed");
       toast({ title: "Success", description: "Logged in successfully" });
       navigate("/");
-    } catch {
+    } catch (err) {
+      console.error("[LOGIN] Error:", err);
       toast({ title: "Error", description: "Invalid email or password", variant: "destructive" });
     } finally {
       setSubmitting(false);
