@@ -9,16 +9,18 @@ from werkzeug.utils import secure_filename
 
 def get_db_connection():
     """Return a new MySQL connection using configuration variables from .env."""
-    DB_HOST = os.environ.get("DB_HOST")
-    DB_USER = os.environ.get("DB_USER")
-    DB_PASSWORD = os.environ.get("DB_PASSWORD")
-    DB_NAME = os.environ.get("DB_NAME")
+    # Use environment variables or sensible defaults
+    db_host = os.environ.get("DB_HOST") or "127.0.0.1"
+    db_user = os.environ.get("DB_USER") or "root"
+    db_password = os.environ.get("DB_PASSWORD") or ""
+    db_name = os.environ.get("DB_NAME") or "locagldatabase"
     
     return mysql.connector.connect(
-        host=DB_HOST,
-        user=DB_USER,
-        password=DB_PASSWORD,
-        database=DB_NAME,
+        host=db_host,
+        port=3306,
+        user=db_user,
+        password=db_password,
+        database=db_name,
     )
 
 

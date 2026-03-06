@@ -37,11 +37,18 @@ app.register_blueprint(register_bp)
 
 def get_db_connection():
     """Return a new MySQL connection using configuration variables."""
+    # Use environment variables or sensible defaults
+    db_host = os.environ.get("DB_HOST") or "127.0.0.1"
+    db_user = os.environ.get("DB_USER") or "root"
+    db_password = os.environ.get("DB_PASSWORD") or ""
+    db_name = os.environ.get("DB_NAME") or "locagldatabase"
+    
     return mysql.connector.connect(
-        host=DB_HOST,
-        user=DB_USER,
-        password=DB_PASSWORD,
-        database=DB_NAME,
+        host=db_host,
+        port=3306,
+        user=db_user,
+        password=db_password,
+        database=db_name,
     )
 
 
@@ -121,4 +128,4 @@ def portal():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, use_reloader=False)

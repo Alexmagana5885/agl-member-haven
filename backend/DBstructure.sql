@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.2
+-- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Host: localhost:3306
--- Generation Time: Mar 02, 2026 at 02:34 PM
--- Server version: 10.11.14-MariaDB-cll-lve
--- PHP Version: 8.4.17
+-- Host: 127.0.0.1
+-- Generation Time: Mar 06, 2026 at 10:31 PM
+-- Server version: 10.4.32-MariaDB
+-- PHP Version: 8.0.30
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `aglorke_agldatabase`
+-- Database: `locagldatabase`
 --
 
 -- --------------------------------------------------------
