@@ -39,8 +39,12 @@ def authenticate_user(email, password, user_type="individual"):
     try:
         logger.debug(f"authenticate_user() called for: {email} ({user_type})")
         
-        conn = get_db_connection()
-        logger.debug(f"Database connection established")
+        try:
+            conn = get_db_connection()
+            logger.debug(f"Database connection established")
+        except Exception as db_err:
+            logger.error(f"Database connection failed: {str(db_err)}")
+            raise Exception(f"Database connection failed: {str(db_err)}")
         cursor = conn.cursor(dictionary=True)
         
         if user_type == "organization":
