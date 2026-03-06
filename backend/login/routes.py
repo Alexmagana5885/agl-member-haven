@@ -29,15 +29,24 @@ def login():
     logger.info("LOGIN REQUEST INITIATED")
     logger.info("=" * 60)
     
-    data = request.get_json()
+    try:
+        data = request.get_json()
+    except Exception as e:
+        logger.error(f"Failed to parse JSON: {str(e)}")
+        return jsonify({"status": "error", "message": "Invalid JSON"}), 400
     
     if not data:
         logger.warning("Login attempt failed: No data provided in request")
+        logger.info(f"Request headers: {dict(request.headers)}")
         return jsonify({"status": "error", "message": "No data provided"}), 400
+    
+    logger.info(f"Received data: {data}")
     
     email = data.get('email')
     password = data.get('password')
-    user_type = data.get('userType', 'individual')
+    user_type = data.get('memberType', data.get('userType', 'individual'))
+    
+    logger.info(f"Extracted - email: {email}, user_type: {user_type}, password_provided: {bool(password)}")
     
     logger.debug(f"Email: {email}")
     logger.debug(f"User Type: {user_type}")
@@ -55,7 +64,11 @@ def login():
     logger.info(f"Attempting to authenticate user: {email} as {user_type}")
     
     # Authenticate user
-    user = authenticate_user(email, password, user_type)
+    try:
+        user = authenticate_user(email, password, user_type)
+    except Exception as e:
+        logger.error(f"Exception during authentication: {str(e)}")
+        return jsonify({"status": "error", "message": "Authentication failed", "error": str(e)}), 500
     
     if not user:
         logger.warning(f"Authentication failed for {email} ({user_type}): Invalid credentials")
