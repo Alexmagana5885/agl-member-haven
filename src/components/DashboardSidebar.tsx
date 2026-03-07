@@ -50,6 +50,7 @@ import {
   type BlogPayload,
   type MessagePayload,
 } from "@/services/api";
+import AGLlogo from "@/components/payments/AGLlogo.png";
 
 const mainNav = [
   { title: "Home", url: "/dashboard", icon: Home },
@@ -121,14 +122,9 @@ export function DashboardSidebar() {
       <Sidebar collapsible="icon" className="border-r-0">
         <SidebarHeader className="p-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-sidebar-accent font-display text-lg font-bold text-sidebar-accent-foreground">
-              A
-            </div>
+            <img src={AGLlogo} alt="AGL Logo" className="h-10 w-10 shrink-0 rounded-lg object-contain" />
             {!collapsed && (
-              <div className="flex flex-col">
-                <span className="font-display text-sm font-bold text-sidebar-primary">AGL</span>
-                <span className="text-xs text-sidebar-muted">Govt Librarians</span>
-              </div>
+              <span className="font-display text-sm font-bold text-sidebar-primary">AGL</span>
             )}
           </div>
         </SidebarHeader>
@@ -218,7 +214,12 @@ export function DashboardSidebar() {
             <SidebarMenuItem>
               <SidebarMenuButton
                 tooltip="Logout"
-                className="text-sidebar-foreground hover:bg-destructive hover:text-destructive-foreground transition-colors"
+                onClick={() => {
+                  sessionStorage.clear();
+                  localStorage.clear();
+                  navigate("/");
+                }}
+                className="text-sidebar-foreground hover:bg-destructive hover:text-destructive-foreground transition-colors cursor-pointer"
               >
                 <LogOut className="h-4 w-4" />
                 <span>Logout</span>

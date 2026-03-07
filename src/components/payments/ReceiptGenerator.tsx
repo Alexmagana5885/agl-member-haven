@@ -21,13 +21,28 @@ export const generateReceipt = (payment: PaymentData) => {
   // Header
   doc.setFillColor(30, 64, 120);
   doc.rect(0, 0, pageWidth, 40, "F");
+
+  // Add logo on the left
+  try {
+    const img = new Image();
+    img.src = new URL("./AGLlogo.png", import.meta.url).href;
+    doc.addImage(img, "PNG", 10, 5, 30, 30);
+  } catch {
+    // fallback: text if image fails
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "bold");
+    doc.text("AGL", 20, 24);
+  }
+
+  // Text on the right
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(22);
   doc.setFont("helvetica", "bold");
-  doc.text("PAYMENT RECEIPT", pageWidth / 2, 22, { align: "center" });
+  doc.text("PAYMENT RECEIPT", pageWidth - 15, 20, { align: "right" });
   doc.setFontSize(10);
   doc.setFont("helvetica", "normal");
-  doc.text(`Receipt #${payment.paymentCode}`, pageWidth / 2, 32, { align: "center" });
+  doc.text(`Receipt #${payment.paymentCode}`, pageWidth - 15, 30, { align: "right" });
 
   // Reset text color
   doc.setTextColor(50, 50, 50);
