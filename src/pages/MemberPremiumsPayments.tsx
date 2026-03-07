@@ -104,7 +104,7 @@ const MemberPaymentsPage = () => {
         <Button
           variant="outline"
           size="sm"
-          onClick={() => navigate("/")}
+          onClick={() => navigate("/dashboard")}
           className="gap-2"
         >
           <ArrowLeft className="h-4 w-4" /> Back to Dashboard
@@ -164,7 +164,7 @@ const MemberPaymentsPage = () => {
                       <td className="py-3 font-medium text-foreground">
                         {m.registrationFee}
                       </td>
-                      <td className="py-3 font-muted-medium text-foreground">
+                      <td className="py-3 font-medium text-muted-foreground">
                         {m.premiumFee}
                       </td>
                       <td className="py-3 font-medium text-foreground">
