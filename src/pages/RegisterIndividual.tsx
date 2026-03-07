@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, ArrowRight, Eye, EyeOff, Upload, CheckCircle2 } from "lucide-react";
+import AuthHeader from "@/components/AuthHeader";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const steps = ["Personal Details", "Education", "Professional", "Security", "Review & Agree"];
@@ -82,10 +83,12 @@ const RegisterIndividual = () => {
   );
 
   return (
-    <div className="min-h-screen bg-background flex items-start justify-center py-8 px-4">
+    <div className="min-h-screen bg-background flex flex-col">
+      <AuthHeader />
+      <div className="flex-1 flex items-start justify-center py-8 px-4">
       <Card className="w-full max-w-2xl">
         <CardHeader>
-          <button onClick={() => navigate("/login")} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-4">
+          <button onClick={() => navigate("/")} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-4">
             <ArrowLeft className="h-4 w-4" /> Back to Login
           </button>
           <CardTitle style={{ fontFamily: "var(--font-display)" }}>Individual Registration</CardTitle>
@@ -224,6 +227,7 @@ const RegisterIndividual = () => {
           </div>
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 };
