@@ -34,6 +34,7 @@ const MemberPaymentsPage = () => {
   const [payments, setPayments] = useState<MemberPayment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     fetchPayments();
@@ -132,6 +133,8 @@ const MemberPaymentsPage = () => {
                 <input
                   type="text"
                   placeholder="Search using Payment Code, Member name or Member email"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full border border-border rounded-md px-3 py-1.5 text-sm bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
@@ -174,7 +177,16 @@ const MemberPaymentsPage = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {payments.map((m, i) => (
+                    {payments.filter((m) => {
+                      if (!searchTerm.trim()) return true;
+                      const term = searchTerm.toLowerCase();
+                      return (
+                        m.name.toLowerCase().includes(term) ||
+                        m.contacts.email.toLowerCase().includes(term) ||
+                        m.paymentCode.toLowerCase().includes(term) ||
+                        m.paymentNumber.toLowerCase().includes(term)
+                      );
+                    }).map((m, i) => (
                       <tr
                         key={m.id}
                         className="border-b border-border/50 hover:bg-accent/30 transition-colors"

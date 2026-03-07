@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Mail, Lock, Eye, EyeOff, ShieldCheck } from "lucide-react";
+import AuthHeader from "@/components/AuthHeader";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -80,7 +81,9 @@ const ResetPassword = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-6">
+    <div className="min-h-screen flex flex-col bg-background">
+      <AuthHeader />
+      <div className="flex-1 flex items-center justify-center p-6">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center space-y-2">
           <div className="mx-auto h-12 w-12 rounded-full bg-accent flex items-center justify-center mb-2">
@@ -163,6 +166,7 @@ const ResetPassword = () => {
           <Button onClick={handleVerifyCode} className="w-full" disabled={submitting}>{submitting ? "Verifying..." : "Verify Code"}</Button>
         </DialogContent>
       </Dialog>
+      </div>
     </div>
   );
 };
