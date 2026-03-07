@@ -1,8 +1,9 @@
 """Authentication logic and session management."""
+
 import logging
 import mysql.connector
-import bcrypt
 import os
+from werkzeug.security import check_password_hash
 
 # Configure logger
 logger = logging.getLogger(__name__)
@@ -10,166 +11,133 @@ logger.setLevel(logging.DEBUG)
 
 
 def get_db_connection():
-    """Return a new MySQL connection using configuration variables from .env."""
-    # Use environment variables or sensible defaults
-    db_host = os.environ.get("DB_HOST") or "127.0.0.1"
-    db_user = os.environ.get("DB_USER") or "root"
-    db_password = os.environ.get("DB_PASSWORD") or ""
-    db_name = os.environ.get("DB_NAME") or "locagldatabase"
+    """Create and return a MySQL database connection."""
     
-    print(f"[DB] Connecting to: host={db_host}, user={db_user}, db={db_name}")
-    
+    db_host = os.environ.get("DB_HOST", "127.0.0.1")
+    db_user = os.environ.get("DB_USER", "root")
+    db_password = os.environ.get("DB_PASSWORD", "")
+    db_name = os.environ.get("DB_NAME", "locagldatabase")
+
     try:
         conn = mysql.connector.connect(
             host=db_host,
             port=3306,
             user=db_user,
             password=db_password,
-            database=db_name,
+            database=db_name
         )
-        print(f"[DB] Connection SUCCESSFUL")
+        logger.debug("Database connection successful")
         return conn
+
     except mysql.connector.Error as err:
-        print(f"[DB] Connection FAILED: {err}")
+        logger.error(f"Database connection failed: {err}")
         raise
 
 
 def authenticate_user(email, password, user_type="individual"):
     """
-    Authenticate a user and return user data if credentials are valid.
-    
+    Authenticate a user.
+
     Args:
-        email (str): User email
-        password (str): User password (plain text)
-        user_type (str): Either "individual" or "organization"
-    
+        email (str)
+        password (str)
+        user_type (str) individual | organization
+
     Returns:
-        dict: User data if authentication successful, None otherwise
+        dict | None
     """
-    print(f"[AUTH] Starting authentication for: {email}, type: {user_type}")
+
+    logger.debug(f"Authentication attempt: {email} ({user_type})")
+
     try:
-        logger.debug(f"authenticate_user() called for: {email} ({user_type})")
-        
-        try:
-            print(f"[AUTH] Attempting database connection...")
-            conn = get_db_connection()
-            print(f"[AUTH] Database connection SUCCESSFUL")
-            logger.debug(f"Database connection established")
-        except Exception as db_err:
-            print(f"[AUTH] Database connection FAILED: {str(db_err)}")
-            logger.error(f"Database connection failed: {str(db_err)}")
-            raise Exception(f"Database connection failed: {str(db_err)}")
-        
-        print(f"[AUTH] Querying database...")
+        conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
-        
+
+        # Select correct table
         if user_type == "organization":
             table = "organizationmembership"
             email_column = "organization_email"
         else:
             table = "personalmembership"
             email_column = "email"
-        
-        print(f"[AUTH] Table: {table}, Column: {email_column}")
-        logger.debug(f"Querying {table} table for email: {email}")
-        sql = f"SELECT id, {email_column} as email, password FROM {table} WHERE {email_column} = %s"
+
+        sql = f"""
+        SELECT id, {email_column} AS email, password
+        FROM {table}
+        WHERE {email_column} = %s
+        """
+
         cursor.execute(sql, (email,))
         user = cursor.fetchone()
-        
-        print(f"[AUTH] Query result: {user}")
+
         cursor.close()
         conn.close()
-        
-        if not user:
-            print(f"[AUTH] No user found in {table} with {email_column}: {email}")
-            logger.warning(f"No user found in {table} with {email_column}: {email}")
-            return None
-        
-        print(f"[AUTH] User found with ID: {user['id']}")
-        logger.debug(f"User found in database with ID: {user['id']}")
-        logger.debug(f"Verifying password hash")
-        
-        print(f"[AUTH] Verifying password hash...")
-        stored_hash = user['password']
-        
-        # Debug: print what we're working with
-        print(f"[AUTH] Stored hash prefix: {stored_hash[:7]}")
 
-        if stored_hash.startswith('$2y$'):
-            stored_hash = stored_hash.replace('$2y$', '$2b$', 1)
-        
-        # Use bcrypt directly for password verification
-        # bcrypt.checkpw expects bytes for both password and hash
-        password_bytes = password.encode('utf-8')
-        hash_bytes = stored_hash.encode('utf-8')
-        
-        print(f"[AUTH] About to check password with bcrypt...")
-        
+        if not user:
+            logger.warning(f"No user found: {email}")
+            return None
+
+        stored_hash = user["password"]
+
+        if not stored_hash:
+            logger.warning("User has no password stored")
+            return None
+
+        # Debug: Log the hash format
+        logger.debug(f"Stored hash format: {stored_hash[:30]}...")
+        logger.debug(f"Password received: {password}")
+
+        # Verify password using werkzeug (supports PBKDF2, scrypt, bcrypt, and other hash formats)
         try:
-            if bcrypt.checkpw(password_bytes, hash_bytes):
-                print(f"[AUTH] Password verification SUCCESSFUL for {email}")
-                logger.info(f"Password verification successful for {email}")
-                # Remove password from returned data
-                user_data = {
-                    'id': user['id'],
-                    'email': user['email'],
-                    'type': user_type
+            password_valid = check_password_hash(stored_hash, password)
+            logger.debug(f"Password verification result: {password_valid}")
+            if password_valid:
+                logger.info(f"Authentication successful for {email}")
+                return {
+                    "id": user["id"],
+                    "email": user["email"],
+                    "type": user_type
                 }
-                print(f"[AUTH] Returning user data: {user_data}")
-                return user_data
-            else:
-                print(f"[AUTH] Password verification FAILED for {email}")
-                logger.warning(f"Password verification failed for {email} - incorrect password")
-                return None
-        except Exception as bcrypt_error:
-            print(f"[AUTH] Bcrypt error: {str(bcrypt_error)}")
-            raise
-        
+        except Exception as e:
+            logger.error(f"Password verification error: {str(e)}")
+            logger.error(f"Hash type detected: {stored_hash.split('$')[0] if '$' in stored_hash else 'unknown'}")
+            return None
+
+        logger.warning(f"Invalid password for {email}")
+        return None
+
     except Exception as e:
-        print(f"[AUTH] ERROR during authentication: {str(e)}")
-        logger.error(f"Error during authentication for {email}: {str(e)}")
-        print(f"Authentication error: {str(e)}")
+        logger.error(f"Authentication error for {email}: {str(e)}")
         return None
 
 
 def get_user_info(user_id, user_type="individual"):
     """
-    Fetch full user information from database.
-    
-    Args:
-        user_id (str): User ID
-        user_type (str): Either "individual" or "organization"
-    
-    Returns:
-        dict: User data
+    Get full user information from database.
     """
+
     try:
-        logger.debug(f"get_user_info() called for user_id: {user_id} ({user_type})")
-        
         conn = get_db_connection()
-        logger.debug(f"Database connection established for user info retrieval")
         cursor = conn.cursor(dictionary=True)
-        
+
         if user_type == "organization":
             sql = "SELECT * FROM organizationmembership WHERE id = %s"
         else:
             sql = "SELECT * FROM personalmembership WHERE id = %s"
-        
-        logger.debug(f"Executing query to fetch {user_type} user data")
+
         cursor.execute(sql, (user_id,))
         user = cursor.fetchone()
-        
+
         cursor.close()
         conn.close()
-        
+
         if user:
-            logger.debug(f"User information retrieved successfully for user_id: {user_id}")
+            logger.debug(f"User info retrieved for {user_id}")
         else:
-            logger.warning(f"No user information found for user_id: {user_id}")
-        
+            logger.warning(f"No user found with id {user_id}")
+
         return user
-    
+
     except Exception as e:
-        logger.error(f"Error fetching user info for user_id {user_id}: {str(e)}")
-        print(f"Error fetching user info: {str(e)}")
+        logger.error(f"Error fetching user info for {user_id}: {str(e)}")
         return None
