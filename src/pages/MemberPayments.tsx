@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { generateReceipt } from "@/components/payments/ReceiptGenerator";
 
 interface PaymentContact {
   email: string;
@@ -48,10 +49,6 @@ const MemberPaymentsPage = () => {
       }
 
       const result = await response.json();
-
-      // console.log("Full API Response:", result);
-      // console.log("Payments Array:", result.data);
-      // console.log("First Payment:", result.data?.[0]);
 
       if (result.status === "success") {
         setPayments(result.data);
@@ -125,18 +122,19 @@ const MemberPaymentsPage = () => {
         </Button>
 
         <Card className="shadow-card">
-          <CardHeader className="pb-3 flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2 font-display text-lg">
-              <CreditCard className="h-5 w-5 text-accent-foreground" />
-              Member Payments
-            </CardTitle>
-
-            <div className="w-80">
-              <input
-                type="text"
-                placeholder="Search using Payment Code, Member name or Member email"
-                className="w-full border rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-              />
+          <CardHeader className="pb-3">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <CardTitle className="flex items-center gap-2 font-display text-lg">
+                <CreditCard className="h-5 w-5 text-accent-foreground" />
+                Member Payments
+              </CardTitle>
+              <div className="w-full sm:w-80">
+                <input
+                  type="text"
+                  placeholder="Search using Payment Code, Member name or Member email"
+                  className="w-full border border-border rounded-md px-3 py-1.5 text-sm bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                />
+              </div>
             </div>
           </CardHeader>
           <CardContent>
@@ -145,32 +143,32 @@ const MemberPaymentsPage = () => {
                 No payment records found.
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
+              <div className="relative overflow-x-auto max-h-[70vh]">
+                <table className="w-full text-sm border-separate border-spacing-0">
+                  <thead className="sticky top-0 z-20 bg-background">
                     <tr className="border-b border-border text-left">
-                      <th className="pb-3 font-medium text-muted-foreground">
+                      <th className="pb-3 px-2 font-medium text-muted-foreground bg-background">
                         #
                       </th>
-                      <th className="pb-3 font-medium text-muted-foreground">
+                      <th className="pb-3 px-2 font-medium text-muted-foreground bg-background">
                         Member
                       </th>
-                      <th className="pb-3 font-medium text-muted-foreground hidden sm:table-cell">
+                      <th className="pb-3 px-2 font-medium text-muted-foreground bg-background hidden sm:table-cell">
                         Contacts
                       </th>
-                      <th className="pb-3 font-medium text-muted-foreground hidden sm:table-cell">
+                      <th className="pb-3 px-2 font-medium text-muted-foreground bg-background hidden sm:table-cell">
                         Payment Code
                       </th>
-                      <th className="pb-3 font-medium text-muted-foreground">
+                      <th className="pb-3 px-2 font-medium text-muted-foreground bg-background">
                         Payment Date
                       </th>
-                      <th className="pb-3 font-medium text-muted-foreground">
+                      <th className="pb-3 px-2 font-medium text-muted-foreground bg-background">
                         Amount
                       </th>
-                      <th className="pb-3 font-medium text-muted-foreground hidden sm:table-cell">
+                      <th className="pb-3 px-2 font-medium text-muted-foreground bg-background hidden sm:table-cell">
                         Payment Number
                       </th>
-                      <th className="pb-3 font-medium text-muted-foreground">
+                      <th className="pb-3 px-2 font-medium text-muted-foreground bg-background sticky right-0 z-30 shadow-[-4px_0_6px_-4px_rgba(0,0,0,0.1)]">
                         Action
                       </th>
                     </tr>
@@ -181,42 +179,43 @@ const MemberPaymentsPage = () => {
                         key={m.id}
                         className="border-b border-border/50 hover:bg-accent/30 transition-colors"
                       >
-                        <td className="py-3 text-muted-foreground">{i + 1}</td>
-                        <td className="py-3 font-medium text-foreground">
+                        <td className="py-3 px-2 text-muted-foreground">{i + 1}</td>
+                        <td className="py-3 px-2 font-medium text-foreground whitespace-nowrap">
                           {m.name}
                         </td>
-                        <td className="py-3 text-muted-foreground hidden sm:table-cell">
-                          <div className="flex flex-col text-xs">
+                        <td className="py-3 px-2 text-muted-foreground hidden sm:table-cell">
+                          <div className="flex flex-col text-xs whitespace-nowrap">
                             <span>{m.contacts.email}</span>
                             <span>{m.contacts.phone}</span>
                           </div>
                         </td>
-
-                        <td className="py-3 text-foreground hidden sm:table-cell">
+                        <td className="py-3 px-2 text-foreground hidden sm:table-cell whitespace-nowrap">
                           {m.paymentCode}
                         </td>
-                        <td className="py-3 text-muted-foreground">
+                        <td className="py-3 px-2 text-muted-foreground whitespace-nowrap">
                           <div className="flex flex-col items-start text-xs">
                             <span className="flex items-center gap-1">
                               <CalendarDays className="h-3 w-3" />
                               {m.paymentDate.split(",")[0]}
                             </span>
-
                             <span className="flex items-center gap-1">
                               <Clock className="h-3 w-3" />
                               {m.paymentDate.split(",")[1]?.trim()}
                             </span>
                           </div>
                         </td>
-                        <td className="py-3 font-medium text-foreground">
+                        <td className="py-3 px-2 font-medium text-foreground whitespace-nowrap">
                           {formatAmount(m.amount)}
                         </td>
-                        <td className="py-3 text-muted-foreground hidden sm:table-cell">
+                        <td className="py-3 px-2 text-muted-foreground hidden sm:table-cell whitespace-nowrap">
                           {m.paymentNumber}
                         </td>
-                        <td className="py-3">
-                          <button className="flex items-center gap-1 bg-blue-600 text-white px-3 py-1 rounded-md hover:bg-blue-700">
-                            <Download className="h-5 w-5 text-white" />
+                        <td className="py-3 px-2 sticky right-0 z-10 bg-background shadow-[-4px_0_6px_-4px_rgba(0,0,0,0.1)]">
+                          <button
+                            onClick={() => generateReceipt(m)}
+                            className="flex items-center gap-1 bg-primary text-primary-foreground px-3 py-1 rounded-md hover:bg-primary/90 text-sm whitespace-nowrap"
+                          >
+                            <Download className="h-4 w-4" />
                             Print Receipt
                           </button>
                         </td>
