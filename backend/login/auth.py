@@ -1,7 +1,7 @@
 """Authentication logic and session management."""
 import logging
 import mysql.connector
-from werkzeug.security import check_password_hash
+import bcrypt
 import os
 
 # Configure logger
@@ -90,21 +90,40 @@ def authenticate_user(email, password, user_type="individual"):
         logger.debug(f"Verifying password hash")
         
         print(f"[AUTH] Verifying password hash...")
-        if check_password_hash(user['password'], password):
-            print(f"[AUTH] Password verification SUCCESSFUL for {email}")
-            logger.info(f"Password verification successful for {email}")
-            # Remove password from returned data
-            user_data = {
-                'id': user['id'],
-                'email': user['email'],
-                'type': user_type
-            }
-            print(f"[AUTH] Returning user data: {user_data}")
-            return user_data
-        else:
-            print(f"[AUTH] Password verification FAILED for {email}")
-            logger.warning(f"Password verification failed for {email} - incorrect password")
-            return None
+        stored_hash = user['password']
+        
+        # Debug: print what we're working with
+        print(f"[AUTH] Stored hash prefix: {stored_hash[:7]}")
+
+        if stored_hash.startswith('$2y$'):
+            stored_hash = stored_hash.replace('$2y$', '$2b$', 1)
+        
+        # Use bcrypt directly for password verification
+        # bcrypt.checkpw expects bytes for both password and hash
+        password_bytes = password.encode('utf-8')
+        hash_bytes = stored_hash.encode('utf-8')
+        
+        print(f"[AUTH] About to check password with bcrypt...")
+        
+        try:
+            if bcrypt.checkpw(password_bytes, hash_bytes):
+                print(f"[AUTH] Password verification SUCCESSFUL for {email}")
+                logger.info(f"Password verification successful for {email}")
+                # Remove password from returned data
+                user_data = {
+                    'id': user['id'],
+                    'email': user['email'],
+                    'type': user_type
+                }
+                print(f"[AUTH] Returning user data: {user_data}")
+                return user_data
+            else:
+                print(f"[AUTH] Password verification FAILED for {email}")
+                logger.warning(f"Password verification failed for {email} - incorrect password")
+                return None
+        except Exception as bcrypt_error:
+            print(f"[AUTH] Bcrypt error: {str(bcrypt_error)}")
+            raise
         
     except Exception as e:
         print(f"[AUTH] ERROR during authentication: {str(e)}")

@@ -4,3 +4,4 @@ flask-session
 mysql-connector-python
 werkzeug
 python-dotenv
+bcrypt
