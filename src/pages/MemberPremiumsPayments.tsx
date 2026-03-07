@@ -19,11 +19,9 @@ const memberPayments = [
       email: "amina.osei@email.com",
       phone: "0712345678",
     },
-    paymentCode: "MPX78421",
-    lastPayment: "10 Jan 2026",
-    amount: "Ksh 3,600",
-    PaymentNumber: "0723456789",
-    status: "Paid",
+    registrationFee: "Ksh 5,000",
+    premiumFee: "Ksh 3,600",
+    nextDue: "10 Jan 2027",
   },
   {
     name: "Prof. James Kariuki",
@@ -31,11 +29,9 @@ const memberPayments = [
       email: "j.kariuki@email.com",
       phone: "0713456789",
     },
-    paymentCode: "MPX45789",
-    lastPayment: "5 Dec 2025",
-    amount: "Ksh 7,200",
-    PaymentNumber: "0734567890",
-    status: "Paid",
+    registrationFee: "Ksh 5,000",
+    premiumFee: "Ksh 3,600",
+    nextDue: "5 Dec 2026",
   },
   {
     name: "Mary Wanjiku",
@@ -43,11 +39,9 @@ const memberPayments = [
       email: "mary.wanjiku@email.com",
       phone: "0701234567",
     },
-    paymentCode: "MPX99345",
-    lastPayment: "18 Nov 2025",
-    amount: "Ksh 3,600",
-    PaymentNumber: "0719876543",
-    status: "Paid",
+    registrationFee: "Ksh 5,000",
+    premiumFee: "Ksh 3,600",
+    nextDue: "18 Nov 2026",
   },
   {
     name: "John Odhiambo",
@@ -55,11 +49,9 @@ const memberPayments = [
       email: "j.odhiambo@email.com",
       phone: "0721122334",
     },
-    paymentCode: "MPX23891",
-    lastPayment: "2 Mar 2025",
-    amount: "Ksh 3,600",
-    PaymentNumber: "0741234567",
-    status: "Overdue",
+    registrationFee: "Ksh 5,000",
+    premiumFee: "Ksh 3,600",
+    nextDue: "2 Mar 2026",
   },
   {
     name: "Grace Muthoni",
@@ -67,11 +59,9 @@ const memberPayments = [
       email: "grace.muthoni@email.com",
       phone: "0715566778",
     },
-    paymentCode: "MPX56217",
-    lastPayment: "29 Jan 2026",
-    amount: "Ksh 3,600",
-    PaymentNumber: "0752345678",
-    status: "Paid",
+    registrationFee: "Ksh 5,000",
+    premiumFee: "Ksh 3,600",
+    nextDue: "29 Jan 2027",
   },
   {
     name: "Peter Kamau",
@@ -79,11 +69,9 @@ const memberPayments = [
       email: "p.kamau@email.com",
       phone: "0729988776",
     },
-    paymentCode: "MPX88761",
-    lastPayment: "14 Feb 2026",
-    amount: "Ksh 7,200",
-    PaymentNumber: "0763456789",
-    status: "Paid",
+    registrationFee: "Ksh 5,000",
+    premiumFee: "Ksh 3,600",
+    nextDue: "14 Feb 2027",
   },
   {
     name: "Sarah Akinyi",
@@ -91,11 +79,9 @@ const memberPayments = [
       email: "sarah.akinyi@email.com",
       phone: "0705566778",
     },
-    paymentCode: "MPX11023",
-    lastPayment: "8 Jun 2024",
-    amount: "Ksh 3,600",
-    PaymentNumber: "0784567890",
-    status: "Overdue",
+    registrationFee: "Ksh 5,000",
+    premiumFee: "Ksh 3,600",
+    nextDue: "8 Jun 2025",
   },
   {
     name: "David Mutua",
@@ -103,11 +89,9 @@ const memberPayments = [
       email: "d.mutua@email.com",
       phone: "0723344556",
     },
-    paymentCode: "MPX66342",
-    lastPayment: "20 Feb 2026",
-    amount: "Ksh 3,600",
-    PaymentNumber: "0795678901",
-    status: "Paid",
+    registrationFee: "Ksh 5,000",
+    premiumFee: "Ksh 3,600",
+    nextDue: "20 Feb 2027",
   },
 ];
 
@@ -130,7 +114,7 @@ const MemberPaymentsPage = () => {
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 font-display text-lg">
               <CreditCard className="h-5 w-5 text-accent-foreground" />
-              Member Payments
+              Member Premiums Payments
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -144,23 +128,20 @@ const MemberPaymentsPage = () => {
                     <th className="pb-3 font-medium text-muted-foreground">
                       Member
                     </th>
-                    <th className="pb-3 font-medium text-muted-foreground hidden sm:table-cell">
+                    <th className="pb-3 font-medium text-muted-foreground">
                       Contacts
                     </th>
-                    <th className="pb-3 font-medium text-muted-foreground hidden sm:table-cell">
-                      Payment Code
+                    <th className="pb-3 font-medium text-muted-foreground">
+                      Registration Fee
                     </th>
                     <th className="pb-3 font-medium text-muted-foreground">
-                      Last Payment
-                    </th>
-                    <th className="pb-3 font-medium text-muted-foreground">
-                      Amount
+                      Premium Fee
                     </th>
                     <th className="pb-3 font-medium text-muted-foreground hidden sm:table-cell">
-                      Payment Number
+                      Next Due
                     </th>
                     <th className="pb-3 font-medium text-muted-foreground">
-                      Action
+                      Action{" "}
                     </th>
                   </tr>
                 </thead>
@@ -180,21 +161,14 @@ const MemberPaymentsPage = () => {
                           <span>{m.contacts.phone}</span>
                         </div>
                       </td>
-
-                      <td className="py-3 text-foreground hidden sm:table-cell">
-                        {m.paymentCode}
+                      <td className="py-3 font-medium text-foreground">
+                        {m.registrationFee}
                       </td>
-                      <td className="py-3 text-muted-foreground">
-                        <span className="flex items-center gap-1">
-                          <CalendarDays className="h-3 w-3" />
-                          {m.lastPayment}
-                        </span>
+                      <td className="py-3 font-muted-medium text-foreground">
+                        {m.premiumFee}
                       </td>
                       <td className="py-3 font-medium text-foreground">
-                        {m.amount}
-                      </td>
-                      <td className="py-3 text-muted-foreground hidden sm:table-cell">
-                        {m.PaymentNumber}
+                        {m.nextDue}
                       </td>
                       <td className="py-3">
                         <button className="flex items-center gap-1 bg-blue-600 text-white px-3 py-1 rounded-md hover:bg-blue-700">

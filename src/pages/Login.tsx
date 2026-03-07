@@ -39,8 +39,8 @@ const Login = () => {
       });
       console.log("[LOGIN] Response status:", res.status);
       if (!res.ok) throw new Error("Login failed");
-      toast({ title: "Logged in successfully", description: "Welcome Back!!" });
-      navigate("/");
+      toast({ title: "", description: "Welcome Back!!"  });
+      navigate("/dashboard");
     } catch (err) {
       console.error("[LOGIN] Error:", err);
       toast({ title: "Invalid email or password", description: "Kindly try Again", variant: "destructive" });

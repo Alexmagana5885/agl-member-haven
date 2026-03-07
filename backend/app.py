@@ -10,7 +10,7 @@ import mysql.connector
 app = Flask(__name__)
 
 # CORS configuration
-CORS(app, supports_credentials=True, origins=["http://localhost:5173", "http://localhost:3000", "http://localhost:8080"])
+CORS(app, supports_credentials=True, origins=["http://localhost:5173", "http://localhost:3000", "http://localhost:8080", "http://localhost:8081"])
 
 # Database configuration variables (read from .env)
 DB_HOST = os.environ.get("DB_HOST")
@@ -54,7 +54,7 @@ def get_db_connection():
 
 @app.route("/")
 def home():
-    return jsonify({"message": "Flask backend 11running 🚀"})
+    return jsonify({"message": "Flask backend running 🚀"})
 
 @app.route("/api/debug/db-status", methods=["GET"])
 def db_status():
