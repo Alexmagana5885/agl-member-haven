@@ -31,8 +31,10 @@ UPLOAD_DIR = os.environ.get("UPLOAD_DIR", "uploads")
 # Register blueprints
 from login.routes import login_bp
 from register.routes import register_bp
+from PortalComponents.admin.payments.memberPayments import member_payments_bp
 app.register_blueprint(login_bp)
 app.register_blueprint(register_bp)
+app.register_blueprint(member_payments_bp)
 
 
 def get_db_connection():
