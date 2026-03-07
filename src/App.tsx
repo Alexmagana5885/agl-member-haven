@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import MembersPage from "./pages/Members";
 import MemberPaymentsPage from "./pages/MemberPayments";
+import MemberPremiumsPaymentsPage from "./pages/MemberPremiumsPayments";
 import MessagesPage from "./pages/Messages";
 import PaymentInvoicesPage from "./pages/PaymentInvoices";
 import UserInformationPage from "./pages/UserInformation";
@@ -32,8 +33,9 @@ const App = () => (
           <Route path="/register/organisation" element={<RegisterOrganisation />} />
           <Route path="/dashboard" element={<Index />} />
           <Route path="/" element={<Login />} />
-          <Route path="/members" element={<MembersPage />} />
+          <Route path="/members" element={<MembersPage />} /> 
           <Route path="/member-payments" element={<MemberPaymentsPage />} />
+          <Route path="/member-Premiums-payments" element={<MemberPremiumsPaymentsPage />} />
           <Route path="/messages" element={<MessagesPage />} />
           <Route path="/payment-invoices" element={<PaymentInvoicesPage />} />
           <Route path="/user-info" element={<UserInformationPage />} />

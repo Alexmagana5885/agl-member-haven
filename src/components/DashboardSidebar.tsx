@@ -52,7 +52,7 @@ import {
 } from "@/services/api";
 
 const mainNav = [
-  { title: "Home", url: "/", icon: Home },
+  { title: "Home", url: "/dashboard", icon: Home },
   { title: "Messages", url: "/messages", icon: MessageSquare },
   { title: "Payment Invoices", url: "/payment-invoices", icon: FileText },
   { title: "User Information", url: "/user-info", icon: UserCircle },
@@ -113,6 +113,7 @@ export function DashboardSidebar() {
     { title: "Send Message", icon: Send, action: () => setActiveDialog("send-message") },
     { title: "Members", icon: Users, action: () => navigate("/members") },
     { title: "Member Payments", icon: CreditCard, action: () => navigate("/member-payments") },
+    { title: "Member Premiums Payments", icon: CreditCard, action: () => navigate("/member-Premiums-payments") },
   ];
 
   return (
