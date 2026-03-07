@@ -39,3 +39,4 @@ dist-ssr
 *.bmp
 *.tiff
 *.svg
+!AGLlogo.png
