@@ -56,6 +56,10 @@ def login():
         logger.warning(f"Login attempt failed: Missing credentials. Email: {bool(email)}, Password: {bool(password)}")
         return jsonify({"status": "error", "message": "Email and password required"}), 400
     
+    # Normalize user_type (accept both "organisation" and "organization")
+    if user_type == "organisation":
+        user_type = "organization"
+    
     # Validate user_type
     if user_type not in ['individual', 'organization']:
         logger.warning(f"Login attempt failed: Invalid user type '{user_type}'")

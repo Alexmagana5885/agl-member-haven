@@ -54,7 +54,7 @@ def get_db_connection():
 
 @app.route("/")
 def home():
-    return jsonify({"message": "Flask backend running 🚀"})
+    return jsonify({"message": "Flask backend 11running 🚀"})
 
 @app.route("/api/debug/db-status", methods=["GET"])
 def db_status():
@@ -126,6 +126,12 @@ def portal():
         }
     }), 200
 
+
+# ... all your imports and setup above ...
+
+@app.route("/error")
+def error():
+    1 / 0  # intentional error to trigger Flask web debugger
 
 if __name__ == "__main__":
     app.run(debug=True, use_reloader=False)

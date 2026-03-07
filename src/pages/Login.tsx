@@ -22,7 +22,7 @@ const Login = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) {
-      toast({ title: "Error", description: "Please fill in all fields", variant: "destructive" });
+      toast({ title: "", description: "Kindly fill in all fields", variant: "destructive" });
       return;
     }
     
@@ -39,11 +39,11 @@ const Login = () => {
       });
       console.log("[LOGIN] Response status:", res.status);
       if (!res.ok) throw new Error("Login failed");
-      toast({ title: "Success", description: "Logged in successfully" });
+      toast({ title: "Logged in successfully", description: "Welcome Back!!" });
       navigate("/");
     } catch (err) {
       console.error("[LOGIN] Error:", err);
-      toast({ title: "Error", description: "Invalid email or password", variant: "destructive" });
+      toast({ title: "Invalid email or password", description: "Kindly try Again", variant: "destructive" });
     } finally {
       setSubmitting(false);
     }
