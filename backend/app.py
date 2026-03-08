@@ -10,7 +10,7 @@ import mysql.connector
 app = Flask(__name__)
 
 # CORS configuration
-CORS(app, supports_credentials=True, origins=["http://localhost:5173", "http://localhost:3000", "http://localhost:8080", "http://localhost:8081"])
+CORS(app, supports_credentials=True, origins=["http://localhost:5173", "http://localhost:3000", "http://localhost:8080", "http://192.168.16.100:8080"])
 
 # Database configuration variables (read from .env)
 DB_HOST = os.environ.get("DB_HOST")
@@ -32,9 +32,22 @@ UPLOAD_DIR = os.environ.get("UPLOAD_DIR", "uploads")
 from login.routes import login_bp
 from register.routes import register_bp
 from PortalComponents.admin.payments.memberPayments import member_payments_bp
+from PortalComponents.payments.registration import registration_payments_bp
+from PortalComponents.payments.registration import callback_bp as registration_callback_bp
+from PortalComponents.payments.premiums import premiums_bp
+from PortalComponents.payments.premiums import callback_bp as premium_callback_bp
+from PortalComponents.payments.events import events_bp
+from PortalComponents.payments.events import callback_bp as events_callback_bp
+
 app.register_blueprint(login_bp)
 app.register_blueprint(register_bp)
 app.register_blueprint(member_payments_bp)
+app.register_blueprint(registration_payments_bp)
+app.register_blueprint(registration_callback_bp)
+app.register_blueprint(premiums_bp)
+app.register_blueprint(premium_callback_bp)
+app.register_blueprint(events_bp)
+app.register_blueprint(events_callback_bp)
 
 
 def get_db_connection():

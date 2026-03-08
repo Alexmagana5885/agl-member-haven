@@ -83,7 +83,13 @@ export interface PaymentPayload {
 }
 
 export function submitPayment(data: PaymentPayload) {
-  return postData("/payments/mpesa", data);
+  // Use separate endpoints for fee and premium payments
+  const endpoint = data.type === "fee" ? "/payments/register-fee" : "/payments/register-premium";
+  return postData(endpoint, {
+    email: data.email,
+    phone: data.phone,
+    amount: data.amount
+  });
 }
 
 // ─── Event Registration Endpoint ───
