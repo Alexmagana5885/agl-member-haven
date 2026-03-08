@@ -11,8 +11,8 @@ import { submitPayment } from "@/services/api";
 type PaymentType = "fee" | "premium" | null;
 
 const paymentInfo = {
-  fee: { amount: "3,600", label: "annual membership fees" },
-  premium: { amount: "7,200", label: "membership premium" },
+  fee: { amount: "1", label: "membership registration fees" },
+  premium: { amount: "3600", label: "annual membership premium" },
 };
 
 export function MembershipSection() {

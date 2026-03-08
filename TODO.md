@@ -1,35 +1,40 @@
-# TODO: Member Payments Feature Implementation
+# TODO: Planned Events Registration Logic
 
 ## Task
-For MemberPayments.tsx, fetch payment records from the database using the tables defined in DBstructure.sql.
+Create registration logic for Planned Events in backend\PortalComponents\payments\events with STK Push payment integration.
 
 ## Steps
 
-### Step 1: Create backend API routes
-- [x] Read and understand DBstructure.sql (member_payments, personalmembership, organizationmembership tables)
-- [x] Create backend/PortalComponents/admin/payments/memberPayments/routes.py
-  - Query member_payments table
-  - Join with personalmembership (WHERE personalmembership.email = member_payments.member_email)
-  - Join with organizationmembership (WHERE organizationmembership.organization_email = member_payments.member_email)
-  - Return unified dataset with:
-    - Name: personalmembership.name OR organizationmembership.organization_name
-    - Email: personalmembership.email OR organizationmembership.organization_email
-    - Phone: personalmembership.phone OR organizationmembership.contact_phone_number
-    - Payment Number: member_payments.phone_number
-    - Payment Date: member_payments.timestamp (format: date and time excluding seconds)
-    - Amount: member_payments.amount
-    - Payment Code: member_payments.payment_code
-- [x] Create backend/PortalComponents/admin/payments/memberPayments/__init__.py
+### Step 1: Create events module directory and __init__.py
+- [x] Understand the task requirements
+- [x] Review existing payment modules (registration, premiums)
+- [x] Review database structure (plannedevent, event_registrations, eventregcheckout tables)
+- [x] Create `backend/PortalComponents/payments/events/__init__.py`
 
-### Step 2: Register blueprint in app.py
-- [x] Import the new member_payments_bp
-- [x] Register the blueprint in app.py
+### Step 2: Create routes.py for event registration
+- [x] Create STK push initiation logic for event payments
+- [x] Handle free events (amount = 0) - direct registration
+- [x] Handle paid events - initiate STK push
+- [x] Check for duplicate registrations
+- [x] Save checkout request to eventregcheckout table
 
-### Step 3: Update frontend MemberPayments.tsx
-- [x] Replace hardcoded data with API fetch call
-- [x] Map the unified dataset to the table structure
+### Step 3: Create callback.py for payment confirmation
+- [x] Process M-Pesa STK callback
+- [x] On successful payment: insert into event_registrations
+- [x] Send confirmation email
+- [x] Handle failed transactions
 
-### Step 4: Test the implementation
-- [x] Run backend server - Import successful
-- [x] Verify frontend build - Built successfully
+### Step 4: Update app.py to register blueprints
+- [x] Import event blueprints
+- [x] Register blueprints in Flask app
+
+## Dependencies
+- Reuses accessToken.py from registration module
+- Uses same database connection pattern as other payment modules
+- Uses same email sending pattern
+
+## Follow-up Steps
+- Test the endpoints
+- Configure callback URL for M-Pesa
+- Verify database tables exist
 
