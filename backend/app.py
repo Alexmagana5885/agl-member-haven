@@ -32,6 +32,7 @@ UPLOAD_DIR = os.environ.get("UPLOAD_DIR", "uploads")
 from login.routes import login_bp
 from register.routes import register_bp
 from PortalComponents.admin.payments.memberPayments import member_payments_bp
+from PortalComponents.admin.payments.membersPremiumsPayments import member_premiums_payments_bp
 from PortalComponents.payments.registration import registration_payments_bp
 from PortalComponents.payments.registration import callback_bp as registration_callback_bp
 from PortalComponents.payments.premiums import premiums_bp
@@ -42,6 +43,7 @@ from PortalComponents.payments.events import callback_bp as events_callback_bp
 app.register_blueprint(login_bp)
 app.register_blueprint(register_bp)
 app.register_blueprint(member_payments_bp)
+app.register_blueprint(member_premiums_payments_bp)
 app.register_blueprint(registration_payments_bp)
 app.register_blueprint(registration_callback_bp)
 app.register_blueprint(premiums_bp)
