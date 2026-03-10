@@ -64,13 +64,41 @@ export function createBlog(data: BlogPayload) {
 }
 
 export interface MessagePayload {
-  recipient: string;
+  recipient_group: {
+    type: "all_members" | "officials" | "specific_recipients";
+    recipients?: string[]; // Only for specific_recipients
+  };
   subject: string;
   message: string;
+  sender_name?: string;
+  sender_email?: string;
 }
 
 export function sendMessage(data: MessagePayload) {
   return postData("/admin/messages", data);
+}
+
+// ─── Member Search for Autocomplete ───
+
+export interface MemberSearchResult {
+  id: string;
+  member_name: string;
+  email: string;
+  member_type: "personal" | "organization";
+}
+
+export async function searchMembers(query: string): Promise<MemberSearchResult[]> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/admin/messages/members/search?q=${encodeURIComponent(query)}&limit=20`);
+    if (!response.ok) {
+      throw new Error(`Request failed with status ${response.status}`);
+    }
+    const data = await response.json();
+    return data.members || [];
+  } catch (error) {
+    console.error("API Error [searchMembers]:", error);
+    throw error;
+  }
 }
 
 // ─── Payment Endpoints ───

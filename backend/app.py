@@ -40,6 +40,12 @@ from PortalComponents.payments.premiums import callback_bp as premium_callback_b
 from PortalComponents.payments.events import events_bp
 from PortalComponents.payments.events import callback_bp as events_callback_bp
 
+# NEW: Events, Blogs, and Communications blueprints
+from PortalComponents.events.pastEvents import past_events_bp
+from PortalComponents.events.comingEvents import planned_events_bp
+from PortalComponents.blogs import blogs_bp
+from PortalComponents.communications import communications_bp
+
 app.register_blueprint(login_bp)
 app.register_blueprint(register_bp)
 app.register_blueprint(member_payments_bp)
@@ -50,6 +56,12 @@ app.register_blueprint(premiums_bp)
 app.register_blueprint(premium_callback_bp)
 app.register_blueprint(events_bp)
 app.register_blueprint(events_callback_bp)
+
+# NEW: Register events, blogs, and communications blueprints
+app.register_blueprint(past_events_bp)
+app.register_blueprint(planned_events_bp)
+app.register_blueprint(blogs_bp)
+app.register_blueprint(communications_bp)
 
 
 def get_db_connection():
