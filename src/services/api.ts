@@ -66,7 +66,7 @@ export function createBlog(data: BlogPayload) {
 export interface MessagePayload {
   recipient_group: {
     type: "all_members" | "officials" | "specific_recipients";
-    recipients?: string[]; // Only for specific_recipients
+    recipients?: string[];
   };
   subject: string;
   message: string;
@@ -101,6 +101,42 @@ export async function searchMembers(query: string): Promise<MemberSearchResult[]
   }
 }
 
+// ─── User Messages Endpoints ───
+
+export interface UserMessage {
+  id: number;
+  sender_name: string;
+  sender_email: string;
+  recipient_group: string;
+  subject: string;
+  message: string;
+  date_sent: string;
+  has_replied: boolean;
+}
+
+export async function getUserMessages(): Promise<UserMessage[]> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/admin/messages/my-messages`);
+    if (!response.ok) {
+      throw new Error(`Request failed with status ${response.status}`);
+    }
+    const data = await response.json();
+    return data.messages || [];
+  } catch (error) {
+    console.error("API Error [getUserMessages]:", error);
+    throw error;
+  }
+}
+
+export interface ReplyPayload {
+  message_id: number;
+  message: string;
+}
+
+export async function replyToMessage(data: ReplyPayload) {
+  return postData("/admin/messages/reply", data);
+}
+
 // ─── Payment Endpoints ───
 
 export interface PaymentPayload {
@@ -111,7 +147,6 @@ export interface PaymentPayload {
 }
 
 export function submitPayment(data: PaymentPayload) {
-  // Use separate endpoints for fee and premium payments
   const endpoint = data.type === "fee" ? "/payments/register-fee" : "/payments/register-premium";
   return postData(endpoint, {
     email: data.email,

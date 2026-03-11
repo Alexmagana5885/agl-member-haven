@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Home,
@@ -52,6 +52,16 @@ import {
 } from "@/services/api";
 import AGLlogo from "@/components/payments/AGLlogo.png";
 
+// Interface for user session data
+interface UserSession {
+  id: string;
+  email: string;
+  type: string;
+  name: string;
+  is_official: boolean;
+  member_type: string;
+}
+
 const mainNav = [
   { title: "Home", url: "/dashboard", icon: Home },
   { title: "Messages", url: "/messages", icon: MessageSquare },
@@ -78,8 +88,25 @@ export function DashboardSidebar() {
   const [adminOpen, setAdminOpen] = useState(false);
   const [activeDialog, setActiveDialog] = useState<AdminDialog>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [isOfficial, setIsOfficial] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Check if user is official on mount
+  useEffect(() => {
+    const checkUserSession = async () => {
+      try {
+        const response = await fetch("/api/auth/session");
+        const data = await response.json();
+        if (data.status === "success" && data.user) {
+          setIsOfficial(data.user.is_official || false);
+        }
+      } catch (error) {
+        console.error("Error checking session:", error);
+      }
+    };
+    checkUserSession();
+  }, []);
 
   const [plannedEvent, setPlannedEvent] = useState(emptyPlannedEvent);
   const [pastEvent, setPastEvent] = useState(emptyPastEvent);
@@ -107,14 +134,23 @@ export function DashboardSidebar() {
     }
   };
 
+  // Admin items - only for officials (Send Message removed from here)
   const adminItems = [
     { title: "Planned Events", icon: CalendarDays, action: () => setActiveDialog("planned-event") },
     { title: "Past Events", icon: History, action: () => setActiveDialog("past-event") },
     { title: "New Blog", icon: PenSquare, action: () => setActiveDialog("new-blog") },
-    { title: "Send Message", icon: Send, action: () => setActiveDialog("send-message") },
     { title: "Members", icon: Users, action: () => navigate("/members") },
     { title: "Member Payments", icon: CreditCard, action: () => navigate("/member-payments") },
     { title: "Member Premiums Payments", icon: CreditCard, action: () => navigate("/member-Premiums-payments") },
+  ];
+
+  // Main navigation with Send Message added for all members
+  const mainNavWithSend = [
+    { title: "Home", url: "/dashboard", icon: Home },
+    { title: "Send Message", url: "/messages?compose=true", icon: Send },
+    { title: "Messages", url: "/messages", icon: MessageSquare },
+    { title: "Payment Invoices", url: "/payment-invoices", icon: FileText },
+    { title: "User Information", url: "/user-info", icon: UserCircle },
   ];
 
   return (
@@ -136,7 +172,7 @@ export function DashboardSidebar() {
             </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                {mainNav.map((item) => (
+                {mainNavWithSend.map((item) => (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild tooltip={item.title}>
                       <NavLink
@@ -152,22 +188,24 @@ export function DashboardSidebar() {
                   </SidebarMenuItem>
                 ))}
 
-                {/* Admin dropdown */}
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    tooltip="Admin"
-                    onClick={() => setAdminOpen(!adminOpen)}
-                    className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
-                  >
-                    <ShieldCheck className="h-4 w-4" />
-                    <span>Admin</span>
-                    {!collapsed && (
-                      <ChevronDown className={`ml-auto h-4 w-4 transition-transform ${adminOpen ? "rotate-180" : ""}`} />
-                    )}
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
+                {/* Admin dropdown - only visible to officials */}
+                {isOfficial && (
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      tooltip="Admin"
+                      onClick={() => setAdminOpen(!adminOpen)}
+                      className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
+                    >
+                      <ShieldCheck className="h-4 w-4" />
+                      <span>Admin</span>
+                      {!collapsed && (
+                        <ChevronDown className={`ml-auto h-4 w-4 transition-transform ${adminOpen ? "rotate-180" : ""}`} />
+                      )}
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                )}
 
-                {adminOpen && !collapsed && adminItems.map((item) => (
+                {isOfficial && adminOpen && !collapsed && adminItems.map((item) => (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton
                       tooltip={item.title}
