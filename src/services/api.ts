@@ -5,7 +5,27 @@ async function postData<T>(endpoint: string, data: T): Promise<{ success: boolea
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || `Request failed with status ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error(`API Error [${endpoint}]:`, error);
+    throw error;
+  }
+}
+
+async function fetchData(endpoint: string): Promise<any> {
+  try {
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      method: "GET",
+      credentials: "include",
     });
 
     if (!response.ok) {
@@ -89,7 +109,9 @@ export interface MemberSearchResult {
 
 export async function searchMembers(query: string): Promise<MemberSearchResult[]> {
   try {
-    const response = await fetch(`${API_BASE_URL}/admin/messages/members/search?q=${encodeURIComponent(query)}&limit=20`);
+    const response = await fetch(`${API_BASE_URL}/admin/messages/members/search?q=${encodeURIComponent(query)}&limit=20`, {
+      credentials: "include",
+    });
     if (!response.ok) {
       throw new Error(`Request failed with status ${response.status}`);
     }
@@ -116,7 +138,9 @@ export interface UserMessage {
 
 export async function getUserMessages(): Promise<UserMessage[]> {
   try {
-    const response = await fetch(`${API_BASE_URL}/admin/messages/my-messages`);
+    const response = await fetch(`${API_BASE_URL}/admin/messages/my-messages`, {
+      credentials: "include",
+    });
     if (!response.ok) {
       throw new Error(`Request failed with status ${response.status}`);
     }

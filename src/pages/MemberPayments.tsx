@@ -43,7 +43,7 @@ const MemberPaymentsPage = () => {
   const fetchPayments = async () => {
     try {
       setLoading(true);
-      const response = await fetch("/api/admin/payments/member-payments");
+      const response = await fetch("/api/admin/payments/member-payments", { credentials: "include" });
 
       if (!response.ok) {
         throw new Error("Failed to fetch payments");
