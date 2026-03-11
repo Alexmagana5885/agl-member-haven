@@ -96,7 +96,7 @@ export function DashboardSidebar() {
   useEffect(() => {
     const checkUserSession = async () => {
       try {
-        const response = await fetch("/api/auth/session");
+        const response = await fetch("/api/auth/session", { credentials: "include" });
         const data = await response.json();
         if (data.status === "success" && data.user) {
           setIsOfficial(data.user.is_official || false);

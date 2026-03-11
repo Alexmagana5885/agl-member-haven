@@ -35,6 +35,7 @@ const Login = () => {
       const res = await fetch(`${API_BASE_URL}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify(payload),
       });
       console.log("[LOGIN] Response status:", res.status);
