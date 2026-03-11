@@ -40,7 +40,7 @@ const BlogDetail = () => {
       <DashboardLayout>
         <div className="mx-auto max-w-3xl py-8 text-center">
           <p className="text-muted-foreground">Blog not found.</p>
-          <Button variant="outline" className="mt-4" onClick={() => navigate("/")}>
+          <Button variant="outline" className="mt-4" onClick={() => navigate("/dashboard")}>
             <ArrowLeft className="mr-2 h-4 w-4" /> Back to Dashboard
           </Button>
         </div>
@@ -51,7 +51,7 @@ const BlogDetail = () => {
   return (
     <DashboardLayout>
       <div className="mx-auto max-w-3xl space-y-6">
-        <Button variant="outline" size="sm" onClick={() => navigate("/")}>
+        <Button variant="outline" size="sm" onClick={() => navigate("/dashboard")}>
           <ArrowLeft className="mr-2 h-4 w-4" /> Back to Dashboard
         </Button>
 

@@ -7,9 +7,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, MessageSquare, Mail, CalendarDays, Send, X, Search, Users, UserCheck, User } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { ArrowLeft, MessageSquare, Mail, CalendarDays, Send, X, Search, Users, UserCheck, User, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { searchMembers, MemberSearchResult, sendMessage, MessagePayload } from "@/services/api";
+import { searchMembers, MemberSearchResult, sendMessage, MessagePayload, getUserMessages, replyToMessage, UserMessage } from "@/services/api";
 
 type RecipientType = "all_members" | "officials" | "specific_recipients";
 
@@ -21,7 +22,7 @@ interface SelectedRecipient {
 
 const MessagesPage = () => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<"compose" | "inbox">("compose");
+  const [activeTab, setActiveTab] = useState<"compose" | "inbox">("inbox");
   const [recipientType, setRecipientType] = useState<RecipientType>("all_members");
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<MemberSearchResult[]>([]);
@@ -36,20 +37,32 @@ const MessagesPage = () => {
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   
+  const [userMessages, setUserMessages] = useState<UserMessage[]>([]);
+  const [loadingMessages, setLoadingMessages] = useState(true);
+  
+  const [selectedMessage, setSelectedMessage] = useState<UserMessage | null>(null);
+  const [replyText, setReplyText] = useState("");
+  const [sendingReply, setSendingReply] = useState(false);
+  
   const searchInputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Mock messages for inbox (replace with API call in production)
-  const messages = [
-    { subject: "Annual General Meeting Notice", from: "AGL Admin", date: "20 Feb 2026", preview: "Dear members, you are invited to the upcoming AGM scheduled for March 15, 2026...", read: true },
-    { subject: "Membership Renewal Reminder", from: "Finance Dept", date: "15 Feb 2026", preview: "This is a reminder that your annual membership fee is due by March 31, 2026...", read: false },
-    { subject: "New Library Management Workshop", from: "Events Team", date: "10 Feb 2026", preview: "We are excited to announce a hands-on workshop on modern library management systems...", read: true },
-    { subject: "CPD Points Update", from: "Education Committee", date: "5 Feb 2026", preview: "Your CPD points for Q4 2025 have been updated. You currently have 45 points...", read: false },
-    { subject: "Digital Literacy Program Launch", from: "AGL Admin", date: "28 Jan 2026", preview: "We are launching a new digital literacy program for government librarians across the country...", read: true },
-    { subject: "Holiday Greetings", from: "AGL President", date: "24 Dec 2025", preview: "Season's greetings to all our esteemed members. Wishing you a wonderful holiday season...", read: true },
-  ];
+  useEffect(() => {
+    fetchUserMessages();
+  }, []);
 
-  // Handle click outside dropdown
+  const fetchUserMessages = async () => {
+    try {
+      setLoadingMessages(true);
+      const messages = await getUserMessages();
+      setUserMessages(messages);
+    } catch (error) {
+      console.error("Error fetching messages:", error);
+    } finally {
+      setLoadingMessages(false);
+    }
+  };
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -60,14 +73,12 @@ const MessagesPage = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Search members as user types
   useEffect(() => {
     const searchTimer = setTimeout(async () => {
       if (searchQuery.length >= 2 && recipientType === "specific_recipients") {
         setIsSearching(true);
         try {
           const results = await searchMembers(searchQuery);
-          // Filter out already selected recipients
           const filtered = results.filter(
             (r) => !selectedRecipients.some((sr) => sr.email === r.email)
           );
@@ -108,7 +119,6 @@ const MessagesPage = () => {
     setErrorMessage("");
     setSuccessMessage("");
 
-    // Validation
     if (recipientType === "specific_recipients" && selectedRecipients.length === 0) {
       setErrorMessage("Please select at least one recipient");
       return;
@@ -143,7 +153,6 @@ const MessagesPage = () => {
 
       if (response.success) {
         setSuccessMessage(response.message);
-        // Reset form
         setSubject("");
         setMessage("");
         setSelectedRecipients([]);
@@ -159,27 +168,37 @@ const MessagesPage = () => {
     }
   };
 
-  const getRecipientTypeLabel = (type: RecipientType) => {
-    switch (type) {
-      case "all_members":
-        return "All Members";
-      case "officials":
-        return "Officials Only";
-      case "specific_recipients":
-        return "Specific Recipients";
-      default:
-        return type;
+  const handleSendReply = async () => {
+    if (!selectedMessage || !replyText.trim()) return;
+    
+    setSendingReply(true);
+    try {
+      await replyToMessage({
+        message_id: selectedMessage.id,
+        message: replyText.trim()
+      });
+      setReplyText("");
+      setSelectedMessage(null);
+      fetchUserMessages();
+    } catch (error) {
+      console.error("Error sending reply:", error);
+    } finally {
+      setSendingReply(false);
     }
+  };
+
+  const formatDate = (dateStr: string) => {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' });
   };
 
   return (
     <DashboardLayout>
       <div className="mx-auto max-w-5xl space-y-4">
-        <Button variant="outline" size="sm" onClick={() => navigate("/")} className="gap-2">
+        <Button variant="outline" size="sm" onClick={() => navigate("/dashboard")} className="gap-2">
           <ArrowLeft className="h-4 w-4" /> Back to Dashboard
         </Button>
 
-        {/* Tab Navigation */}
         <div className="flex gap-2 mb-4">
           <Button
             variant={activeTab === "compose" ? "default" : "outline"}
@@ -193,7 +212,7 @@ const MessagesPage = () => {
             onClick={() => setActiveTab("inbox")}
             className="gap-2"
           >
-            <Mail className="h-4 w-4" /> Inbox ({messages.length})
+            <Mail className="h-4 w-4" /> Inbox ({userMessages.length})
           </Button>
         </div>
 
@@ -207,7 +226,6 @@ const MessagesPage = () => {
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Success/Error Messages */}
                 {successMessage && (
                   <div className="p-3 rounded-md bg-green-50 text-green-700 text-sm border border-green-200">
                     {successMessage}
@@ -219,7 +237,6 @@ const MessagesPage = () => {
                   </div>
                 )}
 
-                {/* Recipient Type Selection */}
                 <div className="space-y-3">
                   <Label className="text-base font-medium">Select Recipients</Label>
                   <RadioGroup
@@ -252,7 +269,6 @@ const MessagesPage = () => {
                   </RadioGroup>
                 </div>
 
-                {/* Specific Recipients Input */}
                 {recipientType === "specific_recipients" && (
                   <div className="space-y-3">
                     <Label className="text-base font-medium">Search and Select Recipients</Label>
@@ -275,7 +291,6 @@ const MessagesPage = () => {
                         )}
                       </div>
 
-                      {/* Dropdown Results */}
                       {showDropdown && searchResults.length > 0 && (
                         <div className="absolute z-10 w-full mt-1 bg-white border rounded-md shadow-lg max-h-60 overflow-auto">
                           {searchResults.map((member) => (
@@ -295,7 +310,6 @@ const MessagesPage = () => {
                       )}
                     </div>
 
-                    {/* Selected Recipients */}
                     {selectedRecipients.length > 0 && (
                       <div className="flex flex-wrap gap-2 mt-2">
                         {selectedRecipients.map((recipient) => (
@@ -323,7 +337,6 @@ const MessagesPage = () => {
                   </div>
                 )}
 
-                {/* Sender Info */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="sender_name">Sender Name</Label>
@@ -347,7 +360,6 @@ const MessagesPage = () => {
                   </div>
                 </div>
 
-                {/* Subject */}
                 <div className="space-y-2">
                   <Label htmlFor="subject">Subject</Label>
                   <Input
@@ -359,7 +371,6 @@ const MessagesPage = () => {
                   />
                 </div>
 
-                {/* Message Body */}
                 <div className="space-y-2">
                   <Label htmlFor="message">Message</Label>
                   <Textarea
@@ -371,7 +382,6 @@ const MessagesPage = () => {
                   />
                 </div>
 
-                {/* Submit Button */}
                 <div className="flex justify-end gap-2">
                   <Button
                     type="button"
@@ -405,52 +415,115 @@ const MessagesPage = () => {
             </CardContent>
           </Card>
         ) : (
-          /* Inbox View */
           <Card className="shadow-card">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 font-display text-lg">
                 <MessageSquare className="h-5 w-5 text-accent-foreground" />
-                Messages ({messages.length})
+                Messages ({userMessages.length})
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-2">
-                {messages.map((msg, i) => (
-                  <div
-                    key={i}
-                    className={`rounded-lg border p-4 transition-colors cursor-pointer hover:bg-accent/30 ${
-                      !msg.read ? "border-primary/40 bg-primary/5" : "border-border"
-                    }`}
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <h4 className={`text-sm truncate ${!msg.read ? "font-semibold text-foreground" : "font-medium text-foreground"}`}>
-                            {msg.subject}
-                          </h4>
-                          {!msg.read && (
-                            <Badge className="bg-primary text-primary-foreground text-[10px] px-1.5 py-0 shrink-0">New</Badge>
-                          )}
+              {loadingMessages ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                  <span className="ml-2">Loading messages...</span>
+                </div>
+              ) : userMessages.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  No messages found.
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {userMessages.map((msg) => (
+                    <div
+                      key={msg.id}
+                      className="rounded-lg border p-4 transition-colors cursor-pointer hover:bg-accent/30 border-border"
+                      onClick={() => setSelectedMessage(msg)}
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <h4 className="text-sm truncate font-medium text-foreground">
+                              {msg.subject}
+                            </h4>
+                          </div>
+                          <p className="text-xs text-muted-foreground mb-1.5 flex items-center gap-1">
+                            <Mail className="h-3 w-3" /> {msg.sender_name}
+                          </p>
+                          <p className="text-xs text-muted-foreground truncate">{msg.message}</p>
                         </div>
-                        <p className="text-xs text-muted-foreground mb-1.5 flex items-center gap-1">
-                          <Mail className="h-3 w-3" /> {msg.from}
-                        </p>
-                        <p className="text-xs text-muted-foreground truncate">{msg.preview}</p>
+                        <span className="text-xs text-muted-foreground whitespace-nowrap flex items-center gap-1 shrink-0">
+                          <CalendarDays className="h-3 w-3" /> {formatDate(msg.date_sent)}
+                        </span>
                       </div>
-                      <span className="text-xs text-muted-foreground whitespace-nowrap flex items-center gap-1 shrink-0">
-                        <CalendarDays className="h-3 w-3" /> {msg.date}
-                      </span>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
         )}
       </div>
+
+      <Dialog open={!!selectedMessage} onOpenChange={(open) => !open && setSelectedMessage(null)}>
+        <DialogContent className="sm:max-w-lg max-h-[80vh] flex flex-col">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <MessageSquare className="h-5 w-5" />
+              {selectedMessage?.subject}
+            </DialogTitle>
+            <DialogDescription className="flex items-center gap-2">
+              <Mail className="h-4 w-4" />
+              From: {selectedMessage?.sender_name} ({selectedMessage?.sender_email})
+              <span className="ml-auto">
+                {selectedMessage && formatDate(selectedMessage.date_sent)}
+              </span>
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="flex-1 overflow-y-auto space-y-4 p-4 bg-muted/30 rounded-lg">
+            <div className="flex justify-start">
+              <div className="max-w-[80%] rounded-lg p-4 bg-white border shadow-sm">
+                <p className="text-sm whitespace-pre-wrap">{selectedMessage?.message}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-3 pt-4 border-t">
+            <Label htmlFor="reply">Reply</Label>
+            <Textarea
+              id="reply"
+              placeholder="Type your reply..."
+              value={replyText}
+              onChange={(e) => setReplyText(e.target.value)}
+              rows={3}
+            />
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setSelectedMessage(null)}>
+                Close
+              </Button>
+              <Button 
+                onClick={handleSendReply} 
+                disabled={!replyText.trim() || sendingReply}
+              >
+                {sendingReply ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Sending...
+                  </>
+                ) : (
+                  <>
+                    <Send className="h-4 w-4 mr-2" />
+                    Send Reply
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </DashboardLayout>
   );
 };
 
 export default MessagesPage;
-

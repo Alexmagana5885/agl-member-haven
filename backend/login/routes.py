@@ -1,6 +1,10 @@
 """Login routes for authentication."""
 import logging
 from flask import Blueprint, request, jsonify, session
+from datetime import datetime
+import json
+import mysql.connector
+import os
 from .auth import authenticate_user, get_user_info
 
 # Configure logger
@@ -8,6 +12,69 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 login_bp = Blueprint('login', __name__, url_prefix='/api/auth')
+
+
+def get_db_connection():
+    """Create and return a MySQL database connection."""
+    db_host = os.environ.get("DB_HOST", "127.0.0.1")
+    db_user = os.environ.get("DB_USER", "root")
+    db_password = os.environ.get("DB_PASSWORD", "")
+    db_name = os.environ.get("DB_NAME", "locagldatabase")
+
+    try:
+        conn = mysql.connector.connect(
+            host=db_host,
+            port=3306,
+            user=db_user,
+            password=db_password,
+            database=db_name
+        )
+        return conn
+    except mysql.connector.Error as err:
+        logger.error(f"Database connection failed: {err}")
+        raise
+
+
+def check_is_official(email):
+    """Check if the user is an official member."""
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        cursor.execute("""
+            SELECT COUNT(*) FROM officialsmembers 
+            WHERE personalmembership_email = %s
+        """, (email,))
+        
+        result = cursor.fetchone()
+        cursor.close()
+        conn.close()
+        
+        return result[0] > 0 if result else False
+    except Exception as e:
+        logger.error(f"Error checking official status: {str(e)}")
+        return False
+
+
+def get_member_data(email, user_type):
+    """Get member data from personalmembership or organizationmembership."""
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        
+        if user_type == "organization":
+            cursor.execute("SELECT * FROM organizationmembership WHERE organization_email = %s", (email,))
+        else:
+            cursor.execute("SELECT * FROM personalmembership WHERE email = %s", (email,))
+        
+        member = cursor.fetchone()
+        cursor.close()
+        conn.close()
+        
+        return member
+    except Exception as e:
+        logger.error(f"Error getting member data: {str(e)}")
+        return None
 
 
 @login_bp.route('/login', methods=['POST'])
@@ -84,9 +151,35 @@ def login():
     logger.debug(f"Creating session for user ID: {user['id']}")
     session['user_id'] = user['id']
     session['user_email'] = user['email']
-    session['user_type'] = user['type']
+    session['user_type'] = user['type']  # 'individual' or 'organization'
+    session['member_type'] = user_type  # Store the actual member type used for login
     session.permanent = True
     logger.debug(f"Session created successfully")
+    
+    # Check if user is an official
+    is_official = check_is_official(email)
+    session['is_official'] = is_official
+    logger.debug(f"User official status: {is_official}")
+    
+    # Get member data and create season
+    member_data = get_member_data(email, user_type)
+    current_year = datetime.now().year
+    
+    # Get member name from member_data
+    member_name = member_data.get('name') if user_type == 'individual' else member_data.get('organization_name') if member_data else ''
+    
+    # Create season data
+    season_data = {
+        "year": current_year,
+        "member_id": user['id'],
+        "member_name": member_name,
+        "member_email": email,
+        "member_type": user_type,
+        "is_official": is_official,
+        "login_timestamp": datetime.now().isoformat()
+    }
+    session['season'] = json.dumps(season_data)
+    logger.debug(f"Season created: {season_data}")
     
     # Get full user info
     logger.debug(f"Fetching full user information for user ID: {user['id']}")
@@ -107,7 +200,9 @@ def login():
             "id": user['id'],
             "email": user['email'],
             "type": user['type'],
-            "name": user_name
+            "name": user_name,
+            "is_official": is_official,
+            "member_type": user_type
         }
     }
     
@@ -151,12 +246,23 @@ def get_session():
     
     logger.debug(f"Session info retrieved for user: {session['user_email']}")
     
+    # Parse season data if it exists
+    season_data = None
+    if session.get('season'):
+        try:
+            season_data = json.loads(session.get('season'))
+        except:
+            season_data = None
+    
     return jsonify({
         "status": "success",
         "user": {
             "id": session['user_id'],
             "email": session['user_email'],
             "type": session['user_type'],
-            "name": user_info.get('name') if session['user_type'] == 'individual' else user_info.get('organization_name')
-        }
+            "name": user_info.get('name') if session['user_type'] == 'individual' else user_info.get('organization_name'),
+            "is_official": session.get('is_official', False),
+            "member_type": session.get('member_type', session['user_type'])
+        },
+        "season": season_data
     }), 200
