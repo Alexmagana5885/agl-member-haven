@@ -1,16 +1,75 @@
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { BookOpen, ArrowRight } from "lucide-react";
-
-const blogs = [
-  { id: "0", title: "The Future of Government Libraries in Africa", desc: "Exploring how digital transformation is reshaping public knowledge infrastructure across the continent.", date: "10 Feb 2026" },
-  { id: "1", title: "Open Data and Public Access", desc: "How government librarians can champion open data initiatives and improve citizen access to information.", date: "28 Jan 2026" },
-  { id: "2", title: "Preserving National Heritage", desc: "Best practices for digitizing and preserving rare government publications and historical documents.", date: "15 Jan 2026" },
-];
+import { getBlogs } from "@/services/events";
 
 export function BlogsSection() {
+  const [blogsData, setBlogsData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const loadBlogs = async () => {
+      try {
+        setLoading(true);
+        const data = await getBlogs();
+        setBlogsData(data);
+      } catch (err) {
+        setError("Failed to load blogs");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadBlogs();
+  }, []);
+
+  if (loading) {
+    return (
+      <Card className="shadow-card">
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 font-display text-lg">
+            <BookOpen className="h-5 w-5 text-accent-foreground" />
+            Latest Blogs
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="animate-pulse space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="h-32 bg-muted rounded-lg" />
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card className="shadow-card">
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 font-display text-lg">
+            <BookOpen className="h-5 w-5 text-accent-foreground" />
+            Latest Blogs
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="text-center text-destructive">
+          {error}
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const blogs = blogsData.slice(0, 3).map((blog) => ({
+    id: blog.id.toString(),
+    title: blog.title,
+    desc: blog.content.substring(0, 100) + "...",
+    date: new Date(blog.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }),
+    image_path: blog.image_path
+  }));
 
   return (
     <Card className="shadow-card hover:shadow-card-hover transition-shadow">
@@ -32,6 +91,11 @@ export function BlogsSection() {
               </Button>
             </div>
           ))}
+          {blogs.length === 0 && (
+            <div className="col-span-full text-center py-8 text-muted-foreground">
+              No blogs available
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>
