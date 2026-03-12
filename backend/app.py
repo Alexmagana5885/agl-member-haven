@@ -58,8 +58,8 @@ app.register_blueprint(events_bp)
 app.register_blueprint(events_callback_bp)
 
 # NEW: Register events, blogs, and communications blueprints
-app.register_blueprint(past_events_bp)
-app.register_blueprint(planned_events_bp)
+from PortalComponents.events import events_bp
+app.register_blueprint(events_bp)
 app.register_blueprint(blogs_bp)
 app.register_blueprint(communications_bp)
 

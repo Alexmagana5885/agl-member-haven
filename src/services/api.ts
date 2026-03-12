@@ -125,6 +125,9 @@ export async function searchMembers(query: string): Promise<MemberSearchResult[]
 
 // ─── User Messages Endpoints ───
 
+export { fetchData };
+
+
 export interface UserMessage {
   id: number;
   sender_name: string;
