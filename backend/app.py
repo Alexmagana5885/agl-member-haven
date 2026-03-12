@@ -63,6 +63,11 @@ app.register_blueprint(planned_events_bp)
 app.register_blueprint(blogs_bp)
 app.register_blueprint(communications_bp)
 
+# User Information blueprint for profile data
+from PortalComponents.dashboard.UserInformation import user_info_bp
+app.register_blueprint(user_info_bp)
+
+
 
 def get_db_connection():
     """Return a new MySQL connection using configuration variables."""

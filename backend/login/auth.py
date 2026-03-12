@@ -5,6 +5,7 @@ import mysql.connector
 import os
 import bcrypt
 from werkzeug.security import check_password_hash
+from datetime import date
 
 # Configure logger
 logger = logging.getLogger(__name__)
@@ -172,3 +173,83 @@ def get_user_info(user_id, user_type="individual"):
     except Exception as e:
         logger.error(f"Error fetching user info for {user_id}: {str(e)}")
         return None
+
+
+def calculate_payments_status(email):
+    """Calculate premium payments status for current year (reusable)."""
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        current_year = date.today().year
+        current_year_start = f"{current_year}-01-01"
+        cursor.execute("""
+            SELECT COALESCE(SUM(amount), 0) as total_paid 
+            FROM member_premium_payments 
+            WHERE member_email = %s AND DATE(timestamp) >= %s
+        """, (email, current_year_start))
+        result = cursor.fetchone()
+        cursor.close()
+        conn.close()
+        
+        total_paid = float(result['total_paid'] or 0)
+        fully_paid = total_paid >= 3600.0
+        next_year = current_year + 1
+        next_payment_date = f"{next_year}-01-01"
+        
+        return {
+            "total_paid_this_year": round(total_paid, 2),
+            "required_amount": 3600.0,
+            "fully_paid": fully_paid,
+            "status": "Fully Paid for Current Year" if fully_paid else f"Outstanding: KES {round(3600 - total_paid, 2)}",
+            "next_payment_date": next_payment_date
+        }
+    except Exception as e:
+        logger.error(f"Payments calc error for {email}: {e}")
+        return {"error": "Unable to calculate payments status", "total_paid_this_year": 0, "fully_paid": False, "status": "Error", "next_payment_date": "N/A"}
+
+
+
+def get_profile_data(user_id, user_type, email):
+    """Get complete profile data: membership + payments + education."""
+    try:
+        member_info = get_user_info(user_id, user_type)
+        if not member_info:
+            logger.warning(f"No member info for {user_id}")
+            return {
+                "user_type": user_type,
+                "name": "N/A",
+                "email": email,
+                "registration_date": "N/A",
+                "education": None,
+                "payments": {"error": "Member not found"}
+            }
+            
+        payments = calculate_payments_status(email)
+        
+        profile = {
+            "member_info": {k: v.isoformat() if hasattr(v, 'isoformat') else v for k, v in member_info.items()},
+            "user_type": user_type,
+            "name": member_info.get('name') or member_info.get('organization_name', 'N/A'),
+            "email": email,
+            "registration_date": str(member_info.get('registration_date') or member_info.get('date_of_registration', 'N/A')),
+            "education": {
+                "highest_degree": member_info.get('highest_degree'),
+                "institution": member_info.get('institution'),
+                "graduation_year": int(member_info.get('graduation_year') or 0)
+            } if user_type == "individual" else None,
+            "payments": payments
+        }
+        return profile
+        
+    except Exception as e:
+        logger.error(f"Profile data error: {e}")
+        return {
+            "user_type": user_type,
+            "name": "Error loading profile",
+            "email": email,
+            "registration_date": "N/A",
+            "education": None,
+            "payments": {"error": str(e)}
+        }
+
+

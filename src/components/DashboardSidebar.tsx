@@ -147,7 +147,7 @@ export function DashboardSidebar() {
   // Main navigation with Send Message added for all members
   const mainNavWithSend = [
     { title: "Home", url: "/dashboard", icon: Home },
-    { title: "Send Message", url: "/messages?compose=true", icon: Send },
+    // { title: "Send Message", url: "/messages?compose=true", icon: Send },
     { title: "Messages", url: "/messages", icon: MessageSquare },
     { title: "Payment Invoices", url: "/payment-invoices", icon: FileText },
     { title: "User Information", url: "/user-info", icon: UserCircle },

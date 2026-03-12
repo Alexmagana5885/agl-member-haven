@@ -192,3 +192,30 @@ export interface EventRegistrationPayload {
 export function registerForEvent(data: EventRegistrationPayload) {
   return postData("/events/register", data);
 }
+
+// ─── Profile Data Endpoint ───
+
+export interface ProfileData {
+  status: string;
+  user_type: string;
+  name: string;
+  email: string;
+  registration_date: string;
+  education?: {
+    highest_degree: string;
+    institution: string;
+    graduation_year: number;
+  };
+  payments: {
+    total_paid_this_year: number;
+    required_amount: number;
+    fully_paid: boolean;
+    status: string;
+    next_payment_date: string;
+  };
+}
+
+export async function getProfileData(): Promise<ProfileData> {
+  return fetchData("/dashboard/user-info/profile");
+}
+

@@ -5,7 +5,8 @@ from datetime import datetime
 import json
 import mysql.connector
 import os
-from .auth import authenticate_user, get_user_info
+from .auth import authenticate_user, get_user_info, get_profile_data
+
 
 # Configure logger
 logger = logging.getLogger(__name__)
@@ -181,16 +182,31 @@ def login():
     session['season'] = json.dumps(season_data)
     logger.debug(f"Season created: {season_data}")
     
-    # Get full user info
-    logger.debug(f"Fetching full user information for user ID: {user['id']}")
-    full_user_info = get_user_info(user['id'], user_type)
+    # Get profile data including payments/education
+    logger.debug(f"Fetching profile data for user ID: {user['id']}")
+    profile_data = get_profile_data(user['id'], user_type, email)
     
-    if not full_user_info:
-        logger.warning(f"Could not retrieve full user info for user ID: {user['id']}")
-        full_user_info = {}
+    if not profile_data:
+        logger.warning(f"Could not retrieve profile data for user ID: {user['id']}")
+        profile_data = {}
     
-    user_name = full_user_info.get('name') if user_type == 'individual' else full_user_info.get('organization_name')
-    logger.info(f"Full user info retrieved. User name: {user_name}")
+    # Enhanced season with payments
+    season_data = {
+        "year": current_year,
+        "member_id": user['id'],
+        "member_name": member_name,
+        "member_email": email,
+        "member_type": user_type,
+        "is_official": is_official,
+        "login_timestamp": datetime.now().isoformat(),
+        **({"payments": profile_data.get("payments", {})} if profile_data.get("payments") else {})
+    }
+    session['season'] = json.dumps(season_data)
+    session['profile_data'] = json.dumps(profile_data, default=str)
+
+    logger.debug(f"Enhanced season/profile created")
+    
+    user_name = profile_data.get('name', 'N/A')
     
     response_data = {
         "status": "success",
@@ -202,14 +218,16 @@ def login():
             "type": user['type'],
             "name": user_name,
             "is_official": is_official,
-            "member_type": user_type
+            "member_type": user_type,
+            "payments_status": profile_data.get("payments", {}).get("status", "Unknown")
         }
     }
     
-    logger.info(f"LOGIN SUCCESSFUL for {email}")
+    logger.info(f"LOGIN SUCCESSFUL for {email} - Payments: {profile_data.get('payments', {}).get('status', 'N/A')}")
     logger.info("=" * 60)
     
     return jsonify(response_data), 200
+
 
 
 @login_bp.route('/logout', methods=['POST'])
@@ -242,7 +260,22 @@ def get_session():
         return jsonify({"status": "error", "message": "Not authenticated"}), 401
     
     logger.debug(f"Session found for user ID: {session['user_id']}")
-    user_info = get_user_info(session['user_id'], session['user_type'])
+    
+    profile_data = None
+    if session.get('profile_data'):
+        try:
+            profile_data = json.loads(session.get('profile_data'))
+        except:
+            profile_data = None
+    
+    # Use profile_data or fallback to basic user_info
+    if profile_data and profile_data.get('name'):
+        user_name = profile_data['name']
+        payments_status = profile_data.get('payments', {}).get('status', 'N/A')
+    else:
+        user_info = get_user_info(session['user_id'], session['user_type'])
+        user_name = user_info.get('name') if session['user_type'] == 'individual' else user_info.get('organization_name')
+        payments_status = 'N/A'
     
     logger.debug(f"Session info retrieved for user: {session['user_email']}")
     
@@ -260,9 +293,12 @@ def get_session():
             "id": session['user_id'],
             "email": session['user_email'],
             "type": session['user_type'],
-            "name": user_info.get('name') if session['user_type'] == 'individual' else user_info.get('organization_name'),
+            "name": user_name,
             "is_official": session.get('is_official', False),
-            "member_type": session.get('member_type', session['user_type'])
+            "member_type": session.get('member_type', session['user_type']),
+            "payments_status": payments_status
         },
-        "season": season_data
+        "season": season_data,
+        "profile": profile_data
     }), 200
+
