@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { BookOpen, ArrowRight } from "lucide-react";
 import { getBlogs } from "@/services/events";
+import { stripHtml } from "@/lib/utils";
 
 export function BlogsSection() {
   const [blogsData, setBlogsData] = useState([]);
@@ -66,7 +67,7 @@ export function BlogsSection() {
   const blogs = blogsData.slice(0, 3).map((blog) => ({
     id: blog.id.toString(),
     title: blog.title,
-    desc: blog.content.substring(0, 100) + "...",
+    desc: stripHtml(blog.content, 120),
     date: new Date(blog.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }),
     image_path: blog.image_path
   }));
