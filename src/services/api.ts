@@ -222,3 +222,22 @@ export async function getProfileData(): Promise<ProfileData> {
   return fetchData("/dashboard/user-info/profile");
 }
 
+/**
+ * Get single blog by ID for detail page
+ */
+export interface Blog {
+  id: number;
+  title: string;
+  content: string;
+  image_path: string;
+  created_at: string;
+}
+
+export async function getSingleBlog(blogId: string): Promise<Blog> {
+  const data = await fetchData(`/admin/blogs/${blogId}`);
+  if (!data.success || !data.blog) {
+    throw new Error('Blog not found');
+  }
+  return data.blog;
+}
+

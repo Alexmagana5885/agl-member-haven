@@ -1,56 +1,19 @@
-# AGL Member Haven - Events & More Page Implementation
+# Blog Content Display Fix - TODO
 
-## Current Progress
-- [x] Analyzed DB structure and existing code
-- [x] Created detailed implementation plan
-- [x] Got plan approval from user
+## Steps (0/7 completed)
 
-## Implementation Steps (Backend First)
+- [x] 1. Create `stripHtml` utility in `src/lib/utils.ts`
+- [x] 2. Add `getSingleBlog` function to `src/services/api.ts`
+- [x] 1. Create `stripHtml` utility in `src/lib/utils.ts`
+- [x] 2. Add `getSingleBlog` function to `src/services/api.ts`
+- [x] 3. Update `src/components/dashboard/BlogsSection.tsx` - fix preview truncation with `stripHtml`
+- [x] 4. Update `src/pages/BlogDetail.tsx` - fetch real data, render HTML
+- [ ] 5. Add Quill CSS support (import in BlogDetail)
+- [ ] 6. Test: `bun run dev`, check preview/detail rendering
+- [ ] 7. Mark complete, attempt_completion
+- [ ] 4. Update `src/pages/BlogDetail.tsx` - fetch real data, render HTML
+- [ ] 5. Add Quill CSS support (import in BlogDetail)
+- [ ] 6. Test: `bun run dev`, check preview/detail rendering
+- [ ] 7. Mark complete, attempt_completion
 
-### Phase 1: Backend Endpoints
-1. [x] **Created `backend/PortalComponents/events/__init__.py`**  
-   Import and register registeredEvents blueprint
-   
-2. [x] **Created `backend/PortalComponents/events/registeredEvents/__init__.py`**  
-   Import routes
-   
-3. [x] **Created `backend/PortalComponents/events/registeredEvents/routes.py`**  
-   - Blueprint `/api/events/registered`  
-   - GET `/api/events/registered?email=<email>` → Query event_registrations by member_email  
-   - Public endpoint (no auth required for reads)
-   
-4. [x] **Updated `backend/app.py`**  
-   Register events blueprint: `app.register_blueprint(events.events_bp)`
-
-5. [x] **Tested Backend Endpoints**  
-   - `/api/events/registered` ✅ returns user data  
-   - `/api/admin/blogs` ✅ returns latest blogs  
-   - `/api/events/planned` 404 (existing bp prefixes preserved)
-
-### Phase 2: Frontend Integration
-6. [ ] **Update `src/services/api.ts`**  
-   Add: `getRegisteredEvents(email)`, `getPlannedEvents()`, `getPastEvents()`, `getBlogs()`
-   
-7. [ ] **Update Dashboard Components**
-   | Component | API Call | Mapping |
-   |-----------|----------|---------|
-   | `BlogsSection.tsx` | `getBlogs()` | title, content→preview, image_path, created_at |
-   | `PlannedEventsSection.tsx` | `getPlannedEvents()` | event_name, event_location, event_date |
-   | `PastEventsSection.tsx` | `getPastEvents()` | Handle JSON event_image_paths |
-   | `RegisteredEventsSection.tsx` | `getRegisteredEvents(userEmail)` | event_name, event_location, event_date |
-
-### Phase 3: Testing & Completion
-8. [ ] **Frontend Testing**  
-   - Replace mock data with real fetches  
-   - Add loading/error states  
-   - Verify user email from session/profile
-   
-9. [ ] **Final Verification**  
-   - Dashboard shows: Latest Blogs, Planned Events, Past Events, User Registered Events  
-   - Full data mapping works  
-   - Responsive "More Page" (dashboard sections)
-   
-10. [ ] **attempt_completion**
-
-**Next Action:** Step 1 - Create backend/PortalComponents/events/__init__.py
-
+**Current progress**: Starting step 1.

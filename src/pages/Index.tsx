@@ -12,10 +12,10 @@ const Index = () => {
     <DashboardLayout>
       <div className="mx-auto max-w-5xl space-y-6">
         <ProfileSection />
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <MembershipSection />
           <EducationSection />
-        </div>
+        </div> */}
         <RegisteredEventsSection />
         <BlogsSection />
         <PlannedEventsSection />
