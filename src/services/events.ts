@@ -1,6 +1,25 @@
 import { fetchData } from './api';
 
+export interface PlannedEvent {
+  id: number;
+  event_name: string;
+  event_image_path: string;
+  event_description: string;
+  event_location: string;
+  event_date: string;
+  created_at: string;
+  RegistrationAmount: number;
+}
+
 // ─── Events API Functions ───
+
+/**
+ * Get all planned events
+ */
+export async function getPlannedEvents(): Promise<PlannedEvent[]> {
+  const data = await fetchData('/admin/planned-events');
+  return data.events || [];
+}
 
 /**
  * Get user's registered events by email
@@ -10,27 +29,18 @@ export async function getRegisteredEvents(email: string): Promise<any> {
   return data.events || [];
 }
 
-/**
- * Get all planned events
- */
-export async function getPlannedEvents(): Promise<any> {
-  const data = await fetchData('/admin/planned-events');
-  return data.events || [];
-}
 
-/**
- * Get all past events
- */
+/** Empty - duplicate removed */
+
+
 export async function getPastEvents(): Promise<any> {
   const data = await fetchData('/admin/past-events');
   return data.events || [];
 }
 
-/**
- * Get latest blogs
- */
 export async function getBlogs(): Promise<any> {
   const data = await fetchData('/admin/blogs');
   return data.blogs || [];
 }
+
 

@@ -1,46 +1,43 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { CalendarDays, MapPin, Target, Tag, Users, Mail, Phone, UserCheck } from "lucide-react";
+import { CalendarDays, MapPin, Mail, Phone, UserCheck, Loader2, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { registerForEvent } from "@/services/api";
-
-const events = [
-  {
-    title: "East Africa Library Innovation Conference 2026",
-    type: "Conference",
-    description: "A three-day conference bringing together government librarians from across East Africa to discuss innovation, technology, and knowledge management.",
-    objectives: "Foster collaboration, share best practices, explore emerging technologies for public libraries.",
-    whyAttend: "Network with 500+ librarians, earn CPD points, access cutting-edge workshops.",
-    subthemes: ["AI in Libraries", "Digital Literacy", "Open Data Governance", "Heritage Preservation"],
-    venue: "Kenyatta International Convention Centre, Nairobi",
-    date: "15-17 Jun 2026",
-    regAmount: "0",
-  },
-  {
-    title: "Data Management & Cataloguing Workshop",
-    type: "Workshop",
-    description: "Hands-on training on modern cataloguing standards and data management techniques for government libraries.",
-    objectives: "Equip participants with practical skills in RDA cataloguing and digital asset management.",
-    whyAttend: "Practical workshop with certification, small group sessions for personalized learning.",
-    subthemes: ["RDA Standards", "MARC21", "Digital Repositories"],
-    venue: "Kenya National Library HQ, Nairobi",
-    date: "8 Aug 2026",
-    regAmount: "0",
-  },
-];
+import type { PlannedEvent } from "@/services/api";
+import { getPlannedEvents, registerForEvent } from "@/services/api";
+// import { Skeleton } from "@/components/ui/skeleton";
 
 export function PlannedEventsSection() {
-  const [regEvent, setRegEvent] = useState<typeof events[0] | null>(null);
+  const [events, setEvents] = useState<PlannedEvent[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [regEvent, setRegEvent] = useState<PlannedEvent | null>(null);
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [contact, setContact] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const { toast } = useToast();
+
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const fetchedEvents = await getPlannedEvents();
+        setEvents(fetchedEvents);
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Failed to load planned events",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchEvents();
+  }, [toast]);
 
   const handleClose = () => {
     setRegEvent(null);
@@ -53,7 +50,13 @@ export function PlannedEventsSection() {
     if (!regEvent) return;
     setSubmitting(true);
     try {
-      await registerForEvent({ eventTitle: regEvent.title, email, name, contact, regAmount: regEvent.regAmount });
+      await registerForEvent({ 
+        eventTitle: regEvent.event_name, 
+        email, 
+        name, 
+        contact, 
+        regAmount: regEvent.RegistrationAmount.toString() 
+      });
       toast({ title: "Success", description: "Registration submitted successfully" });
       handleClose();
     } catch (err: any) {
@@ -63,8 +66,8 @@ export function PlannedEventsSection() {
     }
   };
 
-  return (
-    <>
+  if (loading) {
+    return (
       <Card className="shadow-card hover:shadow-card-hover transition-shadow">
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center gap-2 font-display text-lg">
@@ -72,56 +75,68 @@ export function PlannedEventsSection() {
             Planned Events
           </CardTitle>
         </CardHeader>
+        <CardContent className="flex items-center justify-center py-12">
+          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <>
+      <Card className="shadow-card hover:shadow-card-hover transition-shadow">
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 font-display text-lg">
+            <CalendarDays className="h-5 w-5 text-accent-foreground" />
+            Planned Events ({events.length})
+          </CardTitle>
+        </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {events.map((evt, i) => (
-              <div key={i} className="rounded-lg border border-border p-5 hover:border-primary/30 transition-colors">
-                <div className="flex flex-wrap items-center gap-2 mb-2">
-                  <h4 className="font-display text-base font-semibold text-foreground">{evt.title}</h4>
-                  <Badge variant="secondary" className="text-xs bg-accent text-accent-foreground">
-                    {evt.type}
-                  </Badge>
-                </div>
-
-                <p className="text-sm text-muted-foreground mb-3">{evt.description}</p>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3 text-sm">
-                  <div className="flex gap-2">
-                    <Target className="h-4 w-4 text-accent-foreground mt-0.5 shrink-0" />
-                    <div>
-                      <p className="text-xs font-medium text-foreground">Objectives</p>
-                      <p className="text-xs text-muted-foreground">{evt.objectives}</p>
-                    </div>
-                  </div>
-                  <div className="flex gap-2">
-                    <Users className="h-4 w-4 text-accent-foreground mt-0.5 shrink-0" />
-                    <div>
-                      <p className="text-xs font-medium text-foreground">Why Attend</p>
-                      <p className="text-xs text-muted-foreground">{evt.whyAttend}</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex flex-wrap items-center gap-1.5 mb-3">
-                  <Tag className="h-3 w-3 text-muted-foreground" />
-                  {evt.subthemes.map((s) => (
-                    <Badge key={s} variant="outline" className="text-[10px] px-2 py-0.5 border-primary/20 text-muted-foreground">
-                      {s}
+            {events.length === 0 ? (
+              <p className="text-muted-foreground text-center py-8">No upcoming events</p>
+            ) : (
+              events.map((evt, i) => (
+                <div key={i} className="rounded-lg border border-border p-5 hover:border-primary/30 transition-colors">
+                  <div className="flex flex-wrap items-center gap-2 mb-2">
+                    <h4 className="font-display text-base font-semibold text-foreground">{evt.event_name}</h4>
+                    <Badge variant="secondary" className="text-xs bg-accent text-accent-foreground">
+                      Event
                     </Badge>
-                  ))}
-                </div>
-
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-border">
-                  <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
-                    <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{evt.venue}</span>
-                    <span className="flex items-center gap-1"><CalendarDays className="h-3 w-3" />{evt.date}</span>
                   </div>
-                  <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90" onClick={() => setRegEvent(evt)}>
-                    Register for Event
-                  </Button>
+
+<div className="ql-editor prose prose-sm max-w-none line-clamp-3 text-sm text-muted-foreground mb-3" dangerouslySetInnerHTML={{ __html: evt.event_description || '' }} />
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3 text-sm">
+                    <div className="flex gap-2">
+                      <CalendarDays className="h-4 w-4 text-accent-foreground mt-0.5 shrink-0" />
+                      <div>
+                        <p className="text-xs font-medium text-foreground">Date</p>
+                        <p className="text-xs text-muted-foreground">{new Date(evt.event_date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</p>
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <MapPin className="h-4 w-4 text-accent-foreground mt-0.5 shrink-0" />
+                      <div>
+                        <p className="text-xs font-medium text-foreground">Venue</p>
+                        <p className="text-xs text-muted-foreground">{evt.event_location}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-border">
+                    <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
+                      <Badge variant="secondary" className="text-xs">
+                        Ksh {evt.RegistrationAmount.toLocaleString()}
+                      </Badge>
+                    </div>
+                    <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90" onClick={() => setRegEvent(evt)}>
+                      Register for Event
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </CardContent>
       </Card>
@@ -134,37 +149,47 @@ export function PlannedEventsSection() {
               Event Registration
             </DialogTitle>
             <DialogDescription>
-              Register for <span className="font-semibold text-foreground">{regEvent?.title}</span>
+              Register for <span className="font-semibold text-foreground">{regEvent?.event_name}</span>
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div className="space-y-2">
               <Label htmlFor="reg-email" className="flex items-center gap-1.5">
-                <Mail className="h-3.5 w-3.5" /> Member Email
+                <Mail className="h-3.5 w-3.5" />
+                Member Email
               </Label>
               <Input id="reg-email" type="email" placeholder="Enter your email" value={email} onChange={(e) => setEmail(e.target.value)} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="reg-name" className="flex items-center gap-1.5">
-                <Users className="h-3.5 w-3.5" /> Name
+                <Users className="h-3.5 w-3.5" />
+                Name
               </Label>
               <Input id="reg-name" placeholder="Enter your name" value={name} onChange={(e) => setName(e.target.value)} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="reg-contact" className="flex items-center gap-1.5">
-                <Phone className="h-3.5 w-3.5" /> Contact
+                <Phone className="h-3.5 w-3.5" />
+                Contact
               </Label>
               <Input id="reg-contact" type="tel" placeholder="Enter your phone number" value={contact} onChange={(e) => setContact(e.target.value)} />
             </div>
             <div className="space-y-2">
               <Label>Registration Amount</Label>
-              <Input readOnly value={`Ksh ${regEvent?.regAmount || "0"}`} className="bg-accent" />
+              <Input readOnly value={`Ksh ${regEvent?.RegistrationAmount || "0"}`} className="bg-accent" />
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={handleClose} disabled={submitting}>Cancel</Button>
             <Button className="bg-primary text-primary-foreground hover:bg-primary/90" disabled={submitting} onClick={handleRegister}>
-              {submitting ? "Registering..." : "Register"}
+              {submitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Registering...
+                </>
+              ) : (
+                "Register"
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -172,3 +197,4 @@ export function PlannedEventsSection() {
     </>
   );
 }
+

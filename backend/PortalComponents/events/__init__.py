@@ -5,9 +5,9 @@ from .registeredEvents import registered_events_bp
 
 events_bp = Blueprint('member_events', __name__, url_prefix='/api/events')
 
-events_bp.register_blueprint(planned_events_bp)
-events_bp.register_blueprint(past_events_bp) 
-events_bp.register_blueprint(registered_events_bp)
+# Removed nested registrations to fix URL prefix conflicts
+# planned_events_bp, past_events_bp, registered_events_bp should be registered directly in app.py
+
 
 __all__ = ['events_bp']
 

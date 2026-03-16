@@ -233,6 +233,10 @@ export interface Blog {
   created_at: string;
 }
 
+// Export events functions
+export { getPlannedEvents, getPastEvents, getRegisteredEvents, getBlogs } from './events';
+
+// Existing getSingleBlog unchanged
 export async function getSingleBlog(blogId: string): Promise<Blog> {
   const data = await fetchData(`/admin/blogs/${blogId}`);
   if (!data.success || !data.blog) {
@@ -240,4 +244,5 @@ export async function getSingleBlog(blogId: string): Promise<Blog> {
   }
   return data.blog;
 }
+
 
