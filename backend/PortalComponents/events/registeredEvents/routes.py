@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 # Create Blueprint - PUBLIC endpoint for members
-registered_events_bp = Blueprint('registered_events', __name__, url_prefix='/registered')
+registered_events_bp = Blueprint('registered_events', __name__)
 
 
 def get_db_connection():
