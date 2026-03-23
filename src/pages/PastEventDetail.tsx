@@ -102,8 +102,9 @@ const PastEventDetail = () => {
           </div>
         </div>
 
-        <div className="prose prose-sm max-w-none">
+        <div className="prose prose-sm max-w-none prose-headings:font-display prose-headings:text-foreground prose-strong:text-foreground prose-p:text-muted-foreground max-w-none">
           <div className="ql-editor" dangerouslySetInnerHTML={{ __html: event.event_details }} />
+          
         </div>
 
         {event.event_image_paths && event.event_image_paths.length > 0 && (
