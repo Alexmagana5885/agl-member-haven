@@ -234,7 +234,7 @@ export interface Blog {
 }
 
 // Export events functions
-export { getPlannedEvents, getPastEvents, getRegisteredEvents, getBlogs } from './events';
+export { getPlannedEvents, getPastEvents, getRegisteredEvents, getBlogs, type PlannedEvent } from './events';
 
 // Existing getSingleBlog unchanged
 export async function getSingleBlog(blogId: string): Promise<Blog> {
