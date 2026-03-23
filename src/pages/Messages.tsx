@@ -489,12 +489,10 @@ const MessagesPage = () => {
 
           <div className="space-y-3 pt-4 border-t">
             <Label htmlFor="reply">Reply</Label>
-            <Textarea
-              id="reply"
-              placeholder="Type your reply..."
+            <RichTextEditor
               value={replyText}
-              onChange={(e) => setReplyText(e.target.value)}
-              rows={3}
+              onChange={(val) => setReplyText(val)}
+              placeholder="Type your reply..."
             />
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={() => setSelectedMessage(null)}>
