@@ -4,32 +4,19 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, UserCircle, Save, X, Pencil, GraduationCap, CreditCard, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, UserCircle, Save, X, Pencil, GraduationCap, CreditCard } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { getProfileData, ProfileData } from "@/services/api";
-
-
-const fieldLabels: Record<string, string> = {
-  firstName: "First Name",
-  lastName: "Last Name",
-  email: "Email Address",
-  phone: "Phone Number",
-  idNumber: "ID / Passport Number",
-  department: "Department / Organization",
-  jobTitle: "Job Title",
-  county: "County",
-  postalAddress: "Postal Address",
-  membershipNo: "Membership Number",
-};
-
-const readOnlyFields = ["membershipNo"];
+import { getProfileData, ProfileData, fetchData } from "@/services/api";
 
 const UserInformationPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [editing, setEditing] = useState(false);
+  const [editData, setEditData] = useState<Record<string, string>>({});
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     fetchProfile();
@@ -41,16 +28,45 @@ const UserInformationPage = () => {
       const data = await getProfileData();
       setProfile(data);
     } catch (err) {
-      toast({
-        title: "Error",
-        description: "Failed to load profile data",
-        variant: "destructive"
-      });
+      toast({ title: "Error", description: "Failed to load profile data", variant: "destructive" });
     } finally {
       setLoading(false);
     }
   };
 
+  const handleEdit = () => {
+    if (!profile) return;
+    setEditData({
+      name: profile.name || "",
+      email: profile.email || "",
+    });
+    setEditing(true);
+  };
+
+  const handleCancel = () => {
+    setEditing(false);
+    setEditData({});
+  };
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      const response = await fetch("/api/dashboard/user-info/profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(editData),
+      });
+      if (!response.ok) throw new Error("Failed to save");
+      toast({ title: "Success", description: "Profile updated successfully" });
+      setEditing(false);
+      fetchProfile();
+    } catch (err) {
+      toast({ title: "Error", description: "Failed to update profile", variant: "destructive" });
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <DashboardLayout>
@@ -75,8 +91,8 @@ const UserInformationPage = () => {
                   <Button variant="outline" size="sm" className="gap-1.5" onClick={handleCancel}>
                     <X className="h-3.5 w-3.5" /> Cancel
                   </Button>
-                  <Button size="sm" className="gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90" onClick={handleSave}>
-                    <Save className="h-3.5 w-3.5" /> Save
+                  <Button size="sm" className="gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90" onClick={handleSave} disabled={saving}>
+                    <Save className="h-3.5 w-3.5" /> {saving ? "Saving..." : "Save"}
                   </Button>
                 </div>
               )}
@@ -93,20 +109,28 @@ const UserInformationPage = () => {
                 </div>
               </div>
             ) : profile ? (
-              <div className="space-y-6">
+              <div className="space-y-6 max-h-[60vh] overflow-y-auto pr-2">
                 {/* Basic Info */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1">
                     <Label className="text-xs font-medium text-muted-foreground">Full Name</Label>
-                    <div className="p-3 rounded-lg bg-accent border">
-                      <p className="font-semibold">{profile.name}</p>
-                    </div>
+                    {editing ? (
+                      <Input value={editData.name || ""} onChange={(e) => setEditData({ ...editData, name: e.target.value })} />
+                    ) : (
+                      <div className="p-3 rounded-lg bg-accent border">
+                        <p className="font-semibold">{profile.name}</p>
+                      </div>
+                    )}
                   </div>
                   <div className="space-y-1">
                     <Label className="text-xs font-medium text-muted-foreground">Email</Label>
-                    <div className="p-3 rounded-lg bg-accent border">
-                      <p>{profile.email}</p>
-                    </div>
+                    {editing ? (
+                      <Input value={editData.email || ""} onChange={(e) => setEditData({ ...editData, email: e.target.value })} />
+                    ) : (
+                      <div className="p-3 rounded-lg bg-accent border">
+                        <p>{profile.email}</p>
+                      </div>
+                    )}
                   </div>
                   <div className="space-y-1">
                     <Label className="text-xs font-medium text-muted-foreground">Member Since</Label>
@@ -126,8 +150,7 @@ const UserInformationPage = () => {
                 {profile.education && (
                   <div>
                     <h3 className="font-semibold mb-4 flex items-center gap-2">
-                      <GraduationCap className="h-4 w-4" />
-                      Education
+                      <GraduationCap className="h-4 w-4" /> Education
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div className="space-y-1">
@@ -155,8 +178,7 @@ const UserInformationPage = () => {
                 {/* Payments */}
                 <div>
                   <h3 className="font-semibold mb-4 flex items-center gap-2">
-                    <CreditCard className="h-4 w-4" />
-                    Membership & Payments
+                    <CreditCard className="h-4 w-4" /> Membership & Payments
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-1">
@@ -177,9 +199,7 @@ const UserInformationPage = () => {
                     <div className="space-y-1">
                       <Label className="text-xs font-medium text-muted-foreground">Next Payment Due</Label>
                       <div className="p-3 rounded-lg bg-accent border">
-                        <p>{new Date(profile.payments.next_payment_date).toLocaleDateString("en-GB", { 
-                          year: "numeric", month: "long", day: "numeric" 
-                        })}</p>
+                        <p>{new Date(profile.payments.next_payment_date).toLocaleDateString("en-GB", { year: "numeric", month: "long", day: "numeric" })}</p>
                       </div>
                     </div>
                   </div>
@@ -198,4 +218,3 @@ const UserInformationPage = () => {
 };
 
 export default UserInformationPage;
-

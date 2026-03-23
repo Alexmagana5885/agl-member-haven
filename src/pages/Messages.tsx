@@ -3,8 +3,8 @@ import { DashboardLayout } from "@/components/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { RichTextEditor } from "@/components/ui/RichTextEditor";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
@@ -373,12 +373,10 @@ const MessagesPage = () => {
 
                 <div className="space-y-2">
                   <Label htmlFor="message">Message</Label>
-                  <Textarea
-                    id="message"
+                  <RichTextEditor
                     value={message}
-                    onChange={(e) => setMessage(e.target.value)}
+                    onChange={(val) => setMessage(val)}
                     placeholder="Type your message here..."
-                    rows={8}
                   />
                 </div>
 
@@ -491,12 +489,10 @@ const MessagesPage = () => {
 
           <div className="space-y-3 pt-4 border-t">
             <Label htmlFor="reply">Reply</Label>
-            <Textarea
-              id="reply"
-              placeholder="Type your reply..."
+            <RichTextEditor
               value={replyText}
-              onChange={(e) => setReplyText(e.target.value)}
-              rows={3}
+              onChange={(val) => setReplyText(val)}
+              placeholder="Type your reply..."
             />
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={() => setSelectedMessage(null)}>
