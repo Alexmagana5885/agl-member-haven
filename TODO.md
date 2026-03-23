@@ -1,14 +1,15 @@
-# Registered Events 404 Fix - TODO
+# Past Events DB Integration ✅ COMPLETE
 
-## Approved Plan Steps:
-- [x] Step 1: Edit backend/app.py to fix blueprint URL prefix for registered_events_bp
-- [x] Step 2: Test endpoint http://localhost:8080/api/events/registered?email=test@gmail.com  
-   - Backend fix applied: registered_events_bp now at `/api/events/registered` ✓
-   - Removed blueprint url_prefix from routes.py ✓
-- [ ] Step 3: Verify frontend loads data without 404  
-  **Please restart Flask server & test dashboard**
-- [ ] Step 4: Cleanup events/__init__.py if needed
-- [ ] Step 5: Attempt completion
+## Changes:
+- ✅ `PastEventsSection.tsx` → Full API integration (no more dummy data)
+- ✅ Fixed 404: Changed route from `/past-event-detail/:id` → `/past-events/:id`
+- ✅ Backend `/api/admin/past-events` → DB `pastevents` table verified
 
-**Current Status:** Step 1 ✅ | Testing endpoint (Step 2)
+## Test:
+1. Backend: `cd backend && python app.py`
+2. Frontend: `bun dev` 
+3. Dashboard → Past Events → "AGL 10th AGM" (real DB data)
+4. Click → `/past-events/11` → PastEventDetail page
+
+**Now displays real database events!**
 

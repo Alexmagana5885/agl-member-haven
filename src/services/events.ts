@@ -33,6 +33,11 @@ export async function getRegisteredEvents(email: string): Promise<any> {
 /** Empty - duplicate removed */
 
 
+export async function getPastEvent(id: number): Promise<any> {
+  const data = await fetchData(`/admin/past-events/${id}`);
+  return data;
+}
+
 export async function getPastEvents(): Promise<any> {
   const data = await fetchData('/admin/past-events');
   return data.events || [];
