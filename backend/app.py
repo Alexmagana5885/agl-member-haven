@@ -59,10 +59,11 @@ app.register_blueprint(events_bp)
 app.register_blueprint(events_callback_bp)
 
 # NEW: Register events, blogs, and communications blueprints directly (fixed nested blueprint issue)
-from PortalComponents.events import events_bp  # Keep for registered events if needed
+# Removed conflicting events_bp import - using direct blueprint registration
+
 app.register_blueprint(planned_events_bp)
 app.register_blueprint(past_events_bp)
-app.register_blueprint(registered_events_bp)
+app.register_blueprint(registered_events_bp, url_prefix='/api/events')
 app.register_blueprint(blogs_bp)
 app.register_blueprint(communications_bp)
 
