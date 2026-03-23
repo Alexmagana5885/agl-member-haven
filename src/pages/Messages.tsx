@@ -374,12 +374,10 @@ const MessagesPage = () => {
 
                 <div className="space-y-2">
                   <Label htmlFor="message">Message</Label>
-                  <Textarea
-                    id="message"
+                  <RichTextEditor
                     value={message}
-                    onChange={(e) => setMessage(e.target.value)}
+                    onChange={(val) => setMessage(val)}
                     placeholder="Type your message here..."
-                    rows={8}
                   />
                 </div>
 
