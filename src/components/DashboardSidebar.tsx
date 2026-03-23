@@ -1,68 +1,31 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  Home,
-  CalendarDays,
-  PenSquare,
-  MessageSquare,
-  Users,
-  CreditCard,
-  FileText,
-  UserCircle,
-  Mail,
-  Phone,
-  MessageCircle,
-  LogOut,
-  ShieldCheck,
-  ChevronDown,
-  History,
-  Send,
-  MapPin,
-  Tag,
+  Home, CalendarDays, PenSquare, MessageSquare, Users, CreditCard, FileText, UserCircle,
+  Mail, Phone, MessageCircle, LogOut, ShieldCheck, ChevronDown, History, Send, MapPin, Tag,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import {
-  Sidebar,
-  SidebarContent,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarHeader,
-  SidebarFooter,
-  useSidebar,
+  Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
+  SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarHeader, SidebarFooter, useSidebar,
 } from "@/components/ui/sidebar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { RichTextEditor } from "@/components/ui/RichTextEditor";
 import {
-  createPlannedEvent,
-  createPastEvent,
-  createBlog,
-  sendMessage as sendMessageApi,
-  type PlannedEventPayload,
-  type PastEventPayload,
-  type BlogPayload,
-  type MessagePayload,
+  createPlannedEvent, createPastEvent, createBlog, sendMessage as sendMessageApi,
+  type PlannedEventPayload, type PastEventPayload, type BlogPayload, type MessagePayload,
 } from "@/services/api";
 import AGLlogo from "@/components/payments/AGLlogo.png";
 
-// Interface for user session data
 interface UserSession {
-  id: string;
-  email: string;
-  type: string;
-  name: string;
-  is_official: boolean;
-  member_type: string;
+  id: string; email: string; type: string; name: string; is_official: boolean; member_type: string;
 }
 
-const mainNav = [
+const mainNavWithSend = [
   { title: "Home", url: "/dashboard", icon: Home },
   { title: "Messages", url: "/messages", icon: MessageSquare },
   { title: "Payment Invoices", url: "/payment-invoices", icon: FileText },
@@ -80,7 +43,11 @@ type AdminDialog = "planned-event" | "past-event" | "new-blog" | "send-message" 
 const emptyPlannedEvent: PlannedEventPayload = { title: "", type: "", date: "", venue: "", description: "", objectives: "", whyAttend: "", subthemes: "", regAmount: "" };
 const emptyPastEvent: PastEventPayload = { title: "", type: "", date: "", venue: "", description: "", attendees: "", highlights: "" };
 const emptyBlog: BlogPayload = { title: "", author: "", shortDescription: "", content: "" };
-const emptyMessage: MessagePayload = { recipient: "", subject: "", message: "" };
+const emptyMessage: MessagePayload = {
+  recipient_group: { type: "all_members" },
+  subject: "",
+  message: "",
+};
 
 export function DashboardSidebar() {
   const { state } = useSidebar();
@@ -92,7 +59,6 @@ export function DashboardSidebar() {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Check if user is official on mount
   useEffect(() => {
     const checkUserSession = async () => {
       try {
@@ -134,23 +100,14 @@ export function DashboardSidebar() {
     }
   };
 
-  // Admin items - only for officials (Send Message removed from here)
   const adminItems = [
     { title: "Planned Events", icon: CalendarDays, action: () => setActiveDialog("planned-event") },
     { title: "Past Events", icon: History, action: () => setActiveDialog("past-event") },
     { title: "New Blog", icon: PenSquare, action: () => setActiveDialog("new-blog") },
+    { title: "Send Message", icon: Send, action: () => setActiveDialog("send-message") },
     { title: "Members", icon: Users, action: () => navigate("/members") },
     { title: "Member Payments", icon: CreditCard, action: () => navigate("/member-payments") },
     { title: "Member Premiums Payments", icon: CreditCard, action: () => navigate("/member-Premiums-payments") },
-  ];
-
-  // Main navigation with Send Message added for all members
-  const mainNavWithSend = [
-    { title: "Home", url: "/dashboard", icon: Home },
-    // { title: "Send Message", url: "/messages?compose=true", icon: Send },
-    { title: "Messages", url: "/messages", icon: MessageSquare },
-    { title: "Payment Invoices", url: "/payment-invoices", icon: FileText },
-    { title: "User Information", url: "/user-info", icon: UserCircle },
   ];
 
   return (
@@ -167,20 +124,13 @@ export function DashboardSidebar() {
 
         <SidebarContent>
           <SidebarGroup>
-            <SidebarGroupLabel className="text-sidebar-muted text-xs uppercase tracking-wider">
-              Main Menu
-            </SidebarGroupLabel>
+            <SidebarGroupLabel className="text-sidebar-muted text-xs uppercase tracking-wider">Main Menu</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
                 {mainNavWithSend.map((item) => (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild tooltip={item.title}>
-                      <NavLink
-                        to={item.url}
-                        end={item.url === "/"}
-                        className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
-                        activeClassName="bg-sidebar-accent text-sidebar-accent-foreground font-medium"
-                      >
+                      <NavLink to={item.url} end={item.url === "/"} className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors" activeClassName="bg-sidebar-accent text-sidebar-accent-foreground font-medium">
                         <item.icon className="h-4 w-4" />
                         <span>{item.title}</span>
                       </NavLink>
@@ -188,30 +138,19 @@ export function DashboardSidebar() {
                   </SidebarMenuItem>
                 ))}
 
-                {/* Admin dropdown - only visible to officials */}
                 {isOfficial && (
                   <SidebarMenuItem>
-                    <SidebarMenuButton
-                      tooltip="Admin"
-                      onClick={() => setAdminOpen(!adminOpen)}
-                      className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
-                    >
+                    <SidebarMenuButton tooltip="Admin" onClick={() => setAdminOpen(!adminOpen)} className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors">
                       <ShieldCheck className="h-4 w-4" />
                       <span>Admin</span>
-                      {!collapsed && (
-                        <ChevronDown className={`ml-auto h-4 w-4 transition-transform ${adminOpen ? "rotate-180" : ""}`} />
-                      )}
+                      {!collapsed && <ChevronDown className={`ml-auto h-4 w-4 transition-transform ${adminOpen ? "rotate-180" : ""}`} />}
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 )}
 
                 {isOfficial && adminOpen && !collapsed && adminItems.map((item) => (
                   <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton
-                      tooltip={item.title}
-                      onClick={item.action}
-                      className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors pl-8 cursor-pointer"
-                    >
+                    <SidebarMenuButton tooltip={item.title} onClick={item.action} className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors pl-8 cursor-pointer">
                       <item.icon className="h-4 w-4" />
                       <span>{item.title}</span>
                     </SidebarMenuButton>
@@ -222,20 +161,13 @@ export function DashboardSidebar() {
           </SidebarGroup>
 
           <SidebarGroup>
-            <SidebarGroupLabel className="text-sidebar-muted text-xs uppercase tracking-wider">
-              Contact Us
-            </SidebarGroupLabel>
+            <SidebarGroupLabel className="text-sidebar-muted text-xs uppercase tracking-wider">Contact Us</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
                 {contactNav.map((item) => (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild tooltip={item.title}>
-                      <a
-                        href={item.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
-                      >
+                      <a href={item.url} target="_blank" rel="noopener noreferrer" className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors">
                         <item.icon className="h-4 w-4" />
                         <span>{item.title}</span>
                       </a>
@@ -250,15 +182,7 @@ export function DashboardSidebar() {
         <SidebarFooter className="p-2">
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton
-                tooltip="Logout"
-                onClick={() => {
-                  sessionStorage.clear();
-                  localStorage.clear();
-                  navigate("/");
-                }}
-                className="text-sidebar-foreground hover:bg-destructive hover:text-destructive-foreground transition-colors cursor-pointer"
-              >
+              <SidebarMenuButton tooltip="Logout" onClick={() => { sessionStorage.clear(); localStorage.clear(); navigate("/"); }} className="text-sidebar-foreground hover:bg-destructive hover:text-destructive-foreground transition-colors cursor-pointer">
                 <LogOut className="h-4 w-4" />
                 <span>Logout</span>
               </SidebarMenuButton>
@@ -284,7 +208,7 @@ export function DashboardSidebar() {
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label>Event Type</Label>
-                <Input placeholder="e.g. Conference, Workshop" value={plannedEvent.type} onChange={(e) => setPlannedEvent({ ...plannedEvent, type: e.target.value })} />
+                <Input placeholder="e.g. Conference" value={plannedEvent.type} onChange={(e) => setPlannedEvent({ ...plannedEvent, type: e.target.value })} />
               </div>
               <div className="space-y-1.5">
                 <Label>Event Date</Label>
@@ -297,15 +221,15 @@ export function DashboardSidebar() {
             </div>
             <div className="space-y-1.5">
               <Label>Description</Label>
-              <Textarea placeholder="Describe the event" rows={2} value={plannedEvent.description} onChange={(e) => setPlannedEvent({ ...plannedEvent, description: e.target.value })} />
+              <RichTextEditor value={plannedEvent.description} onChange={(val) => setPlannedEvent({ ...plannedEvent, description: val })} placeholder="Describe the event" />
             </div>
             <div className="space-y-1.5">
               <Label>Objectives</Label>
-              <Textarea placeholder="Event objectives" rows={2} value={plannedEvent.objectives} onChange={(e) => setPlannedEvent({ ...plannedEvent, objectives: e.target.value })} />
+              <RichTextEditor value={plannedEvent.objectives} onChange={(val) => setPlannedEvent({ ...plannedEvent, objectives: val })} placeholder="Event objectives" />
             </div>
             <div className="space-y-1.5">
               <Label>Why Attend</Label>
-              <Input placeholder="Reasons to attend" value={plannedEvent.whyAttend} onChange={(e) => setPlannedEvent({ ...plannedEvent, whyAttend: e.target.value })} />
+              <RichTextEditor value={plannedEvent.whyAttend} onChange={(val) => setPlannedEvent({ ...plannedEvent, whyAttend: val })} placeholder="Reasons to attend" />
             </div>
             <div className="space-y-1.5">
               <Label>Subthemes (comma-separated)</Label>
@@ -342,7 +266,7 @@ export function DashboardSidebar() {
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label>Event Type</Label>
-                <Input placeholder="e.g. Symposium, Forum" value={pastEvent.type} onChange={(e) => setPastEvent({ ...pastEvent, type: e.target.value })} />
+                <Input placeholder="e.g. Symposium" value={pastEvent.type} onChange={(e) => setPastEvent({ ...pastEvent, type: e.target.value })} />
               </div>
               <div className="space-y-1.5">
                 <Label>Event Date</Label>
@@ -355,7 +279,7 @@ export function DashboardSidebar() {
             </div>
             <div className="space-y-1.5">
               <Label>Description</Label>
-              <Textarea placeholder="Describe the event" rows={2} value={pastEvent.description} onChange={(e) => setPastEvent({ ...pastEvent, description: e.target.value })} />
+              <RichTextEditor value={pastEvent.description} onChange={(val) => setPastEvent({ ...pastEvent, description: val })} placeholder="Describe the event" />
             </div>
             <div className="space-y-1.5">
               <Label>Attendees</Label>
@@ -363,7 +287,7 @@ export function DashboardSidebar() {
             </div>
             <div className="space-y-1.5">
               <Label>Highlights</Label>
-              <Textarea placeholder="Key highlights of the event" rows={2} value={pastEvent.highlights} onChange={(e) => setPastEvent({ ...pastEvent, highlights: e.target.value })} />
+              <RichTextEditor value={pastEvent.highlights} onChange={(val) => setPastEvent({ ...pastEvent, highlights: val })} placeholder="Key highlights" />
             </div>
           </div>
           <DialogFooter>
@@ -395,11 +319,11 @@ export function DashboardSidebar() {
             </div>
             <div className="space-y-1.5">
               <Label>Short Description</Label>
-              <Textarea placeholder="Brief summary of the blog" rows={2} value={blog.shortDescription} onChange={(e) => setBlog({ ...blog, shortDescription: e.target.value })} />
+              <RichTextEditor value={blog.shortDescription} onChange={(val) => setBlog({ ...blog, shortDescription: val })} placeholder="Brief summary" />
             </div>
             <div className="space-y-1.5">
               <Label>Full Content</Label>
-              <Textarea placeholder="Write the full blog content here..." rows={6} value={blog.content} onChange={(e) => setBlog({ ...blog, content: e.target.value })} />
+              <RichTextEditor value={blog.content} onChange={(val) => setBlog({ ...blog, content: val })} placeholder="Write the full blog content..." />
             </div>
           </div>
           <DialogFooter>
@@ -422,16 +346,12 @@ export function DashboardSidebar() {
           </DialogHeader>
           <div className="space-y-3 py-2 overflow-y-auto flex-1 pr-2">
             <div className="space-y-1.5">
-              <Label>Recipient</Label>
-              <Input placeholder="All members or specific email" value={message.recipient} onChange={(e) => setMessage({ ...message, recipient: e.target.value })} />
-            </div>
-            <div className="space-y-1.5">
               <Label>Subject</Label>
               <Input placeholder="Message subject" value={message.subject} onChange={(e) => setMessage({ ...message, subject: e.target.value })} />
             </div>
             <div className="space-y-1.5">
               <Label>Message</Label>
-              <Textarea placeholder="Type your message here..." rows={5} value={message.message} onChange={(e) => setMessage({ ...message, message: e.target.value })} />
+              <RichTextEditor value={message.message} onChange={(val) => setMessage({ ...message, message: val })} placeholder="Type your message here..." />
             </div>
           </div>
           <DialogFooter>
