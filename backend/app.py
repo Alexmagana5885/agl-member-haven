@@ -43,6 +43,7 @@ from PortalComponents.payments.events import callback_bp as events_callback_bp
 # NEW: Events, Blogs, and Communications blueprints
 from PortalComponents.events.pastEvents import past_events_bp
 from PortalComponents.events.comingEvents import planned_events_bp
+from PortalComponents.events.registeredEvents import registered_events_bp
 from PortalComponents.blogs import blogs_bp
 from PortalComponents.communications import communications_bp
 
@@ -61,6 +62,7 @@ app.register_blueprint(events_callback_bp)
 from PortalComponents.events import events_bp  # Keep for registered events if needed
 app.register_blueprint(planned_events_bp)
 app.register_blueprint(past_events_bp)
+app.register_blueprint(registered_events_bp)
 app.register_blueprint(blogs_bp)
 app.register_blueprint(communications_bp)
 
