@@ -21,6 +21,27 @@ async function postData<T>(endpoint: string, data: T): Promise<{ success: boolea
   }
 }
 
+async function putData<T>(endpoint: string, data: T): Promise<{ success: boolean; message: string }> {
+  try {
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || `Request failed with status ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error(`API Error [${endpoint}]:`, error);
+    throw error;
+  }
+}
+
 async function fetchData(endpoint: string): Promise<any> {
   try {
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
@@ -40,7 +61,7 @@ async function fetchData(endpoint: string): Promise<any> {
   }
 }
 
-// ─── Admin Endpoints ───
+export { fetchData };
 
 export interface PlannedEventPayload {
   title: string;
@@ -98,8 +119,6 @@ export function sendMessage(data: MessagePayload) {
   return postData("/admin/messages", data);
 }
 
-// ─── Member Search for Autocomplete ───
-
 export interface MemberSearchResult {
   id: string;
   member_name: string;
@@ -109,7 +128,7 @@ export interface MemberSearchResult {
 
 export async function searchMembers(query: string): Promise<MemberSearchResult[]> {
   try {
-    const response = await fetch(`${API_BASE_URL}/admin/messages/members/search?q=${encodeURIComponent(query)}&limit=20`, {
+    const response = await fetch(`${API_BASE_URL}/admin/messages/members/search?q=${encodeURIComponent(query)}&amp;limit=20`, {
       credentials: "include",
     });
     if (!response.ok) {
@@ -122,8 +141,6 @@ export async function searchMembers(query: string): Promise<MemberSearchResult[]
     throw error;
   }
 }
-
-// ─── User Messages Endpoints ───
 
 export interface UserMessage {
   id: number;
@@ -161,8 +178,6 @@ export async function replyToMessage(data: ReplyPayload) {
   return postData("/admin/messages/reply", data);
 }
 
-// ─── Payment Endpoints ───
-
 export interface PaymentPayload {
   email: string;
   phone: string;
@@ -175,11 +190,9 @@ export function submitPayment(data: PaymentPayload) {
   return postData(endpoint, {
     email: data.email,
     phone: data.phone,
-    amount: data.amount
+    amount: data.amount,
   });
 }
-
-// ─── Event Registration Endpoint ───
 
 export interface EventRegistrationPayload {
   eventTitle: string;
@@ -192,8 +205,6 @@ export interface EventRegistrationPayload {
 export function registerForEvent(data: EventRegistrationPayload) {
   return postData("/events/register", data);
 }
-
-// ─── Profile Data Endpoint ───
 
 export interface ProfileData {
   status: string;
@@ -215,32 +226,22 @@ export interface ProfileData {
   };
 }
 
+export interface ProfileUpdatePayload {
+  name?: string;
+  email?: string;
+  highest_degree?: string;
+  institution?: string;
+  graduation_year?: string;
+}
+
 export async function getProfileData(): Promise<ProfileData> {
   return fetchData("/dashboard/user-info/profile");
 }
 
-/**
- * Update profile data
- */
-export async function updateProfile(data: Partial<ProfileData>): Promise<{ success: boolean; message: string }> {
-  const response = await fetch(`${API_BASE_URL}/dashboard/user-info/profile`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    credentials: "include",
-    body: JSON.stringify(data),
-  });
-
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.message || `Update failed: ${response.status}`);
-  }
-
-  return response.json();
+export function updateProfileData(data: ProfileUpdatePayload) {
+  return putData("/dashboard/user-info/profile", data);
 }
 
-/**
- * Get single blog by ID for detail page
- */
 export interface Blog {
   id: number;
   title: string;
@@ -249,16 +250,12 @@ export interface Blog {
   created_at: string;
 }
 
-// Export events functions
-export { getPlannedEvents, getPastEvents, getRegisteredEvents, getBlogs } from './events';
+export { getPlannedEvents, getPastEvents, getRegisteredEvents, getBlogs, type PlannedEvent } from "./events";
 
-// Existing getSingleBlog unchanged
 export async function getSingleBlog(blogId: string): Promise<Blog> {
   const data = await fetchData(`/admin/blogs/${blogId}`);
   if (!data.success || !data.blog) {
-    throw new Error('Blog not found');
+    throw new Error("Blog not found");
   }
   return data.blog;
 }
-
-export { fetchData };
