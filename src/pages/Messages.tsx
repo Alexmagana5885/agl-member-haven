@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,10 +7,19 @@ import { Label } from "@/components/ui/label";
 import { RichTextEditor } from "@/components/ui/RichTextEditor";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { ArrowLeft, MessageSquare, Mail, CalendarDays, Send, X, Search, Users, UserCheck, User, Loader2 } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { ArrowLeft, CalendarDays, Loader2, Mail, MessageSquare, Search, Send, User, UserCheck, Users, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { searchMembers, MemberSearchResult, sendMessage, MessagePayload, getUserMessages, replyToMessage, UserMessage } from "@/services/api";
+import {
+  getUserMessages,
+  replyToMessage,
+  searchMembers,
+  sendMessage,
+  type MemberSearchResult,
+  type MessagePayload,
+  type UserMessage,
+} from "@/services/api";
+import { stripHtml } from "@/lib/utils";
 
 type RecipientType = "all_members" | "officials" | "specific_recipients";
 
@@ -20,8 +29,13 @@ interface SelectedRecipient {
   member_type: "personal" | "organization";
 }
 
+const getPlainText = (html: string) => stripHtml(html || "", 100000).trim();
+
 const MessagesPage = () => {
   const navigate = useNavigate();
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
   const [activeTab, setActiveTab] = useState<"compose" | "inbox">("inbox");
   const [recipientType, setRecipientType] = useState<RecipientType>("all_members");
   const [searchQuery, setSearchQuery] = useState("");
@@ -36,32 +50,16 @@ const MessagesPage = () => {
   const [senderEmail, setSenderEmail] = useState("admin@agl.or.ke");
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  
+
   const [userMessages, setUserMessages] = useState<UserMessage[]>([]);
   const [loadingMessages, setLoadingMessages] = useState(true);
-  
   const [selectedMessage, setSelectedMessage] = useState<UserMessage | null>(null);
   const [replyText, setReplyText] = useState("");
   const [sendingReply, setSendingReply] = useState(false);
-  
-  const searchInputRef = useRef<HTMLInputElement>(null);
-  const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetchUserMessages();
   }, []);
-
-  const fetchUserMessages = async () => {
-    try {
-      setLoadingMessages(true);
-      const messages = await getUserMessages();
-      setUserMessages(messages);
-    } catch (error) {
-      console.error("Error fetching messages:", error);
-    } finally {
-      setLoadingMessages(false);
-    }
-  };
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -69,6 +67,7 @@ const MessagesPage = () => {
         setShowDropdown(false);
       }
     };
+
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
@@ -79,9 +78,7 @@ const MessagesPage = () => {
         setIsSearching(true);
         try {
           const results = await searchMembers(searchQuery);
-          const filtered = results.filter(
-            (r) => !selectedRecipients.some((sr) => sr.email === r.email)
-          );
+          const filtered = results.filter((result) => !selectedRecipients.some((recipient) => recipient.email === result.email));
           setSearchResults(filtered);
           setShowDropdown(filtered.length > 0);
         } catch (error) {
@@ -99,19 +96,44 @@ const MessagesPage = () => {
     return () => clearTimeout(searchTimer);
   }, [searchQuery, recipientType, selectedRecipients]);
 
+  const fetchUserMessages = async () => {
+    try {
+      setLoadingMessages(true);
+      const messages = await getUserMessages();
+      setUserMessages(messages);
+    } catch (error) {
+      console.error("Error fetching messages:", error);
+    } finally {
+      setLoadingMessages(false);
+    }
+  };
+
   const handleSelectRecipient = (member: MemberSearchResult) => {
-    const newRecipient: SelectedRecipient = {
-      email: member.email,
-      name: member.member_name,
-      member_type: member.member_type,
-    };
-    setSelectedRecipients([...selectedRecipients, newRecipient]);
+    setSelectedRecipients((prev) => [
+      ...prev,
+      {
+        email: member.email,
+        name: member.member_name,
+        member_type: member.member_type,
+      },
+    ]);
     setSearchQuery("");
     setShowDropdown(false);
+    searchInputRef.current?.focus();
   };
 
   const handleRemoveRecipient = (email: string) => {
-    setSelectedRecipients(selectedRecipients.filter((r) => r.email !== email));
+    setSelectedRecipients((prev) => prev.filter((recipient) => recipient.email !== email));
+  };
+
+  const handleClearCompose = () => {
+    setSubject("");
+    setMessage("");
+    setSelectedRecipients([]);
+    setRecipientType("all_members");
+    setSuccessMessage("");
+    setErrorMessage("");
+    setSearchQuery("");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -123,11 +145,13 @@ const MessagesPage = () => {
       setErrorMessage("Please select at least one recipient");
       return;
     }
+
     if (!subject.trim()) {
       setErrorMessage("Please enter a subject");
       return;
     }
-    if (!message.trim()) {
+
+    if (!getPlainText(message)) {
       setErrorMessage("Please enter a message");
       return;
     }
@@ -138,13 +162,10 @@ const MessagesPage = () => {
       const payload: MessagePayload = {
         recipient_group: {
           type: recipientType,
-          recipients:
-            recipientType === "specific_recipients"
-              ? selectedRecipients.map((r) => r.email)
-              : undefined,
+          recipients: recipientType === "specific_recipients" ? selectedRecipients.map((recipient) => recipient.email) : undefined,
         },
         subject: subject.trim(),
-        message: message.trim(),
+        message,
         sender_name: senderName.trim() || "AGL Admin",
         sender_email: senderEmail.trim() || "admin@agl.or.ke",
       };
@@ -153,10 +174,7 @@ const MessagesPage = () => {
 
       if (response.success) {
         setSuccessMessage(response.message);
-        setSubject("");
-        setMessage("");
-        setSelectedRecipients([]);
-        setRecipientType("all_members");
+        handleClearCompose();
       } else {
         setErrorMessage(response.message || "Failed to send message");
       }
@@ -169,13 +187,13 @@ const MessagesPage = () => {
   };
 
   const handleSendReply = async () => {
-    if (!selectedMessage || !replyText.trim()) return;
-    
+    if (!selectedMessage || !getPlainText(replyText)) return;
+
     setSendingReply(true);
     try {
       await replyToMessage({
         message_id: selectedMessage.id,
-        message: replyText.trim()
+        message: replyText,
       });
       setReplyText("");
       setSelectedMessage(null);
@@ -189,7 +207,7 @@ const MessagesPage = () => {
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
-    return date.toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' });
+    return date.toLocaleDateString("en-US", { day: "2-digit", month: "short", year: "numeric" });
   };
 
   return (
@@ -200,18 +218,10 @@ const MessagesPage = () => {
         </Button>
 
         <div className="flex gap-2 mb-4">
-          <Button
-            variant={activeTab === "compose" ? "default" : "outline"}
-            onClick={() => setActiveTab("compose")}
-            className="gap-2"
-          >
+          <Button variant={activeTab === "compose" ? "default" : "outline"} onClick={() => setActiveTab("compose")} className="gap-2">
             <Send className="h-4 w-4" /> Compose
           </Button>
-          <Button
-            variant={activeTab === "inbox" ? "default" : "outline"}
-            onClick={() => setActiveTab("inbox")}
-            className="gap-2"
-          >
+          <Button variant={activeTab === "inbox" ? "default" : "outline"} onClick={() => setActiveTab("inbox")} className="gap-2">
             <Mail className="h-4 w-4" /> Inbox ({userMessages.length})
           </Button>
         </div>
@@ -224,13 +234,14 @@ const MessagesPage = () => {
                 Compose Message
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="max-h-[76vh] overflow-y-auto pr-2">
               <form onSubmit={handleSubmit} className="space-y-6">
                 {successMessage && (
                   <div className="p-3 rounded-md bg-green-50 text-green-700 text-sm border border-green-200">
                     {successMessage}
                   </div>
                 )}
+
                 {errorMessage && (
                   <div className="p-3 rounded-md bg-red-50 text-red-700 text-sm border border-red-200">
                     {errorMessage}
@@ -274,7 +285,7 @@ const MessagesPage = () => {
                     <Label className="text-base font-medium">Search and Select Recipients</Label>
                     <div ref={dropdownRef} className="relative">
                       <div className="relative">
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                         <Input
                           ref={searchInputRef}
                           type="text"
@@ -285,14 +296,14 @@ const MessagesPage = () => {
                           className="pl-10"
                         />
                         {isSearching && (
-                          <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                          <div className="absolute right-3 top-1/2 -translate-y-1/2">
                             <div className="h-4 w-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
                           </div>
                         )}
                       </div>
 
                       {showDropdown && searchResults.length > 0 && (
-                        <div className="absolute z-10 w-full mt-1 bg-white border rounded-md shadow-lg max-h-60 overflow-auto">
+                        <div className="absolute z-10 w-full mt-1 rounded-md border bg-popover shadow-lg max-h-60 overflow-auto">
                           {searchResults.map((member) => (
                             <button
                               key={`${member.member_type}-${member.id}`}
@@ -313,92 +324,50 @@ const MessagesPage = () => {
                     {selectedRecipients.length > 0 && (
                       <div className="flex flex-wrap gap-2 mt-2">
                         {selectedRecipients.map((recipient) => (
-                          <Badge
-                            key={recipient.email}
-                            variant="secondary"
-                            className="flex items-center gap-1 py-1.5 pr-1"
-                          >
+                          <Badge key={recipient.email} variant="secondary" className="flex items-center gap-1 py-1.5 pr-1">
                             <span>{recipient.name}</span>
                             <span className="text-muted-foreground text-xs">({recipient.email})</span>
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveRecipient(recipient.email)}
-                              className="ml-1 hover:text-destructive"
-                            >
+                            <button type="button" onClick={() => handleRemoveRecipient(recipient.email)} className="ml-1 hover:text-destructive">
                               <X className="h-3 w-3" />
                             </button>
                           </Badge>
                         ))}
                       </div>
                     )}
-                    <p className="text-xs text-muted-foreground">
-                      {selectedRecipients.length} recipient(s) selected
-                    </p>
+
+                    <p className="text-xs text-muted-foreground">{selectedRecipients.length} recipient(s) selected</p>
                   </div>
                 )}
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="sender_name">Sender Name</Label>
-                    <Input
-                      id="sender_name"
-                      type="text"
-                      value={senderName}
-                      onChange={(e) => setSenderName(e.target.value)}
-                      placeholder="AGL Admin"
-                    />
+                    <Input id="sender_name" value={senderName} onChange={(e) => setSenderName(e.target.value)} placeholder="AGL Admin" />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="sender_email">Sender Email</Label>
-                    <Input
-                      id="sender_email"
-                      type="email"
-                      value={senderEmail}
-                      onChange={(e) => setSenderEmail(e.target.value)}
-                      placeholder="admin@agl.or.ke"
-                    />
+                    <Input id="sender_email" type="email" value={senderEmail} onChange={(e) => setSenderEmail(e.target.value)} placeholder="admin@agl.or.ke" />
                   </div>
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="subject">Subject</Label>
-                  <Input
-                    id="subject"
-                    type="text"
-                    value={subject}
-                    onChange={(e) => setSubject(e.target.value)}
-                    placeholder="Enter message subject..."
-                  />
+                  <Input id="subject" value={subject} onChange={(e) => setSubject(e.target.value)} placeholder="Enter message subject..." />
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="message">Message</Label>
-                  <RichTextEditor
-                    value={message}
-                    onChange={(val) => setMessage(val)}
-                    placeholder="Type your message here..."
-                  />
+                  <RichTextEditor value={message} onChange={setMessage} placeholder="Type your message here..." />
                 </div>
 
                 <div className="flex justify-end gap-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => {
-                      setSubject("");
-                      setMessage("");
-                      setSelectedRecipients([]);
-                      setRecipientType("all_members");
-                      setSuccessMessage("");
-                      setErrorMessage("");
-                    }}
-                  >
+                  <Button type="button" variant="outline" onClick={handleClearCompose}>
                     Clear
                   </Button>
                   <Button type="submit" disabled={isSending}>
                     {isSending ? (
                       <>
-                        <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                         Sending...
                       </>
                     ) : (
@@ -420,16 +389,14 @@ const MessagesPage = () => {
                 Messages ({userMessages.length})
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="max-h-[76vh] overflow-y-auto pr-2">
               {loadingMessages ? (
                 <div className="flex items-center justify-center py-8">
                   <Loader2 className="h-8 w-8 animate-spin text-primary" />
                   <span className="ml-2">Loading messages...</span>
                 </div>
               ) : userMessages.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  No messages found.
-                </div>
+                <div className="text-center py-8 text-muted-foreground">No messages found.</div>
               ) : (
                 <div className="space-y-2">
                   {userMessages.map((msg) => (
@@ -441,14 +408,12 @@ const MessagesPage = () => {
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
-                            <h4 className="text-sm truncate font-medium text-foreground">
-                              {msg.subject}
-                            </h4>
+                            <h4 className="text-sm truncate font-medium text-foreground">{msg.subject}</h4>
                           </div>
                           <p className="text-xs text-muted-foreground mb-1.5 flex items-center gap-1">
                             <Mail className="h-3 w-3" /> {msg.sender_name}
                           </p>
-                          <p className="text-xs text-muted-foreground truncate">{msg.message}</p>
+                          <p className="text-xs text-muted-foreground truncate">{stripHtml(msg.message || "", 120)}</p>
                         </div>
                         <span className="text-xs text-muted-foreground whitespace-nowrap flex items-center gap-1 shrink-0">
                           <CalendarDays className="h-3 w-3" /> {formatDate(msg.date_sent)}
@@ -464,7 +429,7 @@ const MessagesPage = () => {
       </div>
 
       <Dialog open={!!selectedMessage} onOpenChange={(open) => !open && setSelectedMessage(null)}>
-        <DialogContent className="sm:max-w-lg max-h-[80vh] flex flex-col">
+        <DialogContent className="w-[95vw] sm:max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <MessageSquare className="h-5 w-5" />
@@ -473,35 +438,29 @@ const MessagesPage = () => {
             <DialogDescription className="flex items-center gap-2">
               <Mail className="h-4 w-4" />
               From: {selectedMessage?.sender_name} ({selectedMessage?.sender_email})
-              <span className="ml-auto">
-                {selectedMessage && formatDate(selectedMessage.date_sent)}
-              </span>
+              <span className="ml-auto">{selectedMessage && formatDate(selectedMessage.date_sent)}</span>
             </DialogDescription>
           </DialogHeader>
-          
-          <div className="flex-1 overflow-y-auto space-y-4 p-4 bg-muted/30 rounded-lg">
+
+          <div className="flex-1 overflow-y-auto space-y-4 rounded-lg bg-muted/30 p-4">
             <div className="flex justify-start">
-              <div className="max-w-[80%] rounded-lg p-4 bg-white border shadow-sm">
-                <p className="text-sm whitespace-pre-wrap">{selectedMessage?.message}</p>
+              <div className="max-w-[90%] rounded-lg border bg-background p-4 shadow-sm min-w-0 flex-1">
+                <div
+                  className="ql-editor prose prose-sm max-w-none text-sm text-foreground"
+                  dangerouslySetInnerHTML={{ __html: selectedMessage?.message || "" }}
+                />
               </div>
             </div>
           </div>
 
           <div className="space-y-3 pt-4 border-t">
             <Label htmlFor="reply">Reply</Label>
-            <RichTextEditor
-              value={replyText}
-              onChange={(val) => setReplyText(val)}
-              placeholder="Type your reply..."
-            />
-            <div className="flex justify-end gap-2">
+            <RichTextEditor value={replyText} onChange={setReplyText} placeholder="Type your reply..." />
+            <DialogFooter>
               <Button variant="outline" onClick={() => setSelectedMessage(null)}>
                 Close
               </Button>
-              <Button 
-                onClick={handleSendReply} 
-                disabled={!replyText.trim() || sendingReply}
-              >
+              <Button onClick={handleSendReply} disabled={!getPlainText(replyText) || sendingReply}>
                 {sendingReply ? (
                   <>
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -514,7 +473,7 @@ const MessagesPage = () => {
                   </>
                 )}
               </Button>
-            </div>
+            </DialogFooter>
           </div>
         </DialogContent>
       </Dialog>
