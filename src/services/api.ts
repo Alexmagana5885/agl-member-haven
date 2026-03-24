@@ -125,9 +125,6 @@ export async function searchMembers(query: string): Promise<MemberSearchResult[]
 
 // ─── User Messages Endpoints ───
 
-export { fetchData };
-
-
 export interface UserMessage {
   id: number;
   sender_name: string;
@@ -223,6 +220,25 @@ export async function getProfileData(): Promise<ProfileData> {
 }
 
 /**
+ * Update profile data
+ */
+export async function updateProfile(data: Partial<ProfileData>): Promise<{ success: boolean; message: string }> {
+  const response = await fetch(`${API_BASE_URL}/dashboard/user-info/profile`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.message || `Update failed: ${response.status}`);
+  }
+
+  return response.json();
+}
+
+/**
  * Get single blog by ID for detail page
  */
 export interface Blog {
@@ -245,4 +261,4 @@ export async function getSingleBlog(blogId: string): Promise<Blog> {
   return data.blog;
 }
 
-
+export { fetchData };

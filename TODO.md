@@ -1,15 +1,12 @@
-# Past Events DB Integration ✅ COMPLETE
+# Task: Implement Quill editing, HTML rendering with scrolls, user info editing
 
-## Changes:
-- ✅ `PastEventsSection.tsx` → Full API integration (no more dummy data)
-- ✅ Fixed 404: Changed route from `/past-event-detail/:id` → `/past-events/:id`
-- ✅ Backend `/api/admin/past-events` → DB `pastevents` table verified
-
-## Test:
-1. Backend: `cd backend && python app.py`
-2. Frontend: `bun dev` 
-3. Dashboard → Past Events → "AGL 10th AGM" (real DB data)
-4. Click → `/past-events/11` → PastEventDetail page
-
-**Now displays real database events!**
-
+## Steps:
+### 1. [x] Install Quill dependencies (react-quill, quill, types, dompurify)
+### 2. [x] Add updateProfile API to src/services/api.ts
+### 3. [x] Update ProfileSection.tsx: Add edit mode, inputs, save via API
+### 4. [x] Update UserInformation.tsx: Implement editing logic fully
+### 5. [x] Messages.tsx: Replace Textareas with ReactQuill (compose + reply)
+### 6. [x] PastEventDetail.tsx: Add scroll to content div\n### 7. [x] PlannedEventsSection.tsx: Update event_description scroll/render\n### 8. [x] BlogDetail.tsx: Add scroll to content
+### 9. [x] Other dashboard event sections (PastEventsSection etc.): HTML + scroll
+### 10. [] Test all: Rendering safe, Quill saves HTML, scrolls, edits persist
+### 11. [] [Complete]

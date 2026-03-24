@@ -98,7 +98,7 @@ export default function BlogDetail() {
               </div>
             )}
             <div
-              className="ql-editor prose prose-sm max-w-none"
+              className="ql-editor prose prose-sm max-w-none max-h-[500px] overflow-auto p-4 border rounded-lg scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent"
               dangerouslySetInnerHTML={{ __html: blog.content }}
             />
           </CardContent>

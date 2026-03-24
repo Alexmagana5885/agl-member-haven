@@ -10,6 +10,9 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { ArrowLeft, MessageSquare, Mail, CalendarDays, Send, X, Search, Users, UserCheck, User, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
+import DOMPurify from 'dompurify';
 import { searchMembers, MemberSearchResult, sendMessage, MessagePayload, getUserMessages, replyToMessage, UserMessage } from "@/services/api";
 
 type RecipientType = "all_members" | "officials" | "specific_recipients";
@@ -203,15 +206,13 @@ const MessagesPage = () => {
           <Button
             variant={activeTab === "compose" ? "default" : "outline"}
             onClick={() => setActiveTab("compose")}
-            className="gap-2"
-          >
+            className="gap-2">
             <Send className="h-4 w-4" /> Compose
           </Button>
           <Button
             variant={activeTab === "inbox" ? "default" : "outline"}
             onClick={() => setActiveTab("inbox")}
-            className="gap-2"
-          >
+            className="gap-2">
             <Mail className="h-4 w-4" /> Inbox ({userMessages.length})
           </Button>
         </div>
@@ -246,8 +247,7 @@ const MessagesPage = () => {
                       setSelectedRecipients([]);
                       setSearchQuery("");
                     }}
-                    className="flex flex-col sm:flex-row gap-4"
-                  >
+                    className="flex flex-col sm:flex-row gap-4">
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="all_members" id="all_members" />
                       <Label htmlFor="all_members" className="flex items-center gap-2 cursor-pointer">
@@ -282,8 +282,7 @@ const MessagesPage = () => {
                           value={searchQuery}
                           onChange={(e) => setSearchQuery(e.target.value)}
                           onFocus={() => searchResults.length > 0 && setShowDropdown(true)}
-                          className="pl-10"
-                        />
+                          className="pl-10" />
                         {isSearching && (
                           <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
                             <div className="h-4 w-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
@@ -298,8 +297,7 @@ const MessagesPage = () => {
                               key={`${member.member_type}-${member.id}`}
                               type="button"
                               onClick={() => handleSelectRecipient(member)}
-                              className="w-full px-4 py-2 text-left hover:bg-accent flex flex-col gap-1"
-                            >
+                              className="w-full px-4 py-2 text-left hover:bg-accent flex flex-col gap-1">
                               <span className="font-medium text-sm">{member.member_name}</span>
                               <span className="text-xs text-muted-foreground">
                                 {member.email} • {member.member_type === "personal" ? "Individual" : "Organization"}
@@ -316,15 +314,13 @@ const MessagesPage = () => {
                           <Badge
                             key={recipient.email}
                             variant="secondary"
-                            className="flex items-center gap-1 py-1.5 pr-1"
-                          >
+                            className="flex items-center gap-1 py-1.5 pr-1">
                             <span>{recipient.name}</span>
                             <span className="text-muted-foreground text-xs">({recipient.email})</span>
                             <button
                               type="button"
                               onClick={() => handleRemoveRecipient(recipient.email)}
-                              className="ml-1 hover:text-destructive"
-                            >
+                              className="ml-1 hover:text-destructive">
                               <X className="h-3 w-3" />
                             </button>
                           </Badge>
@@ -345,8 +341,7 @@ const MessagesPage = () => {
                       type="text"
                       value={senderName}
                       onChange={(e) => setSenderName(e.target.value)}
-                      placeholder="AGL Admin"
-                    />
+                      placeholder="AGL Admin" />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="sender_email">Sender Email</Label>
@@ -355,8 +350,7 @@ const MessagesPage = () => {
                       type="email"
                       value={senderEmail}
                       onChange={(e) => setSenderEmail(e.target.value)}
-                      placeholder="admin@agl.or.ke"
-                    />
+                      placeholder="admin@agl.or.ke" />
                   </div>
                 </div>
 
@@ -367,8 +361,7 @@ const MessagesPage = () => {
                     type="text"
                     value={subject}
                     onChange={(e) => setSubject(e.target.value)}
-                    placeholder="Enter message subject..."
-                  />
+                    placeholder="Enter message subject..." />
                 </div>
 
                 <div className="space-y-2">
@@ -378,8 +371,7 @@ const MessagesPage = () => {
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                     placeholder="Type your message here..."
-                    rows={8}
-                  />
+                    rows={8} />
                 </div>
 
                 <div className="flex justify-end gap-2">
@@ -393,8 +385,7 @@ const MessagesPage = () => {
                       setRecipientType("all_members");
                       setSuccessMessage("");
                       setErrorMessage("");
-                    }}
-                  >
+                    }}>
                     Clear
                   </Button>
                   <Button type="submit" disabled={isSending}>
@@ -438,8 +429,7 @@ const MessagesPage = () => {
                     <div
                       key={msg.id}
                       className="rounded-lg border p-4 transition-colors cursor-pointer hover:bg-accent/30 border-border"
-                      onClick={() => setSelectedMessage(msg)}
-                    >
+                      onClick={() => setSelectedMessage(msg)}>
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
@@ -496,16 +486,14 @@ const MessagesPage = () => {
               placeholder="Type your reply..."
               value={replyText}
               onChange={(e) => setReplyText(e.target.value)}
-              rows={3}
-            />
+              rows={3} />
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={() => setSelectedMessage(null)}>
                 Close
               </Button>
               <Button 
                 onClick={handleSendReply} 
-                disabled={!replyText.trim() || sendingReply}
-              >
+                disabled={!replyText.trim() || sendingReply}>
                 {sendingReply ? (
                   <>
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />

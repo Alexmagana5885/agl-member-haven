@@ -7,8 +7,7 @@ import { Label } from "@/components/ui/label";
 import { ArrowLeft, UserCircle, Save, X, Pencil, GraduationCap, CreditCard, CheckCircle2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { getProfileData, ProfileData } from "@/services/api";
-
+import { getProfileData, updateProfile, ProfileData } from "@/services/api";
 
 const fieldLabels: Record<string, string> = {
   firstName: "First Name",
@@ -30,6 +29,9 @@ const UserInformationPage = () => {
   const { toast } = useToast();
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [editing, setEditing] = useState(false);
+  const [editedData, setEditedData] = useState<Partial<ProfileData>>({});
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     fetchProfile();
@@ -51,6 +53,29 @@ const UserInformationPage = () => {
     }
   };
 
+  const handleEdit = () => setEditing(true);
+  const handleCancel = () => {
+    setEditing(false);
+    setEditedData({});
+  };
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      await updateProfile(editedData);
+      await fetchProfile();
+      setEditing(false);
+      toast({ title: "Success", description: "Profile updated" });
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message || "Update failed", variant: "destructive" });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleFieldChange = (field: string, value: string) => {
+    setEditedData(prev => ({ ...prev, [field]: value }));
+  };
 
   return (
     <DashboardLayout>
