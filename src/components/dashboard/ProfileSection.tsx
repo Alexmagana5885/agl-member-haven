@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { CalendarDays, Mail, User, GraduationCap, CreditCard, CheckCircle2 } from "lucide-react";
-import { getProfileData, updateProfile, ProfileData } from "@/services/api";
+import { getProfileData, updateProfileData, ProfileData } from "@/services/api";
 
 export function ProfileSection() {
   const [profile, setProfile] = useState<ProfileData | null>(null);
@@ -50,7 +50,7 @@ export function ProfileSection() {
     if (!profile) return;
     setSaving(true);
     try {
-      await updateProfile(editedProfile);
+      await updateProfileData(editedProfile);
       await fetchProfile(); // Refresh
       setEditing(false);
     } catch (err: any) {

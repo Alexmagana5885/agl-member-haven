@@ -87,7 +87,7 @@ export default function BlogDetail() {
           </CardHeader>
           <CardContent className="max-h-[65vh] overflow-y-auto">
             <div className="prose prose-headings:font-display prose-headings:font-bold max-w-none prose-p:leading-relaxed prose-li:marker:text-primary">
-              {blog.image_path &amp;&amp; blog.image_path !== '../assets/img/Blogs/default.jpg' &amp;&amp; (
+{blog.image_path && blog.image_path !== '../assets/img/Blogs/default.jpg' && (
                 <div className="mb-8">
                   <img src={blog.image_path} alt={blog.title} className="w-full h-64 object-cover rounded-lg shadow-lg" />
                 </div>

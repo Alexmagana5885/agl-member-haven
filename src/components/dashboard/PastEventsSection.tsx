@@ -86,7 +86,7 @@ export function PastEventsSection() {
             <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
               <span className="flex items-center gap-1"><CalendarDays className="h-4 w-4" />{new Date(selectedEvent.event_date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</span>
               <span className="flex items-center gap-1"><MapPin className="h-4 w-4" />{selectedEvent.event_location}</span>
-              {selectedEvent.attendees &amp;&amp; <span className="flex items-center gap-1"><Users className="h-4 w-4" />{selectedEvent.attendees} Attendees</span>}
+{selectedEvent.attendees && <span className="flex items-center gap-1"><Users className="h-4 w-4" />{selectedEvent.attendees} Attendees</span>}
             </div>
           </div>
 
@@ -98,7 +98,7 @@ export function PastEventsSection() {
                 <div className="ql-editor prose prose-sm max-w-none text-sm text-muted-foreground leading-relaxed" dangerouslySetInnerHTML={{ __html: selectedEvent.event_description || '' }} />
               </div>
             </div>
-            {selectedEvent.highlights &amp;&amp; (
+{selectedEvent.highlights && (
               <div className="flex gap-3">
                 <Target className="h-5 w-5 text-accent-foreground mt-0.5 shrink-0" />
                 <div className="min-w-0 flex-1">
