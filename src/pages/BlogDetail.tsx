@@ -7,7 +7,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { ArrowLeft, CalendarDays } from 'lucide-react';
 import { getSingleBlog, type Blog } from '@/services/api';
 import { stripHtml } from '@/lib/utils';
-import '@/index.css'; // Ensure Quill styles available
+import '@/index.css';
 
 export default function BlogDetail() {
   const { id } = useParams<{ id: string }>();
@@ -56,9 +56,8 @@ export default function BlogDetail() {
         <div className="mx-auto max-w-3xl py-12 text-center">
           <h2 className="text-2xl font-bold text-destructive mb-4">Blog Not Found</h2>
           <p className="text-muted-foreground mb-6">{error}</p>
-          <Button variant="outline" onClick={() => navigate('/dashboard')}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Dashboard
+          <Button variant="outline" onClick={() => navigate('/dashboard')} className="gap-2">
+            <ArrowLeft className="h-4 w-4" /> Back to Dashboard
           </Button>
         </div>
       </DashboardLayout>
@@ -68,9 +67,8 @@ export default function BlogDetail() {
   return (
     <DashboardLayout>
       <div className="mx-auto max-w-4xl py-8 space-y-6">
-        <Button variant="outline" size="sm" onClick={() => navigate('/dashboard')}>
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Dashboard
+        <Button variant="outline" size="sm" onClick={() => navigate('/dashboard')} className="gap-2">
+          <ArrowLeft className="h-4 w-4" /> Back to Dashboard
         </Button>
 
         <Card className="border-none shadow-card">
@@ -87,20 +85,15 @@ export default function BlogDetail() {
               </p>
             </div>
           </CardHeader>
-          <CardContent className="prose prose-headings:font-display prose-headings:font-bold max-w-none prose-p:leading-relaxed prose-li:marker:text-primary">
-            {blog.image_path && blog.image_path !== '../assets/img/Blogs/default.jpg' && (
-              <div className="mb-8">
-                <img
-                  src={blog.image_path}
-                  alt={blog.title}
-                  className="w-full h-64 object-cover rounded-lg shadow-lg"
-                />
-              </div>
-            )}
-            <div
-              className="ql-editor prose prose-sm max-w-none max-h-[500px] overflow-auto p-4 border rounded-lg scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent"
-              dangerouslySetInnerHTML={{ __html: blog.content }}
-            />
+          <CardContent className="max-h-[65vh] overflow-y-auto">
+            <div className="prose prose-headings:font-display prose-headings:font-bold max-w-none prose-p:leading-relaxed prose-li:marker:text-primary">
+              {blog.image_path &amp;&amp; blog.image_path !== '../assets/img/Blogs/default.jpg' &amp;&amp; (
+                <div className="mb-8">
+                  <img src={blog.image_path} alt={blog.title} className="w-full h-64 object-cover rounded-lg shadow-lg" />
+                </div>
+              )}
+              <div className="ql-editor prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: blog.content }} />
+            </div>
           </CardContent>
         </Card>
 
@@ -110,5 +103,4 @@ export default function BlogDetail() {
       </div>
     </DashboardLayout>
   );
-}
-
+} 

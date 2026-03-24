@@ -1,5 +1,6 @@
 import { fetchData } from './api';
 
+// Re-export PlannedEvent so it can be imported from either events or api
 export interface PlannedEvent {
   id: number;
   event_name: string;
