@@ -92,7 +92,7 @@ const PastEventDetail = () => {
               <MapPin className="h-4 w-4" />
               {event.event_location}
             </span>
-            {event.attendees &amp;&amp; (
+{event.attendees && (
               <span className="flex items-center gap-1">
                 <Users className="h-4 w-4" />
                 {event.attendees} Attendees
@@ -114,7 +114,7 @@ const PastEventDetail = () => {
               </div>
             </div>
 
-            {event.highlights &amp;&amp; (
+{event.highlights && (
               <div className="flex gap-3">
                 <Target className="h-5 w-5 text-accent-foreground mt-0.5 shrink-0" />
                 <div className="min-w-0 flex-1">

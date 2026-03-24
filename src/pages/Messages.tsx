@@ -63,7 +63,7 @@ const MessagesPage = () => {
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current &amp;&amp; !dropdownRef.current.contains(event.target as Node)) {
+if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setShowDropdown(false);
       }
     };
@@ -74,7 +74,7 @@ const MessagesPage = () => {
 
   useEffect(() => {
     const searchTimer = setTimeout(async () => {
-      if (searchQuery.length >= 2 &amp;&amp; recipientType === "specific_recipients") {
+if (searchQuery.length >= 2 && recipientType === "specific_recipients") {
         setIsSearching(true);
         try {
           const results = await searchMembers(searchQuery);
@@ -141,7 +141,7 @@ const MessagesPage = () => {
     setErrorMessage("");
     setSuccessMessage("");
 
-    if (recipientType === "specific_recipients" &amp;&amp; selectedRecipients.length === 0) {
+if (recipientType === "specific_recipients" && selectedRecipients.length === 0) {
       setErrorMessage("Please select at least one recipient");
       return;
     }
@@ -236,13 +236,13 @@ const MessagesPage = () => {
             </CardHeader>
             <CardContent className="max-h-[76vh] overflow-y-auto pr-2">
               <form onSubmit={handleSubmit} className="space-y-6">
-                {successMessage &amp;&amp; (
+{successMessage && (
                   <div className="p-3 rounded-md bg-green-50 text-green-700 text-sm border border-green-200">
                     {successMessage}
                   </div>
                 )}
 
-                {errorMessage &amp;&amp; (
+{errorMessage && (
                   <div className="p-3 rounded-md bg-red-50 text-red-700 text-sm border border-red-200">
                     {errorMessage}
                   </div>
@@ -279,7 +279,7 @@ const MessagesPage = () => {
                   </RadioGroup>
                 </div>
 
-                {recipientType === "specific_recipients" &amp;&amp; (
+{recipientType === "specific_recipients" && (
                   <div className="space-y-3">
                     <Label className="text-base font-medium">Search and Select Recipients</Label>
                     <div ref={dropdownRef} className="relative">
@@ -291,16 +291,16 @@ const MessagesPage = () => {
                           placeholder="Search by name or email..."
                           value={searchQuery}
                           onChange={(e) => setSearchQuery(e.target.value)}
-                          onFocus={() => searchResults.length > 0 &amp;&amp; setShowDropdown(true)}
+onFocus={() => searchResults.length > 0 && setShowDropdown(true)}
                           className="pl-10" />
-                        {isSearching &amp;&amp; (
+{isSearching && (
                           <div className="absolute right-3 top-1/2 -translate-y-1/2">
                             <div className="h-4 w-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
                           </div>
                         )}
                       </div>
 
-                      {showDropdown &amp;&amp; searchResults.length > 0 &amp;&amp; (
+{showDropdown && searchResults.length > 0 && (
                         <div className="absolute z-10 w-full mt-1 rounded-md border bg-popover shadow-lg max-h-60 overflow-auto">
                           {searchResults.map((member) => (
                             <button
@@ -319,7 +319,7 @@ const MessagesPage = () => {
                       )}
                     </div>
 
-                    {selectedRecipients.length > 0 &amp;&amp; (
+{selectedRecipients.length > 0 && (
                       <div className="flex flex-wrap gap-2 mt-2">
                         {selectedRecipients.map((recipient) => (
                           <Badge key={recipient.email} variant="secondary" className="flex items-center gap-1 py-1.5 pr-1">
@@ -426,7 +426,7 @@ const MessagesPage = () => {
         )}
       </div>
 
-      <Dialog open={!!selectedMessage} onOpenChange={(open) => !open &amp;&amp; setSelectedMessage(null)}>
+      <Dialog open={!!selectedMessage} onOpenChange={(open) => !open && setSelectedMessage(null)}>
         <DialogContent className="w-[95vw] sm:max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
@@ -436,7 +436,7 @@ const MessagesPage = () => {
             <DialogDescription className="flex items-center gap-2">
               <Mail className="h-4 w-4" />
               From: {selectedMessage?.sender_name} ({selectedMessage?.sender_email})
-              <span className="ml-auto">{selectedMessage &amp;&amp; formatDate(selectedMessage.date_sent)}</span>
+<span className="ml-auto">{selectedMessage && formatDate(selectedMessage.date_sent)}</span>
             </DialogDescription>
           </DialogHeader>
 
