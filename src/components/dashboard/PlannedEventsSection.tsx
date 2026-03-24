@@ -105,7 +105,7 @@ export function PlannedEventsSection() {
                     </Badge>
                   </div>
 
-<div className="ql-editor prose prose-sm max-w-none line-clamp-3 text-sm text-muted-foreground mb-3" dangerouslySetInnerHTML={{ __html: evt.event_description || '' }} />
+<div className="ql-editor prose prose-sm max-w-none max-h-20 overflow-auto text-sm text-muted-foreground mb-3 scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent" dangerouslySetInnerHTML={{ __html: evt.event_description || '' }} />
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3 text-sm">
                     <div className="flex gap-2">

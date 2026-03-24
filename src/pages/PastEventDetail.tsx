@@ -103,7 +103,7 @@ const PastEventDetail = () => {
         </div>
 
         <div className="prose prose-sm max-w-none prose-headings:font-display prose-headings:text-foreground prose-strong:text-foreground prose-p:text-muted-foreground max-w-none">
-          <div className="ql-editor" dangerouslySetInnerHTML={{ __html: event.event_details }} />
+<div className="ql-editor prose prose-sm max-w-none max-h-96 overflow-auto scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent p-4 rounded-lg border" dangerouslySetInnerHTML={{ __html: event.event_details }} />
           
         </div>
 
