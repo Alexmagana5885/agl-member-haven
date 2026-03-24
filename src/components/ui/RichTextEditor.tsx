@@ -35,7 +35,8 @@ export function RichTextEditor({ value, onChange, placeholder, className }: Rich
         placeholder={placeholder}
         modules={modules}
         formats={formats}
-        style={{ minHeight: 120 }}
+        className="rich-text-editor"
+        style={{ minHeight: 220 }}
       />
     </div>
   );
