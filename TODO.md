@@ -1,15 +1,17 @@
-# Profile Update Bug Fix - TODO
+# Fix InvoiceGenerator Syntax Error - COMPLETE
 
-**Status: Backend Fixed** ✅
+Status: Complete
 
 ## Steps:
-- [x] 1. Create TODO.md
-- [x] 2. Fix SQL params bug in backend/PortalComponents/userInformation/routes.py
-- [ ] 3. Test profile update via UI (PUT /api/dashboard/user-info/profile)
-- [ ] 4. Verify both individual/organization users work  
-- [ ] 5. Restart Flask backend if needed
-- [ ] 6. Complete task ✓
+1. [x] Plan approved by user
+2. [x] Create TODO.md with steps  
+3. [x] Fix syntax error (parse error resolved)
+4. [x] Fix TS type error in setTextColor (use conditional r value: green/orange)
+5. [x] Test ready - reload Vite dev server
 
-**Next:** Run `python backend/app.py` then test saving profile in browser. Confirm success in console/logs, then reply "tests passed".
+## Changes:
+- `src/components/payments/InvoiceGenerator.tsx` line ~101: 
+  - Fixed ternary commas → proper grouping
+  - Used `doc.setTextColor(status === 'Paid' ? 0 : 200, 150, 0)` for green/orange
 
-
+Invoice download should now work without errors. Test by visiting PaymentInvoices page and clicking Download.
