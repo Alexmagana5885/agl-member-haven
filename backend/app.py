@@ -67,8 +67,8 @@ app.register_blueprint(registered_events_bp, url_prefix='/api/events')
 app.register_blueprint(blogs_bp)
 app.register_blueprint(communications_bp)
 
-# User Information blueprint for profile data
-from PortalComponents.dashboard.UserInformation import user_info_bp
+# User Information blueprint for profile data (migrated to userInformation)
+from PortalComponents.userInformation import user_info_bp
 app.register_blueprint(user_info_bp)
 
 

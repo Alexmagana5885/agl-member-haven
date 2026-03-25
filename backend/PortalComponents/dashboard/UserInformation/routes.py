@@ -12,7 +12,8 @@ from login.auth import get_profile_data
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
-user_info_bp = Blueprint('user_info', __name__, url_prefix='/api/dashboard/user-info')
+# DISABLED - migrated to PortalComponents/userInformation/
+# user_info_bp = Blueprint('user_info', __name__, url_prefix='/api/dashboard/user-info')
 
 def get_db_connection():
     """Database connection helper."""
@@ -27,13 +28,14 @@ def get_db_connection():
 # Reuse from auth.py - removed duplicate
 
 
-@user_info_bp.route('/profile', methods=['GET'])
-@login_required
-def get_profile():
-    """Get user profile: membership data, education, payments."""
-    user_id = session.get('user_id')
-    user_type = session.get('user_type')
-    email = session.get('user_email')
+# DISABLED - all routes migrated to PortalComponents/userInformation/routes.py
+# @user_info_bp.route('/profile', methods=['GET'])
+# @login_required
+# def get_profile():
+#     """Get user profile: membership data, education, payments."""
+#     user_id = session.get('user_id')
+#     user_type = session.get('user_type')
+#     email = session.get('user_email')
     
     if not all([user_id, user_type, email]):
         return jsonify({"status": "error", "message": "Incomplete session"}), 401
