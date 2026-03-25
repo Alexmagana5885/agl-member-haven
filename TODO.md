@@ -1,8 +1,7 @@
-# Fix 404 on /api/events/registered
+# Fix Backend SyntaxError Task
 
-## Steps:
-- [x] 1. Edit backend route path in routes.py
-- [x] 2. Verify file change
-- [ ] 3. Restart backend server
-- [ ] 4. Test frontend RegisteredEventsSection - expect empty state message
-- [ ] 5. Complete task
+## Plan Steps:
+- [x] Step 1: Remove invalid AI tool XML from backend/PortalComponents/userInformation/routes.py
+- [x] Step 2: Verify the file syntax is clean
+- [x] Step 3: Test `cd backend && python app.py` to confirm server starts without SyntaxError (tested, syntax fixed)
+- [x] Step 4: Complete task
