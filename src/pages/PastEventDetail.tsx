@@ -2,20 +2,22 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { ArrowLeft, CalendarDays, MapPin, Users, FileText, Target, Loader2 } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ArrowLeft, CalendarDays, MapPin, Users, FileText, Image, Download, Loader2 } from "lucide-react";
 import { getPastEvent } from "@/services/events";
 import { useToast } from "@/hooks/use-toast";
 
 interface PastEvent {
   id: number;
   event_name: string;
-  event_description: string;
+  event_details: string;
   event_location: string;
   event_date: string;
-  attendees?: string;
-  highlights?: string;
-  type?: string;
+  event_image_paths?: string[];
+  event_document_paths?: string[];
+  created_at?: string;
+  attendees?: string; // optional, not in DB
+  highlights?: string; // optional, not in DB
 }
 
 const PastEventDetail = () => {
@@ -31,8 +33,13 @@ const PastEventDetail = () => {
       if (!id) return;
       try {
         setLoading(true);
+        setError("");
         const data = await getPastEvent(parseInt(id));
-        setEvent(data.event || data);
+        const eventData = data.event || data;
+        if (!eventData) {
+          throw new Error("Event data not found in response");
+        }
+        setEvent(eventData);
       } catch (err: any) {
         console.error("Failed to load past event:", err);
         setError(err.message || "Failed to load event details.");
@@ -98,7 +105,7 @@ const PastEventDetail = () => {
               <MapPin className="h-4 w-4" />
               {event.event_location}
             </span>
-{event.attendees && (
+            {event.attendees && (
               <span className="flex items-center gap-1">
                 <Users className="h-4 w-4" />
                 {event.attendees} Attendees
@@ -109,31 +116,85 @@ const PastEventDetail = () => {
 
         <Card className="shadow-card">
           <CardContent className="rounded-lg p-6 space-y-5 max-h-[65vh] overflow-y-auto">
+            {/* Event Details */}
             <div className="flex gap-3">
               <FileText className="h-5 w-5 text-accent-foreground mt-0.5 shrink-0" />
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium text-foreground mb-1">Description</p>
+                <p className="text-sm font-medium text-foreground mb-1">Event Details</p>
                 <div
                   className="ql-editor prose prose-sm max-w-none text-sm text-muted-foreground leading-relaxed"
-                  dangerouslySetInnerHTML={{ __html: event.event_description || "" }}
+                  dangerouslySetInnerHTML={{ __html: event.event_details || "" }}
                 />
               </div>
             </div>
 
-{event.highlights && (
+            {/* Optional Highlights - fallback to part of details if needed */}
+            {event.highlights && (
               <div className="flex gap-3">
                 <Target className="h-5 w-5 text-accent-foreground mt-0.5 shrink-0" />
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-medium text-foreground mb-1">Highlights</p>
                   <div
                     className="ql-editor prose prose-sm max-w-none text-sm text-muted-foreground leading-relaxed"
-                    dangerouslySetInnerHTML={{ __html: event.highlights }}
+                    dangerouslySetInnerHTML={{ __html: event.highlights || "" }}
                   />
                 </div>
               </div>
             )}
           </CardContent>
         </Card>
+
+        {/* Images Gallery */}
+        {event.event_image_paths && event.event_image_paths.length > 0 && (
+          <Card className="shadow-card">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Image className="h-5 w-5" />
+                Event Images ({event.event_image_paths.length})
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-0">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-6">
+                {event.event_image_paths.map((imgPath, index) => (
+                  <div key={index} className="relative group">
+                    <img
+                      src={imgPath}
+                      alt={`Event image ${index + 1}`}
+                      className="w-full h-48 object-cover rounded-lg shadow-md group-hover:shadow-lg transition-shadow"
+                    />
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Documents */}
+        {event.event_document_paths && event.event_document_paths.length > 0 && (
+          <Card className="shadow-card">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Download className="h-5 w-5" />
+                Event Documents ({event.event_document_paths.length})
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-6 space-y-2">
+              {event.event_document_paths.map((docPath, index) => (
+                <Button
+                  key={index}
+                  variant="outline"
+                  size="sm"
+                  asChild
+                  className="w-full justify-start text-left flex gap-2"
+                >
+                  <a href={docPath} target="_blank" rel="noopener noreferrer" download>
+                    📄 Document {index + 1}
+                  </a>
+                </Button>
+              ))}
+            </CardContent>
+          </Card>
+        )}
       </div>
     </DashboardLayout>
   );
