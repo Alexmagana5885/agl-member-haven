@@ -71,6 +71,10 @@ app.register_blueprint(communications_bp)
 from PortalComponents.userInformation import user_info_bp
 app.register_blueprint(user_info_bp)
 
+# Invoices blueprint
+from PortalComponents.payments.invoices import invoices_bp
+app.register_blueprint(invoices_bp)
+
 
 
 def get_db_connection():

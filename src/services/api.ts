@@ -252,6 +252,19 @@ export interface Blog {
 
 export { getPlannedEvents, getPastEvents, getRegisteredEvents, getBlogs, type PlannedEvent } from "./events";
 
+export interface Invoice {
+  id: number;
+  description: string;
+  date: string;
+  amount: string;
+  status: string;
+}
+
+export async function getMyInvoices(): Promise<{ invoices: Invoice[] }> {
+  const data = await fetchData("/invoices/my-invoices");
+  return data;
+}
+
 export async function getSingleBlog(blogId: string): Promise<Blog> {
   const data = await fetchData(`/admin/blogs/${blogId}`);
   if (!data.success || !data.blog) {
