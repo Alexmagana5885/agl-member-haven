@@ -33,7 +33,7 @@ def get_db_connection():
         raise
 
 
-@registered_events_bp.route('', methods=['GET'])
+@registered_events_bp.route('/registered', methods=['GET'])
 def get_user_registered_events():
     """
     Get registered events for specific user email.
