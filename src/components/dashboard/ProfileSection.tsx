@@ -119,7 +119,7 @@ export function ProfileSection() {
 
         <div className="mt-6 space-y-4">
           <div className="flex justify-end gap-2">
-            <Button
+            {/* <Button
               variant={editing ? "outline" : "default"}
               size="sm"
               onClick={handleEditToggle}
@@ -135,7 +135,7 @@ export function ProfileSection() {
               >
                 {saving ? "Saving..." : "Save Changes"}
               </Button>
-            )}
+            )} */}
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
