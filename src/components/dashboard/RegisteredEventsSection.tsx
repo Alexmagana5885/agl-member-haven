@@ -126,7 +126,7 @@ export function RegisteredEventsSection() {
         ) : events.length === 0 ? (
           <div className="text-center py-12 text-muted-foreground">
             <CalendarCheck2 className="h-12 w-12 mx-auto mb-4 opacity-50" />
-            <p className="text-sm">No registered events yet.</p>
+<p className="text-sm">You have not registered on any event.</p>
             <p className="text-xs mt-1">Register for upcoming events to see them here.</p>
           </div>
         ) : (
