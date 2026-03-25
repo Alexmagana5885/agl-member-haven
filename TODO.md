@@ -1,7 +1,15 @@
-# Fix Backend SyntaxError Task
+# Profile Update Bug Fix - TODO
 
-## Plan Steps:
-- [x] Step 1: Remove invalid AI tool XML from backend/PortalComponents/userInformation/routes.py
-- [x] Step 2: Verify the file syntax is clean
-- [x] Step 3: Test `cd backend && python app.py` to confirm server starts without SyntaxError (tested, syntax fixed)
-- [x] Step 4: Complete task
+**Status: Backend Fixed** ✅
+
+## Steps:
+- [x] 1. Create TODO.md
+- [x] 2. Fix SQL params bug in backend/PortalComponents/userInformation/routes.py
+- [ ] 3. Test profile update via UI (PUT /api/dashboard/user-info/profile)
+- [ ] 4. Verify both individual/organization users work  
+- [ ] 5. Restart Flask backend if needed
+- [ ] 6. Complete task ✓
+
+**Next:** Run `python backend/app.py` then test saving profile in browser. Confirm success in console/logs, then reply "tests passed".
+
+

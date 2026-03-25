@@ -82,7 +82,7 @@ def update_profile():
         
         # Base update fields
         update_fields = []
-        params = [user_id]
+        params = []
         
         if 'name' in data and data['name']:
             name_field = "name" if user_type == "individual" else "organization_name"
