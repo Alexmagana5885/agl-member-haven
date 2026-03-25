@@ -1,9 +1,7 @@
-# Fix Missing updateProfile Export Error
 
-## Steps:
-- [ ] 1. Create this TODO.md tracking progress
-- [ ] 2. Edit src/components/dashboard/ProfileSection.tsx to fix import and usage: change `updateProfile` → `updateProfileData`
-- [ ] 3. Verify the fix by building/running the app and testing ProfileSection
-- [ ] 4. Mark complete and attempt_completion
+- [ ] 2. Edit PastEventsSection.tsx: Fix navigation path from `/past-event-detail/` to `/past-events/`
+- [ ] 3. Edit PastPastEventsSection.tsx: Fix navigation path (if duplicate)
+- [ ] 4. Test the fix (click past event)
+- [ ] 5. Complete task
 
-## Steps:\n- [x] 1. Create this TODO.md tracking progress\n- [x] 2. Edit src/components/dashboard/ProfileSection.tsx to fix import and usage: change `updateProfile` → `updateProfileData`\n- [x] 3. Verify the fix by building/running the app and testing ProfileSection\n- [x] 4. Mark complete and attempt_completion\n\n✅ Task completed! Check ProfileSection.tsx - the SyntaxError is fixed by aligning with api.ts exports.\nRun `bun dev` to test.
+**Status**: Starting implementation...

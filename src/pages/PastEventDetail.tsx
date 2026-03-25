@@ -4,7 +4,8 @@ import { DashboardLayout } from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowLeft, CalendarDays, MapPin, Users, FileText, Target, Loader2 } from "lucide-react";
-import { getPastEvents } from "@/services/api";
+import { getPastEvent } from "@/services/events";
+import { useToast } from "@/hooks/use-toast";
 
 interface PastEvent {
   id: number;
@@ -20,28 +21,33 @@ interface PastEvent {
 const PastEventDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [events, setEvents] = useState<PastEvent[]>([]);
+  const [event, setEvent] = useState<PastEvent | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const { toast } = useToast();
 
   useEffect(() => {
-    const loadEvents = async () => {
+    const loadEvent = async () => {
+      if (!id) return;
       try {
         setLoading(true);
-        const data = await getPastEvents();
-        setEvents(data || []);
-      } catch (err) {
-        console.error("Failed to load past events:", err);
-        setError("Failed to load event details.");
+        const data = await getPastEvent(parseInt(id));
+        setEvent(data.event || data);
+      } catch (err: any) {
+        console.error("Failed to load past event:", err);
+        setError(err.message || "Failed to load event details.");
+        toast({
+          title: "Error",
+          description: err.message || "Failed to load event details.",
+          variant: "destructive",
+        });
       } finally {
         setLoading(false);
       }
     };
 
-    loadEvents();
-  }, []);
-
-  const event = events.find((item) => String(item.id) === id);
+    loadEvent();
+  }, [id, toast]);
 
   if (loading) {
     return (
@@ -61,9 +67,9 @@ const PastEventDetail = () => {
     return (
       <DashboardLayout>
         <div className="mx-auto max-w-3xl py-8 text-center space-y-4">
-          <p className="text-muted-foreground">Event not found.</p>
-          <Button variant="outline" onClick={() => navigate("/dashboard")}>
-            <ArrowLeft className="mr-2 h-4 w-4" /> Back to Dashboard
+          <p className="text-destructive">{error || "Event not found."}</p>
+          <Button variant="outline" onClick={() => navigate(-1)}>
+            <ArrowLeft className="mr-2 h-4 w-4" /> Back
           </Button>
         </div>
       </DashboardLayout>
@@ -73,8 +79,8 @@ const PastEventDetail = () => {
   return (
     <DashboardLayout>
       <div className="mx-auto max-w-4xl space-y-6">
-        <Button variant="outline" size="sm" onClick={() => navigate("/dashboard")} className="gap-2">
-          <ArrowLeft className="h-4 w-4" /> Back to Dashboard
+        <Button variant="outline" size="sm" onClick={() => navigate(-1)} className="gap-2">
+          <ArrowLeft className="h-4 w-4" /> Back
         </Button>
 
         <div className="space-y-1">

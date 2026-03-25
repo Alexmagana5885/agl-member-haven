@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { History, MapPin, CalendarDays, ArrowRight, ArrowLeft, Users, FileText, Target, Loader2 } from "lucide-react";
@@ -19,7 +20,7 @@ export function PastEventsSection() {
   const [events, setEvents] = useState<PastEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [selectedEvent, setSelectedEvent] = useState<PastEvent | null>(null);
+  const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
@@ -72,47 +73,6 @@ export function PastEventsSection() {
     );
   }
 
-  // Detail view for a selected past event
-  if (selectedEvent) {
-    return (
-      <Card className="shadow-card">
-        <CardContent className="pt-6 space-y-4">
-          <Button variant="outline" size="sm" onClick={() => setSelectedEvent(null)} className="gap-2">
-            <ArrowLeft className="h-4 w-4" /> Back to Past Events
-          </Button>
-
-          <div className="space-y-1">
-            <h2 className="font-display text-xl font-bold text-foreground">{selectedEvent.event_name}</h2>
-            <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-              <span className="flex items-center gap-1"><CalendarDays className="h-4 w-4" />{new Date(selectedEvent.event_date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</span>
-              <span className="flex items-center gap-1"><MapPin className="h-4 w-4" />{selectedEvent.event_location}</span>
-{selectedEvent.attendees && <span className="flex items-center gap-1"><Users className="h-4 w-4" />{selectedEvent.attendees} Attendees</span>}
-            </div>
-          </div>
-
-          <div className="rounded-lg border border-border bg-card p-6 space-y-5 max-h-[60vh] overflow-y-auto">
-            <div className="flex gap-3">
-              <FileText className="h-5 w-5 text-accent-foreground mt-0.5 shrink-0" />
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium text-foreground mb-1">Description</p>
-                <div className="ql-editor prose prose-sm max-w-none text-sm text-muted-foreground leading-relaxed" dangerouslySetInnerHTML={{ __html: selectedEvent.event_description || '' }} />
-              </div>
-            </div>
-{selectedEvent.highlights && (
-              <div className="flex gap-3">
-                <Target className="h-5 w-5 text-accent-foreground mt-0.5 shrink-0" />
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium text-foreground mb-1">Highlights</p>
-                  <div className="ql-editor prose prose-sm max-w-none text-sm text-muted-foreground leading-relaxed" dangerouslySetInnerHTML={{ __html: selectedEvent.highlights }} />
-                </div>
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
   return (
     <Card className="shadow-card hover:shadow-card-hover transition-shadow">
       <CardHeader className="pb-3">
@@ -145,7 +105,7 @@ export function PastEventsSection() {
               <div 
                 key={evt.id} 
                 className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-lg border border-border p-4 cursor-pointer hover:bg-accent transition-colors"
-                onClick={() => setSelectedEvent(evt)}
+                onClick={() => navigate(`/past-events/${evt.id}`)}
               >
                 <div className="space-y-1 flex-1">
                   <h4 className="font-display text-sm font-semibold text-foreground">
@@ -162,7 +122,7 @@ export function PastEventsSection() {
                     </span>
                   </div>
                 </div>
-                <Button variant="link" size="sm" className="p-0 h-auto text-accent-foreground text-xs shrink-0">
+                <Button variant="link" size="sm" className="p-0 h-auto text-accent-foreground text-xs shrink-0" onClick={() => navigate(`/past-events/${evt.id}`)}>
                   More <ArrowRight className="ml-1 h-3 w-3" />
                 </Button>
               </div>
@@ -173,3 +133,4 @@ export function PastEventsSection() {
     </Card>
   );
 }
+

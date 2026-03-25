@@ -104,7 +104,7 @@ export function PastEventsSection() {
               <div 
                 key={evt.id} 
                 className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-lg border border-border p-4 cursor-pointer hover:bg-accent transition-colors"
-                onClick={() => navigate(`/past-event-detail/${evt.id}`)}
+                onClick={() => navigate(`/past-events/${evt.id}`)}
               >
                 <div className="space-y-1 flex-1">
                   <h4 className="font-display text-sm font-semibold text-foreground line-clamp-2">
