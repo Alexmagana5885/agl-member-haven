@@ -6,7 +6,6 @@ import { Input } from "@/components/ui/input";
 import { CalendarDays, Mail, User, GraduationCap, CreditCard, CheckCircle2 } from "lucide-react";
 import { getProfileData, updateProfileData, uploadProfileImage, ProfileData } from "@/services/api";
 
-
 export function ProfileSection() {
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -25,7 +24,6 @@ const getImageSrc = (path?: string) => {
     const cleanPath = path.replace(/^uploads[\/\\]/i, '');
     return `/uploads/${cleanPath}`;
   };
-
 
   useEffect(() => {
     fetchProfile();
@@ -63,14 +61,26 @@ const getImageSrc = (path?: string) => {
     if (!profile) return;
     
     // Skip API if no changes
-    if (Object.keys(editedProfile).length === 0) {
+    if (Object.keys(editedProfile).length === 0 && !imageFile) {
       setEditing(false);
       return;
     }
     
     setSaving(true);
+    setUploadingImg(true);
     try {
-      await updateProfileData(editedProfile);
+      // Upload image first if selected
+      if (imageFile) {
+        await uploadProfileImage(imageFile);
+        setImageFile(null);
+        setImagePreview('');
+      }
+      
+      // Then update text data if changed
+      if (Object.keys(editedProfile).length > 0) {
+        await updateProfileData(editedProfile);
+      }
+      
       await fetchProfile(); // Refresh
       setEditing(false);
     } catch (err: any) {
@@ -78,6 +88,7 @@ const getImageSrc = (path?: string) => {
       setError(err.message || "Save failed");
     } finally {
       setSaving(false);
+      setUploadingImg(false);
     }
   };
 
@@ -143,28 +154,6 @@ const getImageSrc = (path?: string) => {
                 }}
                 className="text-sm"
               />
-              {imageFile && (
-                <Button
-                  size="sm"
-                  onClick={async () => {
-                    if (!imageFile) return;
-                    setUploadingImg(true);
-                    try {
-                      await uploadProfileImage(imageFile);
-                      await fetchProfile();
-                      setImageFile(null);
-                      setImagePreview('');
-                    } catch (err: any) {
-                      setError(err.message || 'Upload failed');
-                    } finally {
-                      setUploadingImg(false);
-                    }
-                  }}
-                  disabled={uploadingImg}
-                >
-                  {uploadingImg ? 'Uploading...' : 'Upload Image'}
-                </Button>
-              )}
             </div>
           )}
           <div className="text-center sm:text-left pb-1 flex-1">
@@ -176,7 +165,6 @@ const getImageSrc = (path?: string) => {
             </p>
           </div>
         </div>
-
 
         <div className="mt-6 space-y-4">
           <div className="flex justify-end gap-2">
@@ -192,13 +180,12 @@ const getImageSrc = (path?: string) => {
               <Button
                 size="sm"
                 onClick={handleSave}
-                disabled={saving || loading}
+                disabled={saving || loading || uploadingImg}
               >
-                {saving ? "Saving..." : "Save Changes"}
+                {(saving || uploadingImg) ? "Saving..." : "Save Changes"}
               </Button>
             )}
           </div>
-
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {/* Basic Info */}

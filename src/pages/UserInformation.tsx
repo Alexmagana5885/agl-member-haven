@@ -10,7 +10,6 @@ import { useToast } from "@/hooks/use-toast";
 import avatarImg from "@/assets/alex.jpg";
 import { getProfileData, type ProfileData, updateProfileData, uploadProfileImage } from "@/services/api";
 
-
 const UserInformationPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -20,7 +19,6 @@ const UserInformationPage = () => {
   const [editData, setEditData] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
   const [imagePreview, setImagePreview] = useState<string>('');
-  const [uploadingImg, setUploadingImg] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
 
 const getImageSrc = (path?: string) => {
@@ -29,22 +27,6 @@ const getImageSrc = (path?: string) => {
     // Strip leading 'uploads/' to avoid double path
     const cleanPath = path.replace(/^uploads[\/\\]/i, '');
     return `/uploads/${cleanPath}`;
-  };
-
-  const handleImageUpload = async () => {
-    if (!imageFile) return;
-    setUploadingImg(true);
-    try {
-      await uploadProfileImage(imageFile);
-      toast({ title: "Success", description: "Image uploaded successfully" });
-      setImageFile(null);
-      setImagePreview('');
-      fetchProfile();
-    } catch (err) {
-      toast({ title: "Error", description: "Upload failed", variant: "destructive" });
-    } finally {
-      setUploadingImg(false);
-    }
   };
 
   useEffect(() => {
@@ -83,11 +65,13 @@ const getImageSrc = (path?: string) => {
   const handleCancel = () => {
     setEditing(false);
     setEditData({});
+    setImageFile(null);
+    setImagePreview('');
   };
 
   const handleSave = async () => {
     // Skip API if no changes
-    if (Object.keys(editData).length === 0) {
+    if (Object.keys(editData).length === 0 && !imageFile) {
       toast({ title: "Info", description: "No changes to save" });
       setEditing(false);
       return;
@@ -95,7 +79,18 @@ const getImageSrc = (path?: string) => {
     
     setSaving(true);
     try {
-      await updateProfileData(editData);
+      // Upload image first if selected
+      if (imageFile) {
+        await uploadProfileImage(imageFile);
+        setImageFile(null);
+        setImagePreview('');
+      }
+      
+      // Then update text data if changed
+      if (Object.keys(editData).length > 0) {
+        await updateProfileData(editData);
+      }
+      
       toast({ title: "Success", description: "Profile updated successfully" });
       setEditing(false);
       fetchProfile();
@@ -180,16 +175,6 @@ const getImageSrc = (path?: string) => {
                             }}
                             className="text-sm"
                           />
-                          {imageFile && (
-                            <Button
-                              size="sm"
-                              onClick={handleImageUpload}
-                              disabled={uploadingImg}
-                              className="w-full"
-                            >
-                              {uploadingImg ? 'Uploading...' : 'Upload Image'}
-                            </Button>
-                          )}
                         </div>
                       )}
                     </div>
@@ -334,3 +319,4 @@ Membership & Payments
 };
 
 export default UserInformationPage;
+
