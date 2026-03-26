@@ -35,10 +35,11 @@ const ResetPassword = () => {
 
   const handleSendCode = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email) { toast({ title: "Error", description: "Enter your email", variant: "destructive" }); return; }
+    const normalizedEmail = email.toLowerCase().trim();
+    if (!normalizedEmail) { toast({ title: "Error", description: "Enter your email", variant: "destructive" }); return; }
     setSubmitting(true);
     try {
-      await fetch(`${API_BASE_URL}/api/auth/reset-password`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email }) });
+      await fetch(`${API_BASE_URL}/api/auth/reset-password`, { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include", body: JSON.stringify({ email: normalizedEmail }) });
       toast({ title: "Code Sent", description: "Check your email for the verification code" });
       setOtpOpen(true);
     } catch {
@@ -51,8 +52,9 @@ const ResetPassword = () => {
   const handleVerifyCode = async () => {
     if (otp.length < 6) { toast({ title: "Error", description: "Enter the full 6-digit code", variant: "destructive" }); return; }
     setSubmitting(true);
+    const normalizedEmail = email.toLowerCase().trim();
     try {
-      const res = await fetch(`${API_BASE_URL}/api/auth/verify-code`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, code: otp }) });
+      const res = await fetch(`${API_BASE_URL}/api/auth/verify-code`, { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include", body: JSON.stringify({ email: normalizedEmail, code: otp }) });
       if (!res.ok) throw new Error();
       setOtpOpen(false);
       setStep("newPassword");

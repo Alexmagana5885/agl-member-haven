@@ -379,6 +379,7 @@ def reset_password():
         expiry = datetime.now() + timedelta(minutes=15)
         session_key = f"otp_{email}"
         session[session_key] = f"{otp}|{expiry.isoformat()}"
+        logger.info(f"RESET-PASSWORD stored session[{session_key}]='{session[session_key]}', expiry={expiry}")
         
         # Send email
         if send_otp_email(email, otp):
@@ -399,19 +400,30 @@ def verify_code():
     """Verify OTP code."""
     try:
         data = request.get_json()
+        logger.info(f"VERIFY-CODE REQUEST: data={data}, session_keys={list(session.keys())}")
         email = data.get('email', '').lower().strip()
         code = data.get('code', '').strip()
+        logger.info(f"VERIFY-CODE: email='{email}', code_len={len(code) if code else 0}")
         
         if not email or not code:
+            logger.warning(f"VERIFY-CODE 400: missing email or code")
             return jsonify({"status": "error", "message": "Email and code required"}), 400
         
         session_key = f"otp_{email}"
+        logger.info(f"VERIFY-CODE session_key='{session_key}', exists={session_key in session}, all_sessions={list(session.keys())}")
         stored = session.get(session_key)
+        logger.info(f"VERIFY-CODE stored='{stored}'")
         if not stored:
             return jsonify({"status": "error", "message": "No reset request found. Resend code."}), 400
         
+        logger.info(f"VERIFY-CODE split: otp='{stored.split('|')[0] if stored else None}', expiry_str='{expiry_str if 'expiry_str' in locals() else 'N/A'}'")
         stored_otp, expiry_str = stored.split('|')
-        expiry = datetime.fromisoformat(expiry_str)
+        try:
+            expiry = datetime.fromisoformat(expiry_str.replace('Z', '+00:00') if 'Z' in expiry_str else expiry_str)
+            logger.info(f"VERIFY-CODE expiry parsed: {expiry}")
+        except Exception as parse_err:
+            logger.error(f"VERIFY-CODE expiry parse error: {parse_err}, raw='{expiry_str}'")
+            return jsonify({"status": "error", "message": "Invalid session data"}), 400
         
         if datetime.now() > expiry:
             session.pop(session_key, None)
@@ -433,6 +445,15 @@ def verify_code():
 
 
 @login_bp.route('/set-new-password', methods=['POST'])
+@login_bp.route('/debug-session', methods=['GET'])
+def debug_session():
+    """Debug endpoint to check current session contents."""
+    return jsonify({
+        "session_keys": list(session.keys()),
+        "session_contents": {k: str(v)[:100] + '...' if len(str(v)) > 100 else str(v) for k, v in session.items()}
+    }), 200
+
+
 def set_new_password():
     """Set new password after verification."""
     try:

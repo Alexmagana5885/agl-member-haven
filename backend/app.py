@@ -4,6 +4,10 @@ load_dotenv()
 from flask import Flask, jsonify, request, session
 from flask_cors import CORS
 from flask_session import Session
+import logging  # Add logging config
+
+# Configure logging to console
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 import mysql.connector
 
@@ -23,6 +27,9 @@ app.config['SESSION_TYPE'] = 'filesystem'
 app.config['SESSION_PERMANENT'] = True
 app.config['PERMANENT_SESSION_LIFETIME'] = 86400  # 24 hours
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SECURE'] = False  # Dev only
 Session(app)
 
 # directory where uploaded files will be stored
