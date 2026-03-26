@@ -5,6 +5,7 @@ import mysql.connector
 import os
 from datetime import datetime
 from flask import Blueprint, jsonify, request, session
+from werkzeug.utils import secure_filename
 
 from login.decorators import login_required
 from login.auth import get_user_info, calculate_payments_status
@@ -168,23 +169,26 @@ def upload_profile_image():
         member_info = get_user_info(user_id, user_type)
         old_image_path = member_info.get('passport_image') if user_type == 'individual' else member_info.get('logo_image')
         
-        # Fixed paths for backend/uploads/passports/
-        UPLOADS_BASE = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))), 'backend', 'uploads')
-        PASSPORT_DIR = os.path.join(UPLOADS_BASE, 'passports')
-        os.makedirs(PASSPORT_DIR, exist_ok=True)
+# Dynamic paths matching registration - passports/ for individual, organisation_logos/ for org
+        UPLOAD_DIR = os.environ.get("UPLOAD_DIR", "../uploads")  # Relative to backend/
+        UPLOADS_BASE = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), UPLOAD_DIR)
+        SUBFOLDER = "passports" if user_type == "individual" else "organisation_logos"
+        target_dir = os.path.join(UPLOADS_BASE, SUBFOLDER)
+        os.makedirs(target_dir, exist_ok=True)
         
-        # Delete old image
+        # Delete old image (handle type-specific path)
         if old_image_path:
-            old_filename = old_image_path.split('/')[-1]  # Extract filename from "uploads/passports/old.jpg"
-            old_filepath = os.path.join(PASSPORT_DIR, old_filename)
+            old_subfolder = "passports" if "passports" in old_image_path else "organisation_logos"
+            old_filename = old_image_path.split('/')[-1]
+            old_filepath = os.path.join(UPLOADS_BASE, old_subfolder, old_filename)
             if os.path.exists(old_filepath):
                 os.remove(old_filepath)
                 logger.info(f"Deleted old image: {old_filepath}")
         
-        # Save new image
+        # Save new image (matches register/service.py exactly)
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = f"{timestamp}_{file.filename}"
-        filepath = os.path.join(PASSPORT_DIR, filename)
+        filename = f"{timestamp}_{secure_filename(file.filename)}"
+        filepath = os.path.join(target_dir, filename)
         file.save(filepath)
         
         # Update DB
@@ -192,7 +196,7 @@ def upload_profile_image():
         cursor = conn.cursor()
         table = "personalmembership" if user_type == "individual" else "organizationmembership"
         image_field = "passport_image" if user_type == "individual" else "logo_image"
-        cursor.execute(f"UPDATE {table} SET {image_field} = %s WHERE id = %s", (f"uploads/passports/{filename}", user_id))
+        cursor.execute(f"UPDATE {table} SET {image_field} = %s WHERE id = %s", (f"uploads/{SUBFOLDER}/{filename}", user_id))
         conn.commit()
         cursor.close()
         conn.close()
@@ -201,7 +205,7 @@ def upload_profile_image():
         return jsonify({
             "status": "success", 
             "message": "Image uploaded successfully", 
-            "image_path": f"uploads/passports/{filename}"
+            "image_path": f"uploads/{SUBFOLDER}/{filename}"
         })
         
     except Exception as e:
