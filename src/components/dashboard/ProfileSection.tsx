@@ -4,7 +4,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { CalendarDays, Mail, User, GraduationCap, CreditCard, CheckCircle2 } from "lucide-react";
-import { getProfileData, updateProfileData, ProfileData } from "@/services/api";
+import { getProfileData, updateProfileData, uploadProfileImage, ProfileData } from "@/services/api";
+
 
 export function ProfileSection() {
   const [profile, setProfile] = useState<ProfileData | null>(null);
@@ -13,12 +14,18 @@ export function ProfileSection() {
   const [editing, setEditing] = useState(false);
   const [editedProfile, setEditedProfile] = useState<Partial<ProfileData>>({});
   const [saving, setSaving] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string>('');
+  const [uploadingImg, setUploadingImg] = useState(false);
 
-  const getImageSrc = (path?: string) => {
+const getImageSrc = (path?: string) => {
+    if (imagePreview) return imagePreview;
     if (!path) return avatarImg;
-    // Convert DB path like '../assets/img/MembersProfile/...' to served URL
-    return `/backend/${path.replace('../assets/img/', 'uploads/members/')}`;
+    // Strip leading 'uploads/' to avoid double path
+    const cleanPath = path.replace(/^uploads[\/\\]/i, '');
+    return `/uploads/${cleanPath}`;
   };
+
 
   useEffect(() => {
     fetchProfile();
@@ -107,13 +114,53 @@ export function ProfileSection() {
     <Card className="shadow-card hover:shadow-card-hover transition-shadow overflow-hidden">
       <div className="h-24 bg-[image:var(--gradient-primary)]" />
       <CardContent className="relative pt-0 pb-6 px-6">
+
         <div className="flex flex-col sm:flex-row items-center sm:items-end gap-4 -mt-12">
           <img
             src={getImageSrc(profile?.image_path)}
             alt={`${profile?.name || 'Member'} avatar`}
             className="h-24 w-24 rounded-full border-4 border-card object-cover shadow-card"
           />
-          <div className="text-center sm:text-left pb-1">
+          {editing && (
+            <div className="space-y-2 w-full sm:w-auto">
+              <Input
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    setImageFile(file);
+                    const preview = URL.createObjectURL(file);
+                    setImagePreview(preview);
+                  }
+                }}
+                className="text-sm"
+              />
+              {imageFile && (
+                <Button
+                  size="sm"
+                  onClick={async () => {
+                    if (!imageFile) return;
+                    setUploadingImg(true);
+                    try {
+                      await uploadProfileImage(imageFile);
+                      await fetchProfile();
+                      setImageFile(null);
+                      setImagePreview('');
+                    } catch (err: any) {
+                      setError(err.message || 'Upload failed');
+                    } finally {
+                      setUploadingImg(false);
+                    }
+                  }}
+                  disabled={uploadingImg}
+                >
+                  {uploadingImg ? 'Uploading...' : 'Upload Image'}
+                </Button>
+              )}
+            </div>
+          )}
+          <div className="text-center sm:text-left pb-1 flex-1">
             <h2 className="font-display text-xl font-bold text-foreground">
               {profile.name}
             </h2>
@@ -123,13 +170,14 @@ export function ProfileSection() {
           </div>
         </div>
 
+
         <div className="mt-6 space-y-4">
           <div className="flex justify-end gap-2">
-            {/* <Button
+            <Button
               variant={editing ? "outline" : "default"}
               size="sm"
               onClick={handleEditToggle}
-              disabled={saving || loading}
+              disabled={saving || loading || uploadingImg}
             >
               {editing ? "Cancel" : "Edit Profile"}
             </Button>
@@ -141,8 +189,9 @@ export function ProfileSection() {
               >
                 {saving ? "Saving..." : "Save Changes"}
               </Button>
-            )} */}
+            )}
           </div>
+
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {/* Basic Info */}

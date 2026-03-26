@@ -7,7 +7,9 @@ import { Label } from "@/components/ui/label";
 import { ArrowLeft, UserCircle, Save, X, Pencil, GraduationCap, CreditCard } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { getProfileData, type ProfileData, updateProfileData } from "@/services/api";
+import avatarImg from "@/assets/alex.jpg";
+import { getProfileData, type ProfileData, updateProfileData, uploadProfileImage } from "@/services/api";
+
 
 const UserInformationPage = () => {
   const navigate = useNavigate();
@@ -17,6 +19,33 @@ const UserInformationPage = () => {
   const [editing, setEditing] = useState(false);
   const [editData, setEditData] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
+  const [imagePreview, setImagePreview] = useState<string>('');
+  const [uploadingImg, setUploadingImg] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+
+const getImageSrc = (path?: string) => {
+    if (imagePreview) return imagePreview;
+    if (!path) return avatarImg;
+    // Strip leading 'uploads/' to avoid double path
+    const cleanPath = path.replace(/^uploads[\/\\]/i, '');
+    return `/uploads/${cleanPath}`;
+  };
+
+  const handleImageUpload = async () => {
+    if (!imageFile) return;
+    setUploadingImg(true);
+    try {
+      await uploadProfileImage(imageFile);
+      toast({ title: "Success", description: "Image uploaded successfully" });
+      setImageFile(null);
+      setImagePreview('');
+      fetchProfile();
+    } catch (err) {
+      toast({ title: "Error", description: "Upload failed", variant: "destructive" });
+    } finally {
+      setUploadingImg(false);
+    }
+  };
 
   useEffect(() => {
     fetchProfile();
@@ -120,6 +149,45 @@ const UserInformationPage = () => {
             ) : profile ? (
               <div className="space-y-6 max-h-[70vh] overflow-y-auto pr-2">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Profile Image */}
+                  <div className="space-y-1 sm:col-span-2">
+                    <Label className="text-xs font-medium text-muted-foreground">Profile Image</Label>
+                    <div className="flex items-center gap-3 p-3 rounded-lg bg-accent border">
+                      <img 
+                        src={getImageSrc(profile?.image_path)} 
+                        alt="Profile" 
+                        className="h-16 w-16 rounded-full object-cover flex-shrink-0"
+                      />
+                      {editing && (
+                        <div className="space-y-2 min-w-0 flex-1">
+                          <Input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                setImageFile(file);
+                                const preview = URL.createObjectURL(file);
+                                setImagePreview(preview);
+                              }
+                            }}
+                            className="text-sm"
+                          />
+                          {imageFile && (
+                            <Button
+                              size="sm"
+                              onClick={handleImageUpload}
+                              disabled={uploadingImg}
+                              className="w-full"
+                            >
+                              {uploadingImg ? 'Uploading...' : 'Upload Image'}
+                            </Button>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
                   <div className="space-y-1">
                     <Label className="text-xs font-medium text-muted-foreground">Full Name</Label>
                     {editing ? (

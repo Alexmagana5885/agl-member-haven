@@ -175,5 +175,13 @@ def portal():
 def error():
     1 / 0  # intentional error to trigger Flask web debugger
 
+from flask import send_from_directory
+
+@app.route('/uploads/<path:filename>')
+def uploaded_file(filename):
+    """Serve uploaded files (passports, etc.)"""
+    upload_folder = os.path.join(os.path.dirname(__file__), UPLOAD_DIR)
+    return send_from_directory(upload_folder, filename)
+
 if __name__ == "__main__":
     app.run(debug=True, use_reloader=False)

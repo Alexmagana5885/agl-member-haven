@@ -243,6 +243,22 @@ export function updateProfileData(data: ProfileUpdatePayload) {
   return putData("/dashboard/user-info/profile", data);
 }
 
+export async function uploadProfileImage(file: File): Promise<{status: string, image_path: string}> {
+  const formData = new FormData();
+  formData.append('image', file);
+  const response = await fetch(`${API_BASE_URL}/dashboard/user-info/profile/image`, {
+    method: "POST",
+    credentials: "include",
+    body: formData
+  });
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.message || 'Upload failed');
+  }
+  return response.json();
+}
+
+
 export interface Blog {
   id: number;
   title: string;
