@@ -5,7 +5,8 @@ from datetime import datetime
 import json
 import mysql.connector
 import os
-from .auth import authenticate_user, get_user_info, get_profile_data
+from .auth import authenticate_user, get_user_info, get_profile_data, find_user_by_email, hash_password, update_user_password
+
 
 
 # Configure logger
@@ -301,4 +302,172 @@ def get_session():
         "season": season_data,
         "profile": profile_data
     }), 200
+
+
+import smtplib
+import secrets
+import string
+from datetime import datetime, timedelta
+import os
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+
+
+def generate_otp():
+    """Generate 6-digit OTP."""
+    return ''.join(secrets.choice(string.digits) for _ in range(6))
+
+
+def send_otp_email(email, otp):
+    """Send OTP via SMTP."""
+    smtp_email = os.environ.get('SMTP_EMAIL')
+    smtp_password = os.environ.get('SMTP_PASSWORD')
+    smtp_host = os.environ.get('SMTP_HOST', 'smtp.gmail.com')
+    smtp_port = int(os.environ.get('SMTP_PORT', 587))
+    
+    if not all([smtp_email, smtp_password]):
+        logger.error("SMTP credentials missing from env")
+        return False
+    
+    msg = MIMEMultipart()
+    msg['From'] = smtp_email
+    msg['To'] = email
+    msg['Subject'] = "AGL Password Reset Code"
+    
+    body = f"""Your AGL password reset code is: {otp}
+
+This code expires in 15 minutes.
+
+If you did not request this, please ignore this email.
+
+AGL Member Haven"""
+    msg.attach(MIMEText(body, 'plain'))
+    
+    try:
+        server = smtplib.SMTP(smtp_host, smtp_port)
+        server.starttls()
+        server.login(smtp_email, smtp_password)
+        text = msg.as_string()
+        server.sendmail(smtp_email, email, text)
+        server.quit()
+        logger.info(f"OTP email sent to {email}")
+        return True
+    except Exception as e:
+        logger.error(f"Failed to send OTP email to {email}: {str(e)}")
+        return False
+
+
+
+@login_bp.route('/reset-password', methods=['POST'])
+def reset_password():
+    """Send OTP to registered email."""
+    try:
+        data = request.get_json()
+        email = data.get('email', '').lower().strip()
+        
+        if not email:
+            return jsonify({"status": "error", "message": "Email required"}), 400
+        
+        # Check if email exists
+        user = find_user_by_email(email)
+        if not user:
+            # Don't reveal if email exists (security)
+            return jsonify({"status": "success", "message": "If email exists, check your inbox for code"}), 200
+        
+        # Generate and store OTP
+        otp = generate_otp()
+        expiry = datetime.now() + timedelta(minutes=15)
+        session_key = f"otp_{email}"
+        session[session_key] = f"{otp}|{expiry.isoformat()}"
+        
+        # Send email
+        if send_otp_email(email, otp):
+            logger.info(f"Reset OTP sent for {email}")
+            return jsonify({"status": "success", "message": "Check your email for reset code"}), 200
+        else:
+            # Clear session on failure
+            session.pop(session_key, None)
+            return jsonify({"status": "error", "message": "Failed to send email. Try again."}), 500
+            
+    except Exception as e:
+        logger.error(f"Reset password error: {str(e)}")
+        return jsonify({"status": "error", "message": "Server error"}), 500
+
+
+@login_bp.route('/verify-code', methods=['POST'])
+def verify_code():
+    """Verify OTP code."""
+    try:
+        data = request.get_json()
+        email = data.get('email', '').lower().strip()
+        code = data.get('code', '').strip()
+        
+        if not email or not code:
+            return jsonify({"status": "error", "message": "Email and code required"}), 400
+        
+        session_key = f"otp_{email}"
+        stored = session.get(session_key)
+        if not stored:
+            return jsonify({"status": "error", "message": "No reset request found. Resend code."}), 400
+        
+        stored_otp, expiry_str = stored.split('|')
+        expiry = datetime.fromisoformat(expiry_str)
+        
+        if datetime.now() > expiry:
+            session.pop(session_key, None)
+            return jsonify({"status": "error", "message": "Code expired. Resend new code."}), 400
+        
+        if code != stored_otp:
+            return jsonify({"status": "error", "message": "Invalid code"}), 400
+        
+        # Mark as verified
+        session[f"verified_{email}"] = True
+        session.pop(session_key, None)  # Clear OTP
+        
+        logger.info(f"Code verified for {email}")
+        return jsonify({"status": "success", "message": "Code verified"}), 200
+        
+    except Exception as e:
+        logger.error(f"Verify code error: {str(e)}")
+        return jsonify({"status": "error", "message": "Server error"}), 500
+
+
+@login_bp.route('/set-new-password', methods=['POST'])
+def set_new_password():
+    """Set new password after verification."""
+    try:
+        data = request.get_json()
+        email = data.get('email', '').lower().strip()
+        password = data.get('password', '')
+        code = data.get('code')  # For extra security, but verified already
+        
+        if not all([email, password]):
+            return jsonify({"status": "error", "message": "Email and password required"}), 400
+        
+        if len(password) < 8:
+            return jsonify({"status": "error", "message": "Password must be at least 8 characters"}), 400
+        
+        # Check verification
+        if not session.get(f"verified_{email}"):
+            return jsonify({"status": "error", "message": "Please verify code first"}), 400
+        
+        # Find user
+        user = find_user_by_email(email)
+        if not user:
+            return jsonify({"status": "error", "message": "User not found"}), 404
+        
+        # Hash and update
+        hashed_pwd = hash_password(password)
+        if update_user_password(user['id'], user['type'], hashed_pwd):
+            # Clear session flags
+            session.pop(f"verified_{email}", None)
+            logger.info(f"Password reset successful for {email}")
+            return jsonify({"status": "success", "message": "Password reset successful"}), 200
+        else:
+            return jsonify({"status": "error", "message": "Failed to update password"}), 500
+            
+    except Exception as e:
+        logger.error(f"Set new password error: {str(e)}")
+        return jsonify({"status": "error", "message": "Server error"}), 500
+
 
