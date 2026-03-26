@@ -61,6 +61,13 @@ const getImageSrc = (path?: string) => {
 
   const handleSave = async () => {
     if (!profile) return;
+    
+    // Skip API if no changes
+    if (Object.keys(editedProfile).length === 0) {
+      setEditing(false);
+      return;
+    }
+    
     setSaving(true);
     try {
       await updateProfileData(editedProfile);
