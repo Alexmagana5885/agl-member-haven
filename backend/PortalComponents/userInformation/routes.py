@@ -50,7 +50,8 @@ def get_profile():
                 "institution": member_info.get('institution'),
                 "graduation_year": int(member_info.get('graduation_year') or 0)
             } if user_type == 'individual' else None,
-            "payments": payments
+            "payments": payments,
+            "image_path": member_info.get('passport_image') or member_info.get('logo_image')
         }
         return jsonify(profile_data)
         

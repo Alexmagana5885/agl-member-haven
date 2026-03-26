@@ -14,6 +14,12 @@ export function ProfileSection() {
   const [editedProfile, setEditedProfile] = useState<Partial<ProfileData>>({});
   const [saving, setSaving] = useState(false);
 
+  const getImageSrc = (path?: string) => {
+    if (!path) return avatarImg;
+    // Convert DB path like '../assets/img/MembersProfile/...' to served URL
+    return `/backend/${path.replace('../assets/img/', 'uploads/members/')}`;
+  };
+
   useEffect(() => {
     fetchProfile();
   }, []);
@@ -103,8 +109,8 @@ export function ProfileSection() {
       <CardContent className="relative pt-0 pb-6 px-6">
         <div className="flex flex-col sm:flex-row items-center sm:items-end gap-4 -mt-12">
           <img
-            src={avatarImg}
-            alt="Member avatar"
+            src={getImageSrc(profile?.image_path)}
+            alt={`${profile?.name || 'Member'} avatar`}
             className="h-24 w-24 rounded-full border-4 border-card object-cover shadow-card"
           />
           <div className="text-center sm:text-left pb-1">
