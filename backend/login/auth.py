@@ -253,3 +253,60 @@ def get_profile_data(user_id, user_type, email):
         }
 
 
+def find_user_by_email(email):
+    """Find user by email in either personalmembership or organizationmembership."""
+    email = email.lower().strip()
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        
+        # Check personalmembership
+        cursor.execute("SELECT id, email, 'individual' as type FROM personalmembership WHERE email = %s", (email,))
+        user = cursor.fetchone()
+        if user:
+            cursor.close()
+            conn.close()
+            return user
+            
+        # Check organizationmembership
+        cursor.execute("SELECT id, organization_email as email, 'organization' as type FROM organizationmembership WHERE organization_email = %s", (email,))
+        user = cursor.fetchone()
+        cursor.close()
+        conn.close()
+        return user
+        
+    except Exception as e:
+        logger.error(f"Error finding user by email {email}: {str(e)}")
+        return None
+
+
+def hash_password(password):
+    """Generate bcrypt hash for new password."""
+    salt = bcrypt.gensalt()
+    hashed = bcrypt.hashpw(password.encode('utf-8'), salt)
+    # Convert to PHP-compatible $2y$ format
+    return hashed.decode('utf-8').replace('$2b$', '$2y$')
+
+
+def update_user_password(user_id, user_type, hashed_password):
+    """Update user password in database."""
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        table = "personalmembership" if user_type == "individual" else "organizationmembership"
+        column = "password" if user_type == "individual" else "password"
+        
+        cursor.execute(f"UPDATE {table} SET password = %s WHERE id = %s", (hashed_password, user_id))
+        conn.commit()
+        cursor.close()
+        conn.close()
+        logger.info(f"Password updated for user {user_id} ({user_type})")
+        return True
+        
+    except Exception as e:
+        logger.error(f"Error updating password for {user_id}: {str(e)}")
+        return False
+
+
+
