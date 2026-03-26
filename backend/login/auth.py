@@ -295,14 +295,15 @@ def update_user_password(user_id, user_type, hashed_password):
         cursor = conn.cursor()
         
         table = "personalmembership" if user_type == "individual" else "organizationmembership"
-        column = "password" if user_type == "individual" else "password"
+        column = "password"
         
-        cursor.execute(f"UPDATE {table} SET password = %s WHERE id = %s", (hashed_password, user_id))
+        cursor.execute(f"UPDATE {table} SET {column} = %s WHERE id = %s", (hashed_password, user_id))
+        affected = cursor.rowcount
         conn.commit()
         cursor.close()
         conn.close()
-        logger.info(f"Password updated for user {user_id} ({user_type})")
-        return True
+        logger.info(f"Password update for user {user_id} ({user_type}): affected rows={affected}")
+        return affected > 0
         
     except Exception as e:
         logger.error(f"Error updating password for {user_id}: {str(e)}")

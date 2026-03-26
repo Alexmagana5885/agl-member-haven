@@ -72,7 +72,7 @@ const ResetPassword = () => {
     if (newPassword !== confirmPassword) { toast({ title: "Mismatch", description: "Passwords do not match", variant: "destructive" }); return; }
     setSubmitting(true);
     try {
-      await fetch(`${API_BASE_URL}/api/auth/set-new-password`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, password: newPassword, code: otp }) });
+      await fetch(`${API_BASE_URL}/api/auth/set-new-password`, { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include", body: JSON.stringify({ email: email.toLowerCase().trim(), password: newPassword }) });
       toast({ title: "Success", description: "Password reset successfully" });
       navigate("/login");
     } catch {

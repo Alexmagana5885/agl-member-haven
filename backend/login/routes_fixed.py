@@ -7,14 +7,11 @@ import mysql.connector
 import os
 from .auth import authenticate_user, get_user_info, get_profile_data, find_user_by_email, hash_password, update_user_password
 
-
-
 # Configure logger
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 login_bp = Blueprint('login', __name__, url_prefix='/api/auth')
-
 
 def get_db_connection():
     """Create and return a MySQL database connection."""
@@ -36,7 +33,6 @@ def get_db_connection():
         logger.error(f"Database connection failed: {err}")
         raise
 
-
 def check_is_official(email):
     """Check if the user is an official member."""
     try:
@@ -57,7 +53,6 @@ def check_is_official(email):
         logger.error(f"Error checking official status: {str(e)}")
         return False
 
-
 def get_member_data(email, user_type):
     """Get member data from personalmembership or organizationmembership."""
     try:
@@ -77,7 +72,6 @@ def get_member_data(email, user_type):
     except Exception as e:
         logger.error(f"Error getting member data: {str(e)}")
         return None
-
 
 @login_bp.route('/login', methods=['POST'])
 def login():
@@ -229,8 +223,6 @@ def login():
     
     return jsonify(response_data), 200
 
-
-
 @login_bp.route('/logout', methods=['POST'])
 def logout():
     """
@@ -244,7 +236,6 @@ def logout():
     session.clear()
     logger.info(f"Session cleared for user: {user_email}")
     return jsonify({"status": "success", "message": "Logout successful"}), 200
-
 
 @login_bp.route('/session', methods=['GET'])
 def get_session():
@@ -303,7 +294,6 @@ def get_session():
         "profile": profile_data
     }), 200
 
-
 import smtplib
 import secrets
 import string
@@ -312,11 +302,9 @@ import os
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
-
 def generate_otp():
     """Generate 6-digit OTP."""
     return ''.join(secrets.choice(string.digits) for _ in range(6))
-
 
 def send_otp_email(email, otp):
     """Send OTP via SMTP."""
@@ -356,8 +344,6 @@ AGL Member Haven"""
         logger.error(f"Failed to send OTP email to {email}: {str(e)}")
         return False
 
-
-
 @login_bp.route('/reset-password', methods=['POST'])
 def reset_password():
     """Send OTP to registered email."""
@@ -393,7 +379,6 @@ def reset_password():
     except Exception as e:
         logger.error(f"Reset password error: {str(e)}")
         return jsonify({"status": "error", "message": "Server error"}), 500
-
 
 @login_bp.route('/verify-code', methods=['POST'])
 def verify_code():
@@ -443,7 +428,6 @@ def verify_code():
         logger.error(f"Verify code error: {str(e)}")
         return jsonify({"status": "error", "message": "Server error"}), 500
 
-
 @login_bp.route('/debug-session', methods=['GET'])
 def debug_session():
     """Debug endpoint to check current session contents."""
@@ -451,7 +435,6 @@ def debug_session():
         "session_keys": list(session.keys()),
         "session_contents": {k: str(v)[:100] + '...' if len(str(v)) > 100 else str(v) for k, v in session.items()}
     }), 200
-
 
 @login_bp.route('/set-new-password', methods=['POST'])
 def set_new_password():
@@ -490,5 +473,3 @@ def set_new_password():
     except Exception as e:
         logger.error(f"Set new password error: {str(e)}")
         return jsonify({"status": "error", "message": "Server error"}), 500
-
-
