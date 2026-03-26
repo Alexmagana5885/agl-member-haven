@@ -8,7 +8,7 @@ import { ArrowLeft, UserCircle, Save, X, Pencil, GraduationCap, CreditCard } fro
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import avatarImg from "@/assets/alex.jpg";
-import { getProfileData, type ProfileData, updateProfileData, uploadProfileImage } from "@/services/api";
+import { getProfileData, type ProfileData, updateProfileData, uploadProfileImage, type ProfileUpdatePayload } from "@/services/api";
 
 const UserInformationPage = () => {
   const navigate = useNavigate();
@@ -16,7 +16,7 @@ const UserInformationPage = () => {
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
-  const [editData, setEditData] = useState<Record<string, string>>({});
+  const [editData, setEditData] = useState<Partial<ProfileUpdatePayload>>({});
   const [saving, setSaving] = useState(false);
   const [imagePreview, setImagePreview] = useState<string>('');
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -45,21 +45,14 @@ const getImageSrc = (path?: string) => {
     }
   };
 
-  const handleFieldChange = (field: string, value: string) => {
+  const handleFieldChange = (field: keyof ProfileUpdatePayload, value: string) => {
     setEditData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleEdit = () => {
-    if (!profile) return;
-
-    setEditData({
-      name: profile.name || "",
-      email: profile.email || "",
-      highest_degree: profile.education?.highest_degree || "",
-      institution: profile.education?.institution || "",
-      graduation_year: profile.education?.graduation_year?.toString() || "",
-    });
     setEditing(true);
+    // Start empty - only track actual changes
+    setEditData({});
   };
 
   const handleCancel = () => {
@@ -70,35 +63,47 @@ const getImageSrc = (path?: string) => {
   };
 
   const handleSave = async () => {
-    // Skip API if no changes
-    if (Object.keys(editData).length === 0 && !imageFile) {
-      toast({ title: "Info", description: "No changes to save" });
-      setEditing(false);
-      return;
-    }
-    
     setSaving(true);
     try {
+      let hasChanges = false;
+
       // Upload image first if selected
       if (imageFile) {
         await uploadProfileImage(imageFile);
         setImageFile(null);
         setImagePreview('');
+        hasChanges = true;
       }
       
-      // Then update text data if changed
+      // Update text data only if actual changes
       if (Object.keys(editData).length > 0) {
         await updateProfileData(editData);
+        hasChanges = true;
       }
-      
-      toast({ title: "Success", description: "Profile updated successfully" });
-      setEditing(false);
-      fetchProfile();
-    } catch (err) {
-      toast({ title: "Error", description: "Failed to update profile", variant: "destructive" });
+
+      if (hasChanges) {
+        toast({ title: "Success", description: "Profile updated successfully" });
+        setEditing(false);
+        await fetchProfile();
+      } else {
+        toast({ title: "Info", description: "No changes to save" });
+        setEditing(false);
+      }
+    } catch (err: any) {
+      console.error("Save error:", err);
+      toast({ title: "Error", description: err.message || "Failed to update profile", variant: "destructive" });
     } finally {
       setSaving(false);
     }
+  };
+
+  const getFieldValue = (field: keyof ProfileUpdatePayload) => {
+    return editData[field] ?? 
+      (field === 'name' ? profile?.name : 
+       field === 'email' ? profile?.email :
+       field === 'highest_degree' ? profile?.education?.highest_degree :
+       field === 'institution' ? profile?.education?.institution :
+       field === 'graduation_year' ? profile?.education?.graduation_year?.toString() : '');
   };
 
   return (
@@ -122,7 +127,7 @@ const getImageSrc = (path?: string) => {
                 </Button>
               ) : (
                 <div className="flex gap-2">
-                  <Button variant="outline" size="sm" className="gap-1.5" onClick={handleCancel}>
+                  <Button variant="outline" size="sm" className="gap-1.5" onClick={handleCancel} disabled={saving}>
                     <X className="h-3.5 w-3.5" /> Cancel
                   </Button>
                   <Button
@@ -174,6 +179,7 @@ const getImageSrc = (path?: string) => {
                               }
                             }}
                             className="text-sm"
+                            disabled={saving}
                           />
                         </div>
                       )}
@@ -183,7 +189,11 @@ const getImageSrc = (path?: string) => {
                   <div className="space-y-1">
                     <Label className="text-xs font-medium text-muted-foreground">Full Name</Label>
                     {editing ? (
-                      <Input value={editData.name || ""} onChange={(e) => handleFieldChange("name", e.target.value)} />
+                      <Input 
+                        value={getFieldValue('name')} 
+                        onChange={(e) => handleFieldChange('name', e.target.value)} 
+                        disabled={saving}
+                      />
                     ) : (
                       <div className="p-3 rounded-lg bg-accent border">
                         <p className="font-semibold">{profile.name}</p>
@@ -194,7 +204,11 @@ const getImageSrc = (path?: string) => {
                   <div className="space-y-1">
                     <Label className="text-xs font-medium text-muted-foreground">Email</Label>
                     {editing ? (
-                      <Input value={editData.email || ""} onChange={(e) => handleFieldChange("email", e.target.value)} />
+                      <Input 
+                        value={getFieldValue('email')} 
+                        onChange={(e) => handleFieldChange('email', e.target.value)} 
+                        disabled={saving}
+                      />
                     ) : (
                       <div className="p-3 rounded-lg bg-accent border">
                         <p>{profile.email}</p>
@@ -205,7 +219,7 @@ const getImageSrc = (path?: string) => {
                   <div className="space-y-1">
                     <Label className="text-xs font-medium text-muted-foreground">Member Since</Label>
                     <div className="p-3 rounded-lg bg-accent border">
-                      <p>{new Date(profile.registration_date).toLocaleDateString() }</p>
+                      <p>{new Date(profile.registration_date).toLocaleDateString()}</p>
                     </div>
                   </div>
 
@@ -217,7 +231,7 @@ const getImageSrc = (path?: string) => {
                   </div>
                 </div>
 
-{profile.education && (
+                {profile.education && (
                   <div>
                     <h3 className="font-semibold mb-4 flex items-center gap-2">
                       <GraduationCap className="h-4 w-4" /> Education
@@ -227,8 +241,9 @@ const getImageSrc = (path?: string) => {
                         <Label className="text-xs font-medium text-muted-foreground">Highest Degree</Label>
                         {editing ? (
                           <Input
-                            value={editData.highest_degree || ""}
-                            onChange={(e) => handleFieldChange("highest_degree", e.target.value)}
+                            value={getFieldValue('highest_degree')}
+                            onChange={(e) => handleFieldChange('highest_degree', e.target.value)}
+                            disabled={saving}
                           />
                         ) : (
                           <div className="p-3 rounded-lg bg-accent border">
@@ -241,8 +256,9 @@ const getImageSrc = (path?: string) => {
                         <Label className="text-xs font-medium text-muted-foreground">Institution</Label>
                         {editing ? (
                           <Input
-                            value={editData.institution || ""}
-                            onChange={(e) => handleFieldChange("institution", e.target.value)}
+                            value={getFieldValue('institution')}
+                            onChange={(e) => handleFieldChange('institution', e.target.value)}
+                            disabled={saving}
                           />
                         ) : (
                           <div className="p-3 rounded-lg bg-accent border">
@@ -256,8 +272,9 @@ const getImageSrc = (path?: string) => {
                         {editing ? (
                           <Input
                             type="number"
-                            value={editData.graduation_year || ""}
-                            onChange={(e) => handleFieldChange("graduation_year", e.target.value)}
+                            value={getFieldValue('graduation_year')}
+                            onChange={(e) => handleFieldChange('graduation_year', e.target.value)}
+                            disabled={saving}
                           />
                         ) : (
                           <div className="p-3 rounded-lg bg-accent border">
@@ -271,7 +288,7 @@ const getImageSrc = (path?: string) => {
 
                 <div>
                   <h3 className="font-semibold mb-4 flex items-center gap-2">
-Membership & Payments
+                    Membership & Payments
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-1">
