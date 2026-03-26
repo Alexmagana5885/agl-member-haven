@@ -168,23 +168,23 @@ def upload_profile_image():
         member_info = get_user_info(user_id, user_type)
         old_image_path = member_info.get('passport_image') if user_type == 'individual' else member_info.get('logo_image')
         
-        # Delete old image if exists - simplified path
+        # Fixed paths for backend/uploads/passports/
+        UPLOADS_BASE = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))), 'backend', 'uploads')
+        PASSPORT_DIR = os.path.join(UPLOADS_BASE, 'passports')
+        os.makedirs(PASSPORT_DIR, exist_ok=True)
+        
+        # Delete old image
         if old_image_path:
-            # Construct full path consistently
-            rel_path = old_image_path.lstrip('uploads/').replace('/', os.sep)
-            full_old_path = os.path.join(os.path.dirname(__file__), '..', '..', '..', '..', 'backend', 'uploads', rel_path)
-            if os.path.exists(full_old_path):
-                os.remove(full_old_path)
-                logger.info(f"Deleted old image: {full_old_path}")
+            old_filename = old_image_path.split('/')[-1]  # Extract filename from "uploads/passports/old.jpg"
+            old_filepath = os.path.join(PASSPORT_DIR, old_filename)
+            if os.path.exists(old_filepath):
+                os.remove(old_filepath)
+                logger.info(f"Deleted old image: {old_filepath}")
         
-        # Create uploads dir
-        upload_dir = os.path.join(os.path.dirname(__file__), '..', '..', '..', '..', 'backend', 'uploads', 'passports')
-        os.makedirs(upload_dir, exist_ok=True)
-        
-        # Save new image with timestamp
+        # Save new image
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = f"{timestamp}_{file.filename}"
-        filepath = os.path.join(upload_dir, filename)
+        filepath = os.path.join(PASSPORT_DIR, filename)
         file.save(filepath)
         
         # Update DB

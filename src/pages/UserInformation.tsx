@@ -86,6 +86,13 @@ const getImageSrc = (path?: string) => {
   };
 
   const handleSave = async () => {
+    // Skip API if no changes
+    if (Object.keys(editData).length === 0) {
+      toast({ title: "Info", description: "No changes to save" });
+      setEditing(false);
+      return;
+    }
+    
     setSaving(true);
     try {
       await updateProfileData(editData);
