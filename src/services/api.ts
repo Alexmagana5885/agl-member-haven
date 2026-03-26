@@ -212,6 +212,7 @@ export interface ProfileData {
   name: string;
   email: string;
   registration_date: string;
+  image_path?: string;
   education?: {
     highest_degree: string;
     institution: string;
