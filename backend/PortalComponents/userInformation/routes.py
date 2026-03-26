@@ -3,7 +3,9 @@
 import logging
 import mysql.connector
 import os
+from datetime import datetime
 from flask import Blueprint, jsonify, request, session
+
 from login.decorators import login_required
 from login.auth import get_user_info, calculate_payments_status
 
@@ -143,5 +145,70 @@ def update_profile():
     except Exception as e:
         logger.error(f"Profile update error: {e}")
         return jsonify({"status": "error", "message": "Failed to update profile"}), 500
+
+@user_info_bp.route('/profile/image', methods=['POST'])
+@login_required
+def upload_profile_image():
+    """Upload profile image - delete old, save new to uploads/passports/, update DB."""
+    user_id = session.get('user_id')
+    user_type = session.get('user_type')
+    
+    if not all([user_id, user_type]):
+        return jsonify({"status": "error", "message": "Incomplete session"}), 401
+    
+    if 'image' not in request.files:
+        return jsonify({"status": "error", "message": "No image provided"}), 400
+    
+    file = request.files['image']
+    if file.filename == '':
+        return jsonify({"status": "error", "message": "No image selected"}), 400
+    
+    try:
+        # Get current image path from DB
+        member_info = get_user_info(user_id, user_type)
+        old_image_path = member_info.get('passport_image') if user_type == 'individual' else member_info.get('logo_image')
+        
+        # Delete old image if exists - simplified path
+        if old_image_path:
+            # Construct full path consistently
+            rel_path = old_image_path.lstrip('uploads/').replace('/', os.sep)
+            full_old_path = os.path.join(os.path.dirname(__file__), '..', '..', '..', '..', 'backend', 'uploads', rel_path)
+            if os.path.exists(full_old_path):
+                os.remove(full_old_path)
+                logger.info(f"Deleted old image: {full_old_path}")
+        
+        # Create uploads dir
+        upload_dir = os.path.join(os.path.dirname(__file__), '..', '..', '..', '..', 'backend', 'uploads', 'passports')
+        os.makedirs(upload_dir, exist_ok=True)
+        
+        # Save new image with timestamp
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"{timestamp}_{file.filename}"
+        filepath = os.path.join(upload_dir, filename)
+        file.save(filepath)
+        
+        # Update DB
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        table = "personalmembership" if user_type == "individual" else "organizationmembership"
+        image_field = "passport_image" if user_type == "individual" else "logo_image"
+        cursor.execute(f"UPDATE {table} SET {image_field} = %s WHERE id = %s", (f"uploads/passports/{filename}", user_id))
+        conn.commit()
+        cursor.close()
+        conn.close()
+        
+        logger.info(f"Uploaded profile image: {filename}")
+        return jsonify({
+            "status": "success", 
+            "message": "Image uploaded successfully", 
+            "image_path": f"uploads/passports/{filename}"
+        })
+        
+    except Exception as e:
+        logger.error(f"Image upload error: {e}")
+        return jsonify({"status": "error", "message": "Failed to upload image"}), 500
+
+
+
 
 
