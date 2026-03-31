@@ -6,26 +6,31 @@ import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { fetchData, type Invoice } from "@/services/api";
+import { fetchData, getProfileData, type Invoice, type ProfileData } from "@/services/api";
 import { generateInvoicePDF } from "@/components/payments/InvoiceGenerator";
 
 const PaymentInvoicesPage = () => {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [profile, setProfile] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
-    const loadInvoices = async () => {
+    const loadData = async () => {
       try {
         setLoading(true);
-        const data = await fetchData("/invoices/my-invoices");
-        setInvoices(data.invoices || []);
+        const [invoicesData, profileData] = await Promise.all([
+          fetchData("/invoices/my-invoices"),
+          getProfileData()
+        ]);
+        setInvoices(invoicesData.invoices || []);
+        setProfile(profileData);
       } catch (error) {
-        console.error("Failed to load invoices:", error);
+        console.error("Failed to load data:", error);
         toast({
           title: "Error",
-          description: "Failed to load invoices. Please refresh the page.",
+          description: "Failed to load invoices or profile. Please refresh the page.",
           variant: "destructive",
         });
       } finally {
@@ -33,15 +38,14 @@ const PaymentInvoicesPage = () => {
       }
     };
 
-    loadInvoices();
+    loadData();
   }, [toast]);
 
   const handleDownload = (invoice: Invoice) => {
-    // TODO: Fetch user name/phone from profile API for better invoice
     generateInvoicePDF({
-      invoice: { ...invoice, userEmail: "user@example.com" }, // Replace with real session email
-      userName: "Member Name", // Replace with real name from profile
-      userPhone: "0712345678" // Replace with real phone
+      invoice: { ...invoice, userEmail: profile?.email || "N/A" },
+      userName: profile?.name || "Member Name",
+      userPhone: profile?.phone || "N/A"
     });
     toast({ 
       title: "Downloaded", 
