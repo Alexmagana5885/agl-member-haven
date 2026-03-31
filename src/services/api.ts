@@ -211,6 +211,7 @@ export interface ProfileData {
   user_type: string;
   name: string;
   email: string;
+  phone?: string;
   registration_date: string;
   image_path?: string;
   education?: {

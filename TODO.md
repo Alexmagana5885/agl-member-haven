@@ -1,9 +1,10 @@
-# Task: Fix SyntaxError in backend/login/routes.py to allow app.py to run
+# TODO: Fix InvoiceGenerator BILL TO with profile data ✅
 
 ## Steps:
-- [ ] Step 1: Edit backend/login/routes.py to fix malformed decorators in debug_session and set_new-password functions
-- [ ] Step 2: Test `cd backend && python app.py` to verify server starts
-- [ ] Step 3: Complete task
+- [x] Step 1: Update src/services/api.ts - Extend ProfileData interface with optional phone.
+- [x] Step 2: Update src/pages/PaymentInvoices.tsx - Import getProfileData, fetch profile in useEffect, use profile data in handleDownload.
+- [x] Step 3: Test changes - Run dev server, check PaymentInvoices page downloads use real name/email.
+- [x] Step 4: Mark complete, attempt_completion.
 
-✓ Step 1: Created fixed version at backend/login/routes_fixed.py with syntax errors resolved (debug_session and set_new_password decorators reformatted).\n\n- [ ] Step 2: Test `cd backend && python app.py` to verify server starts\n- [ ] Step 3: Complete task\n\nCurrent progress: Step 1 complete, testing next
+All steps completed. Changes: src/services/api.ts and src/pages/PaymentInvoices.tsx updated to fetch and use real profile data (name, email, phone) in invoice PDFs.
 
