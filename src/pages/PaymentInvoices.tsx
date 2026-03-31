@@ -42,10 +42,21 @@ const PaymentInvoicesPage = () => {
   }, [toast]);
 
   const handleDownload = (invoice: Invoice) => {
+    if (!profile?.bill_to_data) {
+      toast({ 
+        title: "Error", 
+        description: "Profile data not loaded", 
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    const billTo = profile.bill_to_data;
     generateInvoicePDF({
-      invoice: { ...invoice, userEmail: profile?.email || "N/A" },
-      userName: profile?.name || "Member Name",
-      userPhone: profile?.phone || "N/A"
+      invoice: { ...invoice, userEmail: billTo.email },
+      userName: billTo.name,
+      userPhone: billTo.phone,
+      billToData: billTo
     });
     toast({ 
       title: "Downloaded", 

@@ -206,6 +206,19 @@ export function registerForEvent(data: EventRegistrationPayload) {
   return postData("/events/register", data);
 }
 
+export interface BillToData {
+  member_type: 'personal' | 'organization';
+  name: string;
+  email: string;
+  phone: string;
+  address?: string;
+  profession?: string;
+  company?: string;
+  position?: string;
+  contact_person?: string;
+  org_type?: string;
+}
+
 export interface ProfileData {
   status: string;
   user_type: string;
@@ -213,6 +226,7 @@ export interface ProfileData {
   email: string;
   phone?: string;
   registration_date: string;
+  bill_to_data: BillToData;
   image_path?: string;
   education?: {
     highest_degree: string;
