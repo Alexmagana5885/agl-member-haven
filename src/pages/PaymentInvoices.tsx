@@ -85,7 +85,7 @@ const PaymentInvoicesPage = () => {
                       <th className="pb-3 font-medium text-muted-foreground">Date</th>
                       <th className="pb-3 font-medium text-muted-foreground">Description</th>
                       <th className="pb-3 font-medium text-muted-foreground hidden sm:table-cell">Amount</th>
-                      <th className="pb-3 font-medium text-muted-foreground">Status</th>
+                      {/* <th className="pb-3 font-medium text-muted-foreground">Status</th> */}
                       <th className="pb-3 font-medium text-muted-foreground text-right">Action</th>
                     </tr>
                   </thead>
@@ -100,9 +100,9 @@ const PaymentInvoicesPage = () => {
                         <td className="py-3 text-muted-foreground hidden sm:table-cell">
                           <span className="flex items-center gap-1"><DollarSign className="h-3 w-3" />{inv.amount}</span>
                         </td>
-                        <td className="py-3">
+                        {/* <td className="py-3">
                           <Badge className={inv.status === 'Paid' ? "bg-green-600" : "bg-yellow-600"}>{inv.status}</Badge>
-                        </td>
+                        </td> */}
                         <td className="py-3 text-right">
                           <Button variant="outline" size="sm" className="gap-1.5" onClick={() => handleDownload(inv)}>
                             <Download className="h-3.5 w-3.5" /> Download
