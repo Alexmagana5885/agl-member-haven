@@ -28,7 +28,7 @@ def get_db_connection():
 @user_info_bp.route('/profile', methods=['GET'])
 @login_required
 def get_profile():
-    """Get user profile: membership data, education, payments."""
+    """Get user profile: membership data, education, payments - with full personal/org details for invoices."""
     user_id = session.get('user_id')
     user_type = session.get('user_type')
     email = session.get('user_email')
@@ -42,12 +42,39 @@ def get_profile():
             return jsonify({"status": "error", "message": "Member not found"}), 404
         
         payments = calculate_payments_status(email)
+        
+        # Type-specific profile data for invoices Bill To
+        bill_to_data = {}
+        if user_type == 'individual':
+            bill_to_data = {
+                'member_type': 'personal',
+                'name': member_info.get('name'),
+                'email': email,
+                'phone': member_info.get('phone'),
+                'address': member_info.get('home_address') or member_info.get('work_address'),
+                'profession': member_info.get('profession'),
+                'company': member_info.get('current_company'),
+                'position': member_info.get('position')
+            }
+        else:  # organization
+            bill_to_data = {
+                'member_type': 'organization',
+                'name': member_info.get('organization_name'),
+                'email': email,
+                'phone': member_info.get('contact_phone_number'),
+                'address': member_info.get('organization_address'),
+                'contact_person': member_info.get('contact_person'),
+                'org_type': member_info.get('organization_type')
+            }
+        
         profile_data = {
             "status": "success",
             "user_type": user_type,
             "name": member_info.get('name') if user_type == 'individual' else member_info.get('organization_name'),
             "email": email,
+            "phone": member_info.get('phone') or member_info.get('contact_phone_number'),
             "registration_date": str(member_info.get('registration_date') or member_info.get('date_of_registration')),
+            "bill_to_data": bill_to_data,
             "education": {
                 "highest_degree": member_info.get('highest_degree'),
                 "institution": member_info.get('institution'),

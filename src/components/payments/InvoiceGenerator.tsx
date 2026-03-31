@@ -1,16 +1,31 @@
 import jsPDF from "jspdf";
 import { Invoice } from "@/services/api";
 
+interface BillToData {
+  member_type: 'personal' | 'organization';
+  name: string;
+  email: string;
+  phone: string;
+  address?: string;
+  profession?: string;
+  company?: string;
+  position?: string;
+  contact_person?: string;
+  org_type?: string;
+}
+
 interface InvoiceGeneratorProps {
   invoice: Invoice & { userEmail: string };
-  userName?: string;
-  userPhone?: string;
+  userName: string;
+  userPhone: string;
+  billToData?: BillToData;
 }
 
 export const generateInvoicePDF = ({
   invoice,
-  userName = "Member",
-  userPhone = "N/A",
+  userName,
+  userPhone,
+  billToData,
 }: InvoiceGeneratorProps) => {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.getWidth();
@@ -81,13 +96,43 @@ export const generateInvoicePDF = ({
   doc.setFontSize(10);
   doc.setTextColor(85, 85, 85);
 
-  const billTo = [userName, invoice.userEmail, userPhone, invoice.description || ""];
-  billTo.forEach((text) => {
-    if (text) {
-      doc.text(text, leftX, y);
-      y += 6;
+  // Dynamic Bill To based on member type
+  if (billToData) {
+    if (billToData.member_type === 'organization') {
+      doc.text(billToData.name || userName, leftX, y); y += 6;
+      if (billToData.contact_person) {
+        doc.text(`Contact: ${billToData.contact_person}`, leftX, y); y += 6;
+      }
+      doc.text(billToData.email, leftX, y); y += 6;
+      doc.text(billToData.phone, leftX, y); y += 6;
+      if (billToData.address) {
+        doc.text(billToData.address, leftX, y); y += 6;
+      }
+      if (billToData.org_type) {
+        doc.text(`Type: ${billToData.org_type}`, leftX, y); y += 6;
+      }
+    } else {
+      // Personal
+      doc.text(userName, leftX, y); y += 6;
+      doc.text(invoice.userEmail, leftX, y); y += 6;
+      doc.text(userPhone, leftX, y); y += 6;
+      if (billToData.address) {
+        doc.text(billToData.address, leftX, y); y += 6;
+      }
+      if (billToData.profession && billToData.company) {
+        doc.text(`${billToData.profession} - ${billToData.company}`, leftX, y); y += 6;
+      }
     }
-  });
+  } else {
+    // Fallback
+    const billTo = [userName, invoice.userEmail, userPhone];
+    billTo.forEach((text) => {
+      if (text) {
+        doc.text(text, leftX, y);
+        y += 6;
+      }
+    });
+  }
 
   let yPay = 78;
   ["ASSOCIATION OF GOVERNMENT LIBRARIANS", "info@agl.or.ke", "+254-722-605-048"].forEach((text) => {
