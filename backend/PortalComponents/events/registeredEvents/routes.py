@@ -5,6 +5,7 @@ from flask import Blueprint, jsonify, request, send_file
 import mysql.connector
 from fpdf import FPDF
 import qrcode
+import tempfile
 from io import BytesIO
 
 # Configure logger
@@ -175,6 +176,12 @@ def download_event_card():
         qr_img.save(qr_buffer, format='PNG')
         qr_buffer.seek(0)
         
+        # Save QR code to temporary file because FPDF.image requires a filename
+        temp_qr_file = tempfile.NamedTemporaryFile(delete=False, suffix='.png')
+        temp_qr_path = temp_qr_file.name
+        temp_qr_file.close()
+        qr_img.save(temp_qr_path, format='PNG')
+        
         # Create PDF with fixes
         pdf = FPDF('P', 'mm', [100, 150])
         pdf.add_page()
@@ -213,7 +220,13 @@ def download_event_card():
         pdf.ln(3)
         
         # QR Code
-        pdf.image(qr_buffer, 32, pdf.get_y(), 36, 36)
+        try:
+            pdf.image(temp_qr_path, 32, pdf.get_y(), 36, 36)
+        finally:
+            try:
+                os.remove(temp_qr_path)
+            except OSError:
+                pass
         pdf.ln(42)
         
         # Blue line below QR
@@ -245,9 +258,10 @@ def download_event_card():
         pdf.cell(100, 4, 'https://www.agl.or.ke/', 0, 1, 'C')
         pdf.cell(100, 4, f'Registered: {event_data.get("registration_date", "N/A")}', 0, 1, 'C')
         
-        # Output to BytesIO properly
+        # Output PDF to BytesIO properly
         pdf_buffer = BytesIO()
-        pdf.output(pdf_buffer)
+        pdf_bytes = pdf.output(dest='S').encode('latin-1')
+        pdf_buffer.write(pdf_bytes)
         pdf_buffer.seek(0)
         
         # Sanitize filename
@@ -262,7 +276,7 @@ def download_event_card():
         )
         
     except Exception as e:
-        logger.error(f"Error generating event card: {str(e)}")
+        logger.exception("Error generating event card")
         return jsonify({
             "success": False,
             "message": "Error generating event card"
