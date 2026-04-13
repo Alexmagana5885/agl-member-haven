@@ -54,6 +54,8 @@ export function RegisteredEventsSection() {
     fetchData();
   }, []);
 
+  const [downloadingEventId, setDownloadingEventId] = useState<number | null>(null);
+
   const formatDate = (dateStr: string) => {
     try {
       return new Date(dateStr).toLocaleDateString("en-GB", {
@@ -66,9 +68,38 @@ export function RegisteredEventsSection() {
     }
   };
 
-  const handleDownloadInvitation = (eventId: number) => {
-    if (profile?.email) {
-      window.open(`/api/events/registered/download-card?email=${encodeURIComponent(profile.email)}&event_id=${eventId}`, "_blank");
+  const handleDownloadInvitation = async (eventId: number) => {
+    if (!profile?.email) {
+      return;
+    }
+
+    const url = `/api/events/registered/download-card?email=${encodeURIComponent(profile.email)}&event_id=${eventId}`;
+
+    try {
+      setDownloadingEventId(eventId);
+      const response = await fetch(url);
+
+      if (!response.ok) {
+        throw new Error("Download failed");
+      }
+
+      const blob = await response.blob();
+      const contentDisposition = response.headers.get("content-disposition") || "";
+      const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+      const filename = filenameMatch ? filenameMatch[1].replace(/['"]/g, "") : `event_card_${eventId}.pdf`;
+
+      const blobUrl = window.URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = blobUrl;
+      anchor.download = filename;
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (err) {
+      console.error("Download error:", err);
+    } finally {
+      setDownloadingEventId(null);
     }
   };
 
@@ -157,13 +188,15 @@ export function RegisteredEventsSection() {
                     {evt.payment_code}
                   </Badge>
                   <Button 
+                    type="button"
                     size="sm" 
                     variant="outline" 
                     className="shrink-0 border-primary text-accent-foreground hover:bg-accent"
                     onClick={() => handleDownloadInvitation(evt.event_id)}
+                    disabled={downloadingEventId === evt.event_id}
                   >
                     <Download className="mr-1 h-3 w-3" />
-                    Card
+                    {downloadingEventId === evt.event_id ? "Downloading" : "Card"}
                   </Button>
                 </div>
               </div>
