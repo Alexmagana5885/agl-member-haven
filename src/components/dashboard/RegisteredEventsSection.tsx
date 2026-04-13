@@ -10,6 +10,7 @@ import type { PlannedEvent } from "@/services/events"; // Reuse for type safety
 
 interface RegisteredEvent {
   id: number;
+  event_id: number;
   event_name: string;
   event_location: string;
   event_date: string;
@@ -65,9 +66,9 @@ export function RegisteredEventsSection() {
     }
   };
 
-  const handleDownloadInvitation = (invitationPath: string | undefined) => {
-    if (invitationPath) {
-      window.open(`/api/uploads/invitation/${invitationPath}`, "_blank");
+  const handleDownloadInvitation = (eventId: number) => {
+    if (profile?.email) {
+      window.open(`/api/events/registered/download-card?email=${encodeURIComponent(profile.email)}&event_id=${eventId}`, "_blank");
     }
   };
 
@@ -159,11 +160,10 @@ export function RegisteredEventsSection() {
                     size="sm" 
                     variant="outline" 
                     className="shrink-0 border-primary text-accent-foreground hover:bg-accent"
-                    onClick={() => handleDownloadInvitation(evt.invitation_card)}
-                    disabled={!evt.invitation_card}
+                    onClick={() => handleDownloadInvitation(evt.event_id)}
                   >
                     <Download className="mr-1 h-3 w-3" />
-                    {evt.invitation_card ? "Card" : "Pending"}
+                    Card
                   </Button>
                 </div>
               </div>

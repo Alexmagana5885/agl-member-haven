@@ -7,3 +7,5 @@ python-dotenv
 bcrypt
 requests
 flask-mail
+fpdf
+qrcode[pil]
