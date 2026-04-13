@@ -166,107 +166,131 @@ def download_event_card():
             }), 404
         
         # Generate QR code with proper content
-        qr_content = f"https://agl.or.ke/event/{event_id}?email={email}"
-        qr = qrcode.QRCode(version=1, box_size=10, border=5)
-        qr.add_data(qr_content)
+        if personal_data:
+            content = f"Name: {personal_data['name']}\n" \
+                     f"Phone: {personal_data['phone']}\n" \
+                     f"Address: {personal_data['home_address']}\n" \
+                     f"Degree: {personal_data['highest_degree']}\n" \
+                     f"Institution: {personal_data['institution']}\n" \
+                     f"Graduation Year: {personal_data['graduation_year']}\n" \
+                     f"Profession: {personal_data['profession']}\n" \
+                     f"Experience: {personal_data['experience']}\n" \
+                     f"Current Company: {personal_data['current_company']}\n" \
+                     f"Position: {personal_data['position']}\n" \
+                     f"Work Address: {personal_data['work_address']}"
+        elif org_data:
+            content = f"Organization Name: {org_data['organization_name']}\n" \
+                     f"Contact Person: {org_data['contact_person']}\n" \
+                     f"Phone: {org_data['contact_phone_number']}\n" \
+                     f"Address: {org_data['organization_address']}\n" \
+                     f"Country: {org_data['location_country']}\n" \
+                     f"County: {org_data['location_county']}\n" \
+                     f"Town: {org_data['location_town']}\n" \
+                     f"Organization Type: {org_data['organization_type']}\n" \
+                     f"What You Do: {org_data['what_you_do']}"
+        
+        qr = qrcode.QRCode(version=1, error_correction=qrcode.constants.ERROR_CORRECT_L, box_size=4, border=4)
+        qr.add_data(content)
         qr.make(fit=True)
         qr_img = qr.make_image(fill='black', back_color='white')
         
-        qr_buffer = BytesIO()
-        qr_img.save(qr_buffer, format='PNG')
-        qr_buffer.seek(0)
-        
-        # Save QR code to temporary file because FPDF.image requires a filename
+        # Save QR code to temporary file
         temp_qr_file = tempfile.NamedTemporaryFile(delete=False, suffix='.png')
         temp_qr_path = temp_qr_file.name
         temp_qr_file.close()
         qr_img.save(temp_qr_path, format='PNG')
         
-        # Create PDF with fixes
+        # Create PDF with exact styling from PHP code
         pdf = FPDF('P', 'mm', [100, 150])
         pdf.add_page()
         
-        # Background
+        # Background color
         pdf.set_fill_color(195, 198, 214)
         pdf.rect(0, 0, 100, 150, 'F')
         
-        # Logo (fallback to text)
-        logo_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../public/AGLlogo.png'))
+        # Logo
+        logo_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../src/components/payments/AGLlogo.png'))
+        page_width = pdf.w
         if os.path.exists(logo_path):
-            pdf.image(logo_path, 35, 5, 30, 15)
-        else:
-            pdf.set_font('Arial', 'B', 16)
-            pdf.set_xy(30, 10)
-            pdf.cell(40, 10, 'AGL', 0, 1, 'C')
+            header_image_width = 35
+            header_image_x = (page_width - header_image_width) / 2
+            pdf.image(logo_path, header_image_x, 5, header_image_width)
         
-        # Header
-        pdf.set_font('Arial', 'B', 10)
-        pdf.ln(20)
-        pdf.cell(100, 5, 'Association of Government Librarians', 0, 1, 'C')
-        
-        # Blue line
-        pdf.set_draw_color(0, 0, 255)
-        pdf.set_line_width(0.5)
-        pdf.line(5, pdf.get_y() + 2, 95, pdf.get_y() + 2)
-        pdf.ln(8)
-        
-        # Event details
-        pdf.set_font('Arial', 'B', 9)
-        pdf.cell(95, 6, event_data['event_name'][:50], 0, 1, 'C')  # Truncate long names
-        pdf.ln(2)
-        
+        # Header text
         pdf.set_font('Arial', 'B', 12)
-        pdf.cell(95, 8, event_data['member_name'], 0, 1, 'C')
-        pdf.ln(3)
+        pdf.set_xy(0, 25)
+        pdf.cell(0, 3, 'Association of Government Librarians', 0, 1, 'R')
+        pdf.ln(5)
         
-        # QR Code
-        try:
-            pdf.image(temp_qr_path, 32, pdf.get_y(), 36, 36)
-        finally:
-            try:
-                os.remove(temp_qr_path)
-            except OSError:
-                pass
-        pdf.ln(42)
-        
-        # Blue line below QR
+        # Blue line below header
         pdf.set_draw_color(0, 0, 255)
         pdf.set_line_width(0.5)
-        pdf.line(5, pdf.get_y(), 95, pdf.get_y())
+        pdf.line(5, 40, 95, 40)
+        
+        # Space after header
+        pdf.ln(10)
+        
+        # Event name
+        pdf.set_font('Arial', 'B', 8)
+        pdf.cell(0, 1, event_data['event_name'], 0, 2, 'C')
+        pdf.ln(1)
+        
+        # Member name
+        pdf.set_font('Arial', '', 10)
+        pdf.cell(0, 8, event_data['member_name'], 0, 1, 'C')
+        
+        # Space before QR code
         pdf.ln(5)
         
-        # Location & Date
+        # QR code
+        if os.path.exists(temp_qr_path):
+            qr_code_width = 35
+            x_position = (page_width - qr_code_width) / 2
+            pdf.image(temp_qr_path, x_position, 55, qr_code_width)
+            pdf.ln(10)
+        
+        # Blue line below QR code
+        pdf.ln(20)
+        pdf.set_draw_color(0, 0, 255)
+        pdf.set_line_width(0.5)
+        pdf.line(5, pdf.get_y() + 5, 95, pdf.get_y() + 5)
+        
+        # Location and date
+        cell_height = 5
         pdf.set_font('Arial', '', 9)
-        pdf.cell(50, 5, event_data['event_location'] or 'TBD', 0, 0, 'L')
-        pdf.cell(45, 5, str(event_data['event_date']), 0, 1, 'R')
-        pdf.ln(3)
+        pdf.set_xy(5, pdf.get_y() + 10)
+        pdf.cell(90, cell_height, event_data['event_location'] or '', 0, 1, 'L')
+        pdf.set_xy(page_width - 95, pdf.get_y() - 5)
+        pdf.cell(90, cell_height, str(event_data['event_date']), 0, 1, 'R')
         
-        # Payment code
-        if event_data.get('payment_code'):
-            pdf.cell(95, 5, f"Payment Code: {event_data['payment_code']}", 0, 1, 'C')
-        
-        # Status background
+        # Sky blue background for status
         pdf.set_fill_color(135, 206, 250)
-        pdf.rect(0, pdf.get_y() + 2, 100, 18, 'F')
-        pdf.set_xy(0, pdf.get_y() + 2)
-        pdf.set_font('Arial', 'B', 14)
-        pdf.cell(100, 10, member_status or 'Member', 0, 1, 'C')
+        pdf.rect(0, pdf.get_y() + 10, 100, 20, 'F')
         
-        # Footer
-        pdf.set_font('Arial', 'I', 8)
-        pdf.ln(5)
-        pdf.cell(100, 4, 'https://www.agl.or.ke/', 0, 1, 'C')
-        pdf.cell(100, 4, f'Registered: {event_data.get("registration_date", "N/A")}', 0, 1, 'C')
+        # Member status
+        pdf.set_xy(0, pdf.get_y() + 10)
+        pdf.set_font('Arial', 'B', 12)
+        pdf.cell(0, 8, member_status, 0, 1, 'C')
         
-        # Output PDF to BytesIO properly
+        # Website link
+        pdf.set_font('Arial', 'I', 7)
+        pdf.cell(0, 5, 'https://www.agl.or.ke/', 0, 1, 'C')
+        
+        # Clean up temp file
+        try:
+            os.remove(temp_qr_path)
+        except OSError:
+            pass
+        
+        # Output PDF
         pdf_buffer = BytesIO()
         pdf_bytes = pdf.output(dest='S').encode('latin-1')
         pdf_buffer.write(pdf_bytes)
         pdf_buffer.seek(0)
         
         # Sanitize filename
-        sanitized_event_name = ''.join(c for c in (event_data['event_name'] or 'Event')[:30] if c.isalnum() or c in (' ', '-', '_')).rstrip().replace(' ', '_')
-        filename = f"AGL_Event_Card_{sanitized_event_name}_{email.replace('@', '_')}.pdf"
+        sanitized_event_name = ''.join(c for c in event_data['event_name'] if c.isalnum() or c in (' ', '-', '_')).rstrip().replace(' ', '_')
+        filename = f"{sanitized_event_name}_{email}.pdf"
         
         return send_file(
             pdf_buffer,
