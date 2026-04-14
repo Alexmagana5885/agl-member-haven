@@ -1,5 +1,6 @@
 """Registered Events routes - Get user-specific events from event_registrations table."""
 import os
+import sys
 import logging
 from flask import Blueprint, jsonify, request, send_file
 import mysql.connector
@@ -107,202 +108,134 @@ def download_event_card():
     Returns:
         PDF file download
     """
+    # TEMPORARY TEST: Skip database checks and generate test PDF
+    event_data = {
+        'event_name': 'Test Event',
+        'event_date': '2024-12-25',
+        'event_location': 'Test Location',
+        'member_name': 'Test Member'
+    }
+    member_status = 'Member'
+    
+    # Generate simple QR code for testing
+    content = "Test QR Code Content"
+    
+    qr = qrcode.QRCode(version=1, error_correction=qrcode.constants.ERROR_CORRECT_L, box_size=4, border=4)
+    qr.add_data(content)
+    qr.make(fit=True)
+    qr_img = qr.make_image(fill='black', back_color='white')
+    
+    # Save QR code to temporary file
+    temp_qr_file = tempfile.NamedTemporaryFile(delete=False, suffix='.png')
+    temp_qr_path = temp_qr_file.name
+    temp_qr_file.close()
+    qr_img.save(temp_qr_path, format='PNG')
+    
+    # Create PDF with exact styling from PHP code
+    pdf = FPDF('P', 'mm', [100, 150])
+    pdf.add_page()
+    
+    # Background color
+    pdf.set_fill_color(195, 198, 214)
+    pdf.rect(0, 0, 100, 150, 'F')
+    
+    # Logo
+    logo_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'AGLlogo.jpg'))
+    print(f"DEBUG: Logo path: {logo_path}")
+    print(f"DEBUG: Logo exists: {os.path.exists(logo_path)}")
+    page_width = pdf.w
+    header_image_width = 35
+    header_image_x = (page_width - header_image_width) / 2
     try:
-        email = request.args.get('email')
-        event_id = request.args.get('event_id')
-        
-        if not email or not event_id:
-            return jsonify({
-                "success": False,
-                "message": "Email and event_id parameters are required"
-            }), 400
-        
-        conn = get_db_connection()
-        
-        # Get event registration data
-        event_query = """
-            SELECT er.event_name, er.event_date, er.event_location, er.member_name, er.member_email,
-                   er.invitation_card, er.contact, er.payment_code, er.registration_date
-            FROM event_registrations er
-            WHERE er.member_email = %s AND er.event_id = %s
-        """
-        event_data = query_one(conn, event_query, (email, event_id))
-        if not event_data:
-            conn.close()
-            return jsonify({
-                "success": False,
-                "message": "Event registration not found"
-            }), 404
-        
-        # Check personal membership
-        personal_query = """
-            SELECT name, phone, home_address, highest_degree, institution, graduation_year, 
-                   profession, experience, current_company, position, work_address 
-            FROM personalmembership 
-            WHERE email = %s
-        """
-        personal_data = query_one(conn, personal_query, (email,))
-        
-        # Check organization membership
-        org_query = """
-            SELECT organization_name, contact_person, contact_phone_number, organization_address, 
-                   location_country, location_county, location_town, organization_type, what_you_do 
-            FROM organizationmembership 
-            WHERE organization_email = %s
-        """
-        org_data = query_one(conn, org_query, (email,))
-        
-        # Member status
-        status_query = "SELECT position FROM officialsmembers WHERE personalmembership_email = %s"
-        status_data = query_one(conn, status_query, (email,))
-        member_status = status_data['position'] if status_data else 'Member'
-        
-        conn.close()
-        
-        if not personal_data and not org_data:
-            return jsonify({
-                "success": False,
-                "message": "User data not found"
-            }), 404
-        
-        # Generate QR code with proper content
-        if personal_data:
-            content = f"Name: {personal_data['name']}\n" \
-                     f"Phone: {personal_data['phone']}\n" \
-                     f"Address: {personal_data['home_address']}\n" \
-                     f"Degree: {personal_data['highest_degree']}\n" \
-                     f"Institution: {personal_data['institution']}\n" \
-                     f"Graduation Year: {personal_data['graduation_year']}\n" \
-                     f"Profession: {personal_data['profession']}\n" \
-                     f"Experience: {personal_data['experience']}\n" \
-                     f"Current Company: {personal_data['current_company']}\n" \
-                     f"Position: {personal_data['position']}\n" \
-                     f"Work Address: {personal_data['work_address']}"
-        elif org_data:
-            content = f"Organization Name: {org_data['organization_name']}\n" \
-                     f"Contact Person: {org_data['contact_person']}\n" \
-                     f"Phone: {org_data['contact_phone_number']}\n" \
-                     f"Address: {org_data['organization_address']}\n" \
-                     f"Country: {org_data['location_country']}\n" \
-                     f"County: {org_data['location_county']}\n" \
-                     f"Town: {org_data['location_town']}\n" \
-                     f"Organization Type: {org_data['organization_type']}\n" \
-                     f"What You Do: {org_data['what_you_do']}"
-        
-        qr = qrcode.QRCode(version=1, error_correction=qrcode.constants.ERROR_CORRECT_L, box_size=4, border=4)
-        qr.add_data(content)
-        qr.make(fit=True)
-        qr_img = qr.make_image(fill='black', back_color='white')
-        
-        # Save QR code to temporary file
-        temp_qr_file = tempfile.NamedTemporaryFile(delete=False, suffix='.png')
-        temp_qr_path = temp_qr_file.name
-        temp_qr_file.close()
-        qr_img.save(temp_qr_path, format='PNG')
-        
-        # Create PDF with exact styling from PHP code
-        pdf = FPDF('P', 'mm', [100, 150])
-        pdf.add_page()
-        
-        # Background color
-        pdf.set_fill_color(195, 198, 214)
-        pdf.rect(0, 0, 100, 150, 'F')
-        
-        # Logo
-        logo_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'AGLlogo.png'))
-        page_width = pdf.w
-        if os.path.exists(logo_path):
-            header_image_width = 35
-            header_image_x = (page_width - header_image_width) / 2
-            pdf.image(logo_path, header_image_x, 5, header_image_width)
-        
-        # Header text
-        pdf.set_font('Arial', 'B', 12)
-        pdf.set_xy(0, 25)
-        pdf.cell(0, 3, 'Association of Government Librarians', 0, 1, 'R')
-        pdf.ln(5)
-        
-        # Blue line below header
-        pdf.set_draw_color(0, 0, 255)
-        pdf.set_line_width(0.5)
-        pdf.line(5, 40, 95, 40)
-        
-        # Space after header
-        pdf.ln(10)
-        
-        # Event name
-        pdf.set_font('Arial', 'B', 8)
-        pdf.cell(0, 1, event_data['event_name'], 0, 2, 'C')
-        pdf.ln(1)
-        
-        # Member name
-        pdf.set_font('Arial', '', 10)
-        pdf.cell(0, 8, event_data['member_name'], 0, 1, 'C')
-        
-        # Space before QR code
-        pdf.ln(5)
-        
-        # QR code
-        if os.path.exists(temp_qr_path):
-            qr_code_width = 35
-            x_position = (page_width - qr_code_width) / 2
-            pdf.image(temp_qr_path, x_position, 55, qr_code_width)
-            pdf.ln(10)
-        
-        # Blue line below QR code
-        pdf.ln(20)
-        pdf.set_draw_color(0, 0, 255)
-        pdf.set_line_width(0.5)
-        pdf.line(5, pdf.get_y() + 5, 95, pdf.get_y() + 5)
-        
-        # Location and date
-        cell_height = 5
-        pdf.set_font('Arial', '', 9)
-        pdf.set_xy(5, pdf.get_y() + 10)
-        pdf.cell(90, cell_height, event_data['event_location'] or '', 0, 1, 'L')
-        pdf.set_xy(page_width - 95, pdf.get_y() - 5)
-        pdf.cell(90, cell_height, str(event_data['event_date']), 0, 1, 'R')
-        
-        # Sky blue background for status
-        pdf.set_fill_color(135, 206, 250)
-        pdf.rect(0, pdf.get_y() + 10, 100, 20, 'F')
-        
-        # Member status
-        pdf.set_xy(0, pdf.get_y() + 10)
-        pdf.set_font('Arial', 'B', 12)
-        pdf.cell(0, 8, member_status, 0, 1, 'C')
-        
-        # Website link
-        pdf.set_font('Arial', 'I', 7)
-        pdf.cell(0, 5, 'https://www.agl.or.ke/', 0, 1, 'C')
-        
-        # Clean up temp file
-        try:
-            os.remove(temp_qr_path)
-        except OSError:
-            pass
-        
-        # Output PDF
-        pdf_buffer = BytesIO()
-        pdf_bytes = pdf.output(dest='S').encode('latin-1')
-        pdf_buffer.write(pdf_bytes)
-        pdf_buffer.seek(0)
-        
-        # Sanitize filename
-        sanitized_event_name = ''.join(c for c in event_data['event_name'] if c.isalnum() or c in (' ', '-', '_')).rstrip().replace(' ', '_')
-        filename = f"{sanitized_event_name}_{email}.pdf"
-        
-        return send_file(
-            pdf_buffer,
-            as_attachment=True,
-            download_name=filename,
-            mimetype='application/pdf'
-        )
-        
+        pdf.image(logo_path, header_image_x, 10, header_image_width)
+        print("DEBUG: Logo loaded successfully")
     except Exception as e:
-        logger.exception("Error generating event card")
-        return jsonify({
-            "success": False,
-            "message": "Error generating event card"
-        }), 500
+        print(f"DEBUG: Error loading logo: {e}")
+        # Fallback: draw text instead
+        pdf.set_font('Arial', 'B', 16)
+        pdf.set_xy(header_image_x, 10)
+        pdf.cell(header_image_width, 10, 'AGL', 0, 1, 'C')
+    
+    # Header text
+    pdf.set_font('Arial', 'B', 12)
+    pdf.set_xy(0, 25)
+    pdf.cell(0, 3, 'Association of Government Librarians', 0, 1, 'R')
+    pdf.ln(5)
+    
+    # Blue line below header
+    pdf.set_draw_color(0, 0, 255)
+    pdf.set_line_width(0.5)
+    pdf.line(5, 40, 95, 40)
+    
+    # Space after header
+    pdf.ln(10)
+    
+    # Event name
+    pdf.set_font('Arial', 'B', 8)
+    pdf.cell(0, 1, event_data['event_name'], 0, 2, 'C')
+    pdf.ln(1)
+    
+    # Member name
+    pdf.set_font('Arial', '', 10)
+    pdf.cell(0, 8, event_data['member_name'], 0, 1, 'C')
+    
+    # Space before QR code
+    pdf.ln(5)
+    
+    # QR code
+    if os.path.exists(temp_qr_path):
+        qr_code_width = 35
+        x_position = (page_width - qr_code_width) / 2
+        pdf.image(temp_qr_path, x_position, 55, qr_code_width)
+        pdf.ln(10)
+    
+    # Blue line below QR code
+    pdf.ln(20)
+    pdf.set_draw_color(0, 0, 255)
+    pdf.set_line_width(0.5)
+    pdf.line(5, pdf.get_y() + 5, 95, pdf.get_y() + 5)
+    
+    # Location and date
+    cell_height = 5
+    pdf.set_font('Arial', '', 9)
+    pdf.set_xy(5, pdf.get_y() + 10)
+    pdf.cell(90, cell_height, event_data['event_location'] or '', 0, 1, 'L')
+    pdf.set_xy(page_width - 95, pdf.get_y() - 5)
+    pdf.cell(90, cell_height, str(event_data['event_date']), 0, 1, 'R')
+    
+    # Sky blue background for status
+    pdf.set_fill_color(135, 206, 250)
+    pdf.rect(0, pdf.get_y() + 10, 100, 20, 'F')
+    
+    # Member status
+    pdf.set_xy(0, pdf.get_y() + 10)
+    pdf.set_font('Arial', 'B', 12)
+    pdf.cell(0, 8, member_status, 0, 1, 'C')
+    
+    # Website link
+    pdf.set_font('Arial', 'I', 7)
+    pdf.cell(0, 5, 'https://www.agl.or.ke/', 0, 1, 'C')
+    
+    # Clean up temp file
+    try:
+        os.remove(temp_qr_path)
+    except OSError:
+        pass
+    
+    # Output PDF
+    pdf_buffer = BytesIO()
+    pdf_bytes = pdf.output(dest='S').encode('latin-1')
+    pdf_buffer.write(pdf_bytes)
+    pdf_buffer.seek(0)
+    
+    # Sanitize filename
+    sanitized_event_name = ''.join(c for c in event_data['event_name'] if c.isalnum() or c in (' ', '-', '_')).rstrip().replace(' ', '_')
+    filename = f"{sanitized_event_name}_test.pdf"
+    
+    return send_file(
+        pdf_buffer,
+        as_attachment=True,
+        download_name=filename,
+        mimetype='application/pdf'
+    )
 
