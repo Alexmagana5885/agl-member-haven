@@ -209,7 +209,7 @@ def download_event_card():
         pdf.rect(0, 0, 100, 150, 'F')
         
         # Logo
-        logo_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../src/components/payments/AGLlogo.png'))
+        logo_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'AGLlogo.png'))
         page_width = pdf.w
         if os.path.exists(logo_path):
             header_image_width = 35
