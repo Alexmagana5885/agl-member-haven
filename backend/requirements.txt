@@ -9,3 +9,4 @@ requests
 flask-mail
 fpdf
 qrcode[pil]
+Pillow==10.4.0
