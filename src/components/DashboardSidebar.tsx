@@ -49,6 +49,11 @@ const emptyMessage: MessagePayload = {
   message: "",
 };
 
+// Simpler versions aligned with database structure only
+const simplePlannedEvent = { title: "", date: "", venue: "", description: "", regAmount: "", imagePath: null as File | null };
+const simplePastEvent = { title: "", date: "", venue: "", description: "", imagePaths: [] as File[], documentPaths: [] as File[] };
+const simpleBlog = { title: "", content: "", imagePath: null as File | null };
+
 export function DashboardSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
@@ -74,16 +79,16 @@ export function DashboardSidebar() {
     checkUserSession();
   }, []);
 
-  const [plannedEvent, setPlannedEvent] = useState(emptyPlannedEvent);
-  const [pastEvent, setPastEvent] = useState(emptyPastEvent);
-  const [blog, setBlog] = useState(emptyBlog);
+  const [plannedEvent, setPlannedEvent] = useState(simplePlannedEvent);
+  const [pastEvent, setPastEvent] = useState(simplePastEvent);
+  const [blog, setBlog] = useState(simpleBlog);
   const [message, setMessage] = useState(emptyMessage);
 
   const closeDialog = () => {
     setActiveDialog(null);
-    setPlannedEvent(emptyPlannedEvent);
-    setPastEvent(emptyPastEvent);
-    setBlog(emptyBlog);
+    setPlannedEvent({ title: "", date: "", venue: "", description: "", regAmount: "", imagePath: null });
+    setPastEvent({ title: "", date: "", venue: "", description: "", imagePaths: [], documentPaths: [] });
+    setBlog({ title: "", content: "", imagePath: null });
     setMessage(emptyMessage);
   };
 
@@ -202,42 +207,35 @@ export function DashboardSidebar() {
           </DialogHeader>
           <div className="space-y-3 py-2 overflow-y-auto flex-1 pr-2">
             <div className="space-y-1.5">
-              <Label>Event Title</Label>
+              <Label>Event Title *</Label>
               <Input placeholder="Enter event title" value={plannedEvent.title} onChange={(e) => setPlannedEvent({ ...plannedEvent, title: e.target.value })} />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label>Event Type</Label>
-                <Input placeholder="e.g. Conference" value={plannedEvent.type} onChange={(e) => setPlannedEvent({ ...plannedEvent, type: e.target.value })} />
-              </div>
-              <div className="space-y-1.5">
-                <Label>Event Date</Label>
+                <Label>Event Date *</Label>
                 <Input type="date" value={plannedEvent.date} onChange={(e) => setPlannedEvent({ ...plannedEvent, date: e.target.value })} />
               </div>
+              <div className="space-y-1.5">
+                <Label>Registration Amount (Ksh) *</Label>
+                <Input type="number" placeholder="0" value={plannedEvent.regAmount} onChange={(e) => setPlannedEvent({ ...plannedEvent, regAmount: e.target.value })} />
+              </div>
             </div>
             <div className="space-y-1.5">
-              <Label>Venue</Label>
-              <Input placeholder="Enter venue" value={plannedEvent.venue} onChange={(e) => setPlannedEvent({ ...plannedEvent, venue: e.target.value })} />
+              <Label>Event Location/Venue *</Label>
+              <Input placeholder="Enter event venue" value={plannedEvent.venue} onChange={(e) => setPlannedEvent({ ...plannedEvent, venue: e.target.value })} />
             </div>
             <div className="space-y-1.5">
-              <Label>Description</Label>
+              <Label>Event Description *</Label>
               <RichTextEditor value={plannedEvent.description} onChange={(val) => setPlannedEvent({ ...plannedEvent, description: val })} placeholder="Describe the event" />
             </div>
             <div className="space-y-1.5">
-              <Label>Objectives</Label>
-              <RichTextEditor value={plannedEvent.objectives} onChange={(val) => setPlannedEvent({ ...plannedEvent, objectives: val })} placeholder="Event objectives" />
-            </div>
-            <div className="space-y-1.5">
-              <Label>Why Attend</Label>
-              <RichTextEditor value={plannedEvent.whyAttend} onChange={(val) => setPlannedEvent({ ...plannedEvent, whyAttend: val })} placeholder="Reasons to attend" />
-            </div>
-            <div className="space-y-1.5">
-              <Label>Subthemes (comma-separated)</Label>
-              <Input placeholder="e.g. AI, Digital Literacy" value={plannedEvent.subthemes} onChange={(e) => setPlannedEvent({ ...plannedEvent, subthemes: e.target.value })} />
-            </div>
-            <div className="space-y-1.5">
-              <Label>Registration Amount (Ksh)</Label>
-              <Input type="number" placeholder="0" value={plannedEvent.regAmount} onChange={(e) => setPlannedEvent({ ...plannedEvent, regAmount: e.target.value })} />
+              <Label>Event Image</Label>
+              <label className="flex items-center gap-2 border border-dashed border-border rounded-lg p-3 cursor-pointer hover:bg-accent transition-colors">
+                <span className="text-sm text-muted-foreground truncate">
+                  {(plannedEvent as any).imagePath?.name || "Choose image..."}
+                </span>
+                <input type="file" accept="image/*" className="hidden" onChange={(e) => setPlannedEvent({ ...plannedEvent, imagePath: e.target.files?.[0] || null } as any)} />
+              </label>
             </div>
           </div>
           <DialogFooter>
@@ -256,43 +254,49 @@ export function DashboardSidebar() {
             <DialogTitle className="flex items-center gap-2 font-display">
               <History className="h-5 w-5 text-primary" /> Add Past Event
             </DialogTitle>
-            <DialogDescription>Record a past event.</DialogDescription>
+            <DialogDescription>Record a past event with details.</DialogDescription>
           </DialogHeader>
           <div className="space-y-3 py-2 overflow-y-auto flex-1 pr-2">
             <div className="space-y-1.5">
-              <Label>Event Title</Label>
-              <Input placeholder="Enter event title" value={pastEvent.title} onChange={(e) => setPastEvent({ ...pastEvent, title: e.target.value })} />
+              <Label>Event Title *</Label>
+              <Input placeholder="Enter event title" value={(pastEvent as any).title} onChange={(e) => setPastEvent({ ...pastEvent, title: e.target.value } as any)} />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label>Event Type</Label>
-                <Input placeholder="e.g. Symposium" value={pastEvent.type} onChange={(e) => setPastEvent({ ...pastEvent, type: e.target.value })} />
+                <Label>Event Date *</Label>
+                <Input type="date" value={(pastEvent as any).date} onChange={(e) => setPastEvent({ ...pastEvent, date: e.target.value } as any)} />
               </div>
               <div className="space-y-1.5">
-                <Label>Event Date</Label>
-                <Input type="date" value={pastEvent.date} onChange={(e) => setPastEvent({ ...pastEvent, date: e.target.value })} />
+                <Label>Event Location/Venue *</Label>
+                <Input placeholder="Enter venue" value={(pastEvent as any).venue} onChange={(e) => setPastEvent({ ...pastEvent, venue: e.target.value } as any)} />
               </div>
             </div>
             <div className="space-y-1.5">
-              <Label>Venue</Label>
-              <Input placeholder="Enter venue" value={pastEvent.venue} onChange={(e) => setPastEvent({ ...pastEvent, venue: e.target.value })} />
+              <Label>Event Details/Description *</Label>
+              <RichTextEditor value={(pastEvent as any).description} onChange={(val) => setPastEvent({ ...pastEvent, description: val } as any)} placeholder="Describe the event details" />
             </div>
             <div className="space-y-1.5">
-              <Label>Description</Label>
-              <RichTextEditor value={pastEvent.description} onChange={(val) => setPastEvent({ ...pastEvent, description: val })} placeholder="Describe the event" />
+              <Label>Event Images</Label>
+              <label className="flex items-center gap-2 border border-dashed border-border rounded-lg p-3 cursor-pointer hover:bg-accent transition-colors">
+                <span className="text-sm text-muted-foreground truncate">
+                  {(pastEvent as any).imagePaths?.length > 0 ? `${(pastEvent as any).imagePaths.length} image(s)` : "Choose images..."}
+                </span>
+                <input type="file" accept="image/*" multiple className="hidden" onChange={(e) => setPastEvent({ ...pastEvent, imagePaths: Array.from(e.target.files || []) } as any)} />
+              </label>
             </div>
             <div className="space-y-1.5">
-              <Label>Attendees</Label>
-              <Input placeholder="e.g. 350+" value={pastEvent.attendees} onChange={(e) => setPastEvent({ ...pastEvent, attendees: e.target.value })} />
-            </div>
-            <div className="space-y-1.5">
-              <Label>Highlights</Label>
-              <RichTextEditor value={pastEvent.highlights} onChange={(val) => setPastEvent({ ...pastEvent, highlights: val })} placeholder="Key highlights" />
+              <Label>Event Documents</Label>
+              <label className="flex items-center gap-2 border border-dashed border-border rounded-lg p-3 cursor-pointer hover:bg-accent transition-colors">
+                <span className="text-sm text-muted-foreground truncate">
+                  {(pastEvent as any).documentPaths?.length > 0 ? `${(pastEvent as any).documentPaths.length} document(s)` : "Choose documents..."}
+                </span>
+                <input type="file" accept=".pdf,.doc,.docx" multiple className="hidden" onChange={(e) => setPastEvent({ ...pastEvent, documentPaths: Array.from(e.target.files || []) } as any)} />
+              </label>
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={closeDialog} disabled={submitting}>Cancel</Button>
-            <Button className="bg-primary text-primary-foreground hover:bg-primary/90" disabled={submitting} onClick={() => handleSubmit(() => createPastEvent(pastEvent), "Past event saved successfully")}>
+            <Button className="bg-primary text-primary-foreground hover:bg-primary/90" disabled={submitting} onClick={() => handleSubmit(() => createPastEvent(pastEvent as any), "Past event saved successfully")}>
               {submitting ? "Saving..." : "Save Event"}
             </Button>
           </DialogFooter>
@@ -310,25 +314,26 @@ export function DashboardSidebar() {
           </DialogHeader>
           <div className="space-y-3 py-2 overflow-y-auto flex-1 pr-2">
             <div className="space-y-1.5">
-              <Label>Blog Title</Label>
-              <Input placeholder="Enter blog title" value={blog.title} onChange={(e) => setBlog({ ...blog, title: e.target.value })} />
+              <Label>Blog Title *</Label>
+              <Input placeholder="Enter blog title" value={(blog as any).title} onChange={(e) => setBlog({ ...blog, title: e.target.value } as any)} />
             </div>
             <div className="space-y-1.5">
-              <Label>Author</Label>
-              <Input placeholder="Author name" value={blog.author} onChange={(e) => setBlog({ ...blog, author: e.target.value })} />
+              <Label>Full Content *</Label>
+              <RichTextEditor value={(blog as any).content} onChange={(val) => setBlog({ ...blog, content: val } as any)} placeholder="Write the full blog content..." />
             </div>
             <div className="space-y-1.5">
-              <Label>Short Description</Label>
-              <RichTextEditor value={blog.shortDescription} onChange={(val) => setBlog({ ...blog, shortDescription: val })} placeholder="Brief summary" />
-            </div>
-            <div className="space-y-1.5">
-              <Label>Full Content</Label>
-              <RichTextEditor value={blog.content} onChange={(val) => setBlog({ ...blog, content: val })} placeholder="Write the full blog content..." />
+              <Label>Featured Image</Label>
+              <label className="flex items-center gap-2 border border-dashed border-border rounded-lg p-3 cursor-pointer hover:bg-accent transition-colors">
+                <span className="text-sm text-muted-foreground truncate">
+                  {(blog as any).imagePath?.name || "Choose image..."}
+                </span>
+                <input type="file" accept="image/*" className="hidden" onChange={(e) => setBlog({ ...blog, imagePath: e.target.files?.[0] || null } as any)} />
+              </label>
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={closeDialog} disabled={submitting}>Cancel</Button>
-            <Button className="bg-primary text-primary-foreground hover:bg-primary/90" disabled={submitting} onClick={() => handleSubmit(() => createBlog(blog), "Blog published successfully")}>
+            <Button className="bg-primary text-primary-foreground hover:bg-primary/90" disabled={submitting} onClick={() => handleSubmit(() => createBlog(blog as any), "Blog published successfully")}>
               {submitting ? "Publishing..." : "Publish Blog"}
             </Button>
           </DialogFooter>
