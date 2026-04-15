@@ -126,12 +126,34 @@ def download_event_card():
         WHERE member_email = %s AND event_id = %s
     """
     row = query_one(conn, query, (email, int(event_id)))
-    conn.close()
     
     if not row:
+        conn.close()
         return jsonify({
             "success": False,
             "message": "Event registration not found"
+        }), 404
+    
+    # Fetch member details from personal or organization membership
+    member_query = """
+        SELECT name, email, phone, profession, current_company, position, work_address, 'personal' as member_type
+        FROM personalmembership 
+        WHERE email = %s
+        UNION
+        SELECT organization_name as name, organization_email as email, contact_phone_number as phone, 
+               what_you_do as profession, organization_type as current_company, contact_person as position, 
+               CONCAT_WS(', ', organization_address, location_town, location_county, location_country) as work_address, 
+               'organization' as member_type
+        FROM organizationmembership 
+        WHERE organization_email = %s
+    """
+    member_row = query_one(conn, member_query, (email, email))
+    conn.close()
+    
+    if not member_row:
+        return jsonify({
+            "success": False,
+            "message": "Member details not found"
         }), 404
     
     event_data = {
@@ -142,11 +164,24 @@ def download_event_card():
     }
     member_status = 'Member'
     
-    # Use payment_code for QR content
-    content = row.get('payment_code', f"Event {event_id}")
+    # Create QR content with full member data
+    qr_content = f"""
+Name: {member_row.get('name', '')}
+Email: {member_row.get('email', '')}
+Phone: {member_row.get('phone', '')}
+Profession: {member_row.get('profession', '')}
+Company: {member_row.get('current_company', '')}
+Position: {member_row.get('position', '')}
+Work Address: {member_row.get('work_address', '')}
+Member Type: {member_row.get('member_type', '')}
+Event: {event_data['event_name']}
+Event Date: {event_data['event_date']}
+Event Location: {event_data['event_location']}
+Payment Code: {row.get('payment_code', '')}
+    """.strip()
     
     qr = qrcode.QRCode(version=1, error_correction=qrcode.constants.ERROR_CORRECT_L, box_size=4, border=4)
-    qr.add_data(content)
+    qr.add_data(qr_content)
     qr.make(fit=True)
     qr_img = qr.make_image(fill='black', back_color='white')
     
