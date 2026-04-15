@@ -129,8 +129,6 @@ def create_blog():
     Expected JSON payload:
     {
         "title": "Blog Title",
-        "author": "Author Name",  (optional - will use default if not provided)
-        "shortDescription": "Short description for preview",
         "content": "Full blog content (HTML allowed)"
     }
     
@@ -149,12 +147,6 @@ def create_blog():
         # Extract and validate input
         title = data.get('title', '').strip()
         content = data.get('content', '').strip()
-        short_description = data.get('shortDescription', '').strip()
-        
-        # Author is optional - use a default if not provided
-        author = data.get('author', '').strip()
-        if not author:
-            author = "AGL Admin"
         
         # Validation
         errors = []
@@ -170,8 +162,8 @@ def create_blog():
                 "errors": errors
             }), 400
         
-        # Handle image path (optional)
-        image_path = data.get('imagePath', '../assets/img/Blogs/default.jpg')
+        # Use default image path (file uploads can be added later)
+        image_path = '../assets/img/Blogs/default.jpg'
         
         # Database connection
         conn = get_db_connection()

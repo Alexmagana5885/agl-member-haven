@@ -140,13 +140,9 @@ def create_planned_event():
     Expected JSON payload:
     {
         "title": "Event Name",
-        "type": "Conference",
         "date": "2025-03-23",
         "venue": "Event Location",
         "description": "Event description",
-        "objectives": "Event objectives",
-        "whyAttend": "Why attend this event",
-        "subthemes": "subtheme1, subtheme2, subtheme3",
         "regAmount": "500" or "0"
     }
     
@@ -167,7 +163,13 @@ def create_planned_event():
         event_date = data.get('date', '').strip()
         event_location = data.get('venue', '').strip()
         event_description = data.get('description', '').strip()
-        reg_amount = data.get('regAmount', '0').strip()
+        reg_amount = data.get('regAmount', '0')
+        
+        # Handle regAmount - could be string or number
+        if isinstance(reg_amount, str):
+            reg_amount = reg_amount.strip()
+        else:
+            reg_amount = str(reg_amount) if reg_amount else '0'
         
         # Validation
         errors = []
@@ -187,8 +189,8 @@ def create_planned_event():
                 "errors": errors
             }), 400
         
-        # Handle image path (optional - use placeholder if not provided)
-        event_image_path = data.get('imagePath', '../assets/img/PlannedEvent/default.jpg')
+        # Use default image path (file uploads will be handled in future)
+        event_image_path = '../assets/img/PlannedEvent/default.jpg'
         
         # Parse registration amount
         try:

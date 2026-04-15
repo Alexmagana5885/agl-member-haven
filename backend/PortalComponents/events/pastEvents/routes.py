@@ -156,14 +156,9 @@ def create_past_event():
     Expected JSON payload:
     {
         "title": "Event Name",
-        "type": "Conference", 
         "date": "2024-11-09",
         "venue": "Event Location",
-        "description": "Event details/description",
-        "attendees": "Number of attendees",
-        "highlights": "Event highlights",
-        "imagePaths": ["path1.jpg", "path2.jpg"],  // optional
-        "documentPaths": ["doc1.pdf"]  // optional
+        "description": "Event details/description"
     }
     
     Returns:
@@ -202,13 +197,9 @@ def create_past_event():
                 "errors": errors
             }), 400
         
-        # Handle image and document paths
-        image_paths = data.get('imagePaths', [])
-        document_paths = data.get('documentPaths', [])
-        
-        # Convert lists to JSON strings for storage
-        event_image_paths = json.dumps(image_paths) if image_paths else None
-        event_document_paths = json.dumps(document_paths) if document_paths else None
+        # Image and document paths are empty by default (file uploads can be added later)
+        event_image_paths = None
+        event_document_paths = None
         
         # Database connection
         conn = get_db_connection()
