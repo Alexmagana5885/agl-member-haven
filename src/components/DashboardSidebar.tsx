@@ -40,19 +40,11 @@ const contactNav = [
 
 type AdminDialog = "planned-event" | "past-event" | "new-blog" | "send-message" | null;
 
-const emptyPlannedEvent: PlannedEventPayload = { title: "", type: "", date: "", venue: "", description: "", objectives: "", whyAttend: "", subthemes: "", regAmount: "" };
-const emptyPastEvent: PastEventPayload = { title: "", type: "", date: "", venue: "", description: "", attendees: "", highlights: "" };
-const emptyBlog: BlogPayload = { title: "", author: "", shortDescription: "", content: "" };
 const emptyMessage: MessagePayload = {
   recipient_group: { type: "all_members" },
   subject: "",
   message: "",
 };
-
-// Simpler versions aligned with database structure only
-const simplePlannedEvent = { title: "", date: "", venue: "", description: "", regAmount: "", imagePath: null as File | null };
-const simplePastEvent = { title: "", date: "", venue: "", description: "", imagePaths: [] as File[], documentPaths: [] as File[] };
-const simpleBlog = { title: "", content: "", imagePath: null as File | null };
 
 export function DashboardSidebar() {
   const { state } = useSidebar();
@@ -79,36 +71,52 @@ export function DashboardSidebar() {
     checkUserSession();
   }, []);
 
-  const [plannedEvent, setPlannedEvent] = useState(simplePlannedEvent);
-  const [pastEvent, setPastEvent] = useState(simplePastEvent);
-  const [blog, setBlog] = useState(simpleBlog);
+  const [plannedEvent, setPlannedEvent] = useState<PlannedEventPayload>({ title: "", date: "", venue: "", description: "", regAmount: "" });
+  const [pastEvent, setPastEvent] = useState<PastEventPayload>({ title: "", date: "", venue: "", description: "" });
+  const [blog, setBlog] = useState<BlogPayload>({ title: "", content: "" });
   const [message, setMessage] = useState(emptyMessage);
 
   const closeDialog = () => {
     setActiveDialog(null);
-    setPlannedEvent({ title: "", date: "", venue: "", description: "", regAmount: "", imagePath: null });
-    setPastEvent({ title: "", date: "", venue: "", description: "", imagePaths: [], documentPaths: [] });
-    setBlog({ title: "", content: "", imagePath: null });
+    setPlannedEvent({ title: "", date: "", venue: "", description: "", regAmount: "" });
+    setPastEvent({ title: "", date: "", venue: "", description: "" });
+    setBlog({ title: "", content: "" });
     setMessage(emptyMessage);
   };
 
-  const handleSubmit = async (fn: () => Promise<unknown>, successMsg: string) => {
+  const handleSubmit = async (
+    action: () => Promise<{ success: boolean; message?: string }>,
+    successMessage: string
+  ) => {
     setSubmitting(true);
     try {
-      await fn();
-      toast({ title: "Success", description: successMsg });
-      closeDialog();
-    } catch (err: any) {
-      toast({ title: "Error", description: err.message || "Something went wrong", variant: "destructive" });
+      const response = await action();
+      if (response?.success) {
+        toast({ title: successMessage, variant: "success" });
+        closeDialog();
+      } else {
+        toast({
+          title: "Action failed",
+          description: response?.message || "Please try again.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Submission error:", error);
+      toast({
+        title: "Unexpected error",
+        description: "Please try again later.",
+        variant: "destructive",
+      });
     } finally {
       setSubmitting(false);
     }
   };
 
   const adminItems = [
-    { title: "Planned Events", icon: CalendarDays, action: () => setActiveDialog("planned-event") },
-    { title: "Past Events", icon: History, action: () => setActiveDialog("past-event") },
-    { title: "New Blog", icon: PenSquare, action: () => setActiveDialog("new-blog") },
+    { title: "Add Planned Event", icon: CalendarDays, action: () => setActiveDialog("planned-event") },
+    { title: "Add Past Event", icon: History, action: () => setActiveDialog("past-event") },
+    { title: "Create Blog", icon: PenSquare, action: () => setActiveDialog("new-blog") },
     { title: "Send Message", icon: Send, action: () => setActiveDialog("send-message") },
     { title: "Members", icon: Users, action: () => navigate("/members") },
     { title: "Member Payments", icon: CreditCard, action: () => navigate("/member-payments") },
@@ -117,31 +125,22 @@ export function DashboardSidebar() {
 
   return (
     <>
-      <Sidebar collapsible="icon" className="border-r-0">
-        <SidebarHeader className="p-4">
-          <div className="flex items-center gap-3">
-            <img src={AGLlogo} alt="AGL Logo" className="h-10 w-10 shrink-0 rounded-lg object-contain" />
-            {!collapsed && (
-              <span className="font-display text-sm font-bold text-sidebar-primary">AGL</span>
-            )}
-          </div>
-        </SidebarHeader>
-
-        <SidebarContent>
-          <SidebarGroup>
-            <SidebarGroupLabel className="text-sidebar-muted text-xs uppercase tracking-wider">Main Menu</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {mainNavWithSend.map((item) => (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild tooltip={item.title}>
-                      <NavLink to={item.url} end={item.url === "/"} className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors" activeClassName="bg-sidebar-accent text-sidebar-accent-foreground font-medium">
-                        <item.icon className="h-4 w-4" />
-                        <span>{item.title}</span>
-                      </NavLink>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
+      <Sidebar className="h-full">
+        <SidebarContent className="p-2">
+        <SidebarGroup>
+          <SidebarGroupLabel className="text-sidebar-muted text-xs uppercase tracking-wider">Navigation</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {mainNavWithSend.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild tooltip={item.title}>
+                    <NavLink to={item.url} end={item.url === "/"} className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors" activeClassName="bg-sidebar-accent text-sidebar-accent-foreground font-medium">
+                      <item.icon className="h-4 w-4" />
+                      <span>{item.title}</span>
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
 
                 {isOfficial && (
                   <SidebarMenuItem>
@@ -228,15 +227,6 @@ export function DashboardSidebar() {
               <Label>Event Description *</Label>
               <RichTextEditor value={plannedEvent.description} onChange={(val) => setPlannedEvent({ ...plannedEvent, description: val })} placeholder="Describe the event" />
             </div>
-            <div className="space-y-1.5">
-              <Label>Event Image</Label>
-              <label className="flex items-center gap-2 border border-dashed border-border rounded-lg p-3 cursor-pointer hover:bg-accent transition-colors">
-                <span className="text-sm text-muted-foreground truncate">
-                  {(plannedEvent as any).imagePath?.name || "Choose image..."}
-                </span>
-                <input type="file" accept="image/*" className="hidden" onChange={(e) => setPlannedEvent({ ...plannedEvent, imagePath: e.target.files?.[0] || null } as any)} />
-              </label>
-            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={closeDialog} disabled={submitting}>Cancel</Button>
@@ -259,44 +249,26 @@ export function DashboardSidebar() {
           <div className="space-y-3 py-2 overflow-y-auto flex-1 pr-2">
             <div className="space-y-1.5">
               <Label>Event Title *</Label>
-              <Input placeholder="Enter event title" value={(pastEvent as any).title} onChange={(e) => setPastEvent({ ...pastEvent, title: e.target.value } as any)} />
+              <Input placeholder="Enter event title" value={pastEvent.title} onChange={(e) => setPastEvent({ ...pastEvent, title: e.target.value })} />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label>Event Date *</Label>
-                <Input type="date" value={(pastEvent as any).date} onChange={(e) => setPastEvent({ ...pastEvent, date: e.target.value } as any)} />
+                <Input type="date" value={pastEvent.date} onChange={(e) => setPastEvent({ ...pastEvent, date: e.target.value })} />
               </div>
               <div className="space-y-1.5">
                 <Label>Event Location/Venue *</Label>
-                <Input placeholder="Enter venue" value={(pastEvent as any).venue} onChange={(e) => setPastEvent({ ...pastEvent, venue: e.target.value } as any)} />
+                <Input placeholder="Enter venue" value={pastEvent.venue} onChange={(e) => setPastEvent({ ...pastEvent, venue: e.target.value })} />
               </div>
             </div>
             <div className="space-y-1.5">
               <Label>Event Details/Description *</Label>
-              <RichTextEditor value={(pastEvent as any).description} onChange={(val) => setPastEvent({ ...pastEvent, description: val } as any)} placeholder="Describe the event details" />
-            </div>
-            <div className="space-y-1.5">
-              <Label>Event Images</Label>
-              <label className="flex items-center gap-2 border border-dashed border-border rounded-lg p-3 cursor-pointer hover:bg-accent transition-colors">
-                <span className="text-sm text-muted-foreground truncate">
-                  {(pastEvent as any).imagePaths?.length > 0 ? `${(pastEvent as any).imagePaths.length} image(s)` : "Choose images..."}
-                </span>
-                <input type="file" accept="image/*" multiple className="hidden" onChange={(e) => setPastEvent({ ...pastEvent, imagePaths: Array.from(e.target.files || []) } as any)} />
-              </label>
-            </div>
-            <div className="space-y-1.5">
-              <Label>Event Documents</Label>
-              <label className="flex items-center gap-2 border border-dashed border-border rounded-lg p-3 cursor-pointer hover:bg-accent transition-colors">
-                <span className="text-sm text-muted-foreground truncate">
-                  {(pastEvent as any).documentPaths?.length > 0 ? `${(pastEvent as any).documentPaths.length} document(s)` : "Choose documents..."}
-                </span>
-                <input type="file" accept=".pdf,.doc,.docx" multiple className="hidden" onChange={(e) => setPastEvent({ ...pastEvent, documentPaths: Array.from(e.target.files || []) } as any)} />
-              </label>
+              <RichTextEditor value={pastEvent.description} onChange={(val) => setPastEvent({ ...pastEvent, description: val })} placeholder="Describe the event details" />
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={closeDialog} disabled={submitting}>Cancel</Button>
-            <Button className="bg-primary text-primary-foreground hover:bg-primary/90" disabled={submitting} onClick={() => handleSubmit(() => createPastEvent(pastEvent as any), "Past event saved successfully")}>
+            <Button className="bg-primary text-primary-foreground hover:bg-primary/90" disabled={submitting} onClick={() => handleSubmit(() => createPastEvent(pastEvent), "Past event saved successfully")}>
               {submitting ? "Saving..." : "Save Event"}
             </Button>
           </DialogFooter>
@@ -315,25 +287,16 @@ export function DashboardSidebar() {
           <div className="space-y-3 py-2 overflow-y-auto flex-1 pr-2">
             <div className="space-y-1.5">
               <Label>Blog Title *</Label>
-              <Input placeholder="Enter blog title" value={(blog as any).title} onChange={(e) => setBlog({ ...blog, title: e.target.value } as any)} />
+              <Input placeholder="Enter blog title" value={blog.title} onChange={(e) => setBlog({ ...blog, title: e.target.value })} />
             </div>
             <div className="space-y-1.5">
               <Label>Full Content *</Label>
-              <RichTextEditor value={(blog as any).content} onChange={(val) => setBlog({ ...blog, content: val } as any)} placeholder="Write the full blog content..." />
-            </div>
-            <div className="space-y-1.5">
-              <Label>Featured Image</Label>
-              <label className="flex items-center gap-2 border border-dashed border-border rounded-lg p-3 cursor-pointer hover:bg-accent transition-colors">
-                <span className="text-sm text-muted-foreground truncate">
-                  {(blog as any).imagePath?.name || "Choose image..."}
-                </span>
-                <input type="file" accept="image/*" className="hidden" onChange={(e) => setBlog({ ...blog, imagePath: e.target.files?.[0] || null } as any)} />
-              </label>
+              <RichTextEditor value={blog.content} onChange={(val) => setBlog({ ...blog, content: val })} placeholder="Write the full blog content..." />
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={closeDialog} disabled={submitting}>Cancel</Button>
-            <Button className="bg-primary text-primary-foreground hover:bg-primary/90" disabled={submitting} onClick={() => handleSubmit(() => createBlog(blog as any), "Blog published successfully")}>
+            <Button className="bg-primary text-primary-foreground hover:bg-primary/90" disabled={submitting} onClick={() => handleSubmit(() => createBlog(blog), "Blog published successfully")}>
               {submitting ? "Publishing..." : "Publish Blog"}
             </Button>
           </DialogFooter>

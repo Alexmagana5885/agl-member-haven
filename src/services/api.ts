@@ -65,13 +65,9 @@ export { fetchData };
 
 export interface PlannedEventPayload {
   title: string;
-  type: string;
   date: string;
   venue: string;
   description: string;
-  objectives: string;
-  whyAttend: string;
-  subthemes: string;
   regAmount: string;
 }
 
@@ -81,12 +77,9 @@ export function createPlannedEvent(data: PlannedEventPayload) {
 
 export interface PastEventPayload {
   title: string;
-  type: string;
   date: string;
   venue: string;
   description: string;
-  attendees: string;
-  highlights: string;
 }
 
 export function createPastEvent(data: PastEventPayload) {
@@ -95,8 +88,6 @@ export function createPastEvent(data: PastEventPayload) {
 
 export interface BlogPayload {
   title: string;
-  author: string;
-  shortDescription: string;
   content: string;
 }
 
