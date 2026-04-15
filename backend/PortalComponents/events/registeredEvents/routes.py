@@ -108,17 +108,42 @@ def download_event_card():
     Returns:
         PDF file download
     """
-    # TEMPORARY TEST: Skip database checks and generate test PDF
+    # Get parameters
+    email = request.args.get('email')
+    event_id = request.args.get('event_id')
+    
+    if not email or not event_id:
+        return jsonify({
+            "success": False,
+            "message": "Missing email or event_id parameter"
+        }), 400
+    
+    # Query real data from database
+    conn = get_db_connection()
+    query = """
+        SELECT event_name, event_location, event_date, member_name, payment_code 
+        FROM event_registrations 
+        WHERE member_email = %s AND event_id = %s
+    """
+    row = query_one(conn, query, (email, int(event_id)))
+    conn.close()
+    
+    if not row:
+        return jsonify({
+            "success": False,
+            "message": "Event registration not found"
+        }), 404
+    
     event_data = {
-        'event_name': 'Test Event',
-        'event_date': '2024-12-25',
-        'event_location': 'Test Location',
-        'member_name': 'Test Member'
+        'event_name': row.get('event_name', 'Unnamed Event'),
+        'event_date': str(row.get('event_date', '')),
+        'event_location': row.get('event_location', 'Location TBD'),
+        'member_name': row.get('member_name', 'Member')
     }
     member_status = 'Member'
     
-    # Generate simple QR code for testing
-    content = "Test QR Code Content"
+    # Use payment_code for QR content
+    content = row.get('payment_code', f"Event {event_id}")
     
     qr = qrcode.QRCode(version=1, error_correction=qrcode.constants.ERROR_CORRECT_L, box_size=4, border=4)
     qr.add_data(content)
@@ -141,6 +166,10 @@ def download_event_card():
     
     # Logo
     logo_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'AGLlogo.jpg'))
+    logger.info(f"Event card request: email={email}, event_id={event_id}")
+    logger.info(f"DB row found: {bool(row)}")
+    if row:
+        logger.info(f"Event data: {dict(row)}")
     print(f"DEBUG: Logo path: {logo_path}")
     print(f"DEBUG: Logo exists: {os.path.exists(logo_path)}")
     page_width = pdf.w
@@ -230,7 +259,7 @@ def download_event_card():
     
     # Sanitize filename
     sanitized_event_name = ''.join(c for c in event_data['event_name'] if c.isalnum() or c in (' ', '-', '_')).rstrip().replace(' ', '_')
-    filename = f"{sanitized_event_name}_test.pdf"
+    filename = f"{sanitized_event_name}_{event_id}.pdf"
     
     return send_file(
         pdf_buffer,
