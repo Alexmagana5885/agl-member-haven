@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import avatarImg from "@/assets/alex.jpg";
+import avatarImg from "@/assets/AGLlogo.png";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
