@@ -60,7 +60,7 @@ const Login = () => {
             Welcome Back
           </h1>
           <p className="text-lg text-[hsl(var(--primary-foreground)/0.8)] max-w-md mx-auto">
-            Access your membership dashboard, manage events, and stay connected with the community.
+            Access your membership dashboard, and stay connected with the community.
           </p>
           <div className="w-24 h-1 bg-[hsl(var(--primary-foreground)/0.5)] mx-auto rounded-full" />
         </div>
