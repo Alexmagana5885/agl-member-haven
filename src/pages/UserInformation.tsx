@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { ArrowLeft, UserCircle, Save, X, Pencil, GraduationCap, CreditCard } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import avatarImg from "@/assets/alex.jpg";
+import avatarImg from "@/assets/AGLlogo.png";
 import { getProfileData, type ProfileData, updateProfileData, uploadProfileImage, type ProfileUpdatePayload } from "@/services/api";
 
 const UserInformationPage = () => {
