@@ -67,18 +67,21 @@ def get_db_connection():
 # ---------------- PHONE NORMALIZATION ----------------
 def normalize_phone_number(phone_number):
     if not phone_number:
-        return None
+        raise ValueError("Phone number is required")
 
     phone_number = re.sub(r'\s+', '', phone_number)
 
+    # Remove +
     if phone_number.startswith('+'):
         phone_number = phone_number[1:]
 
+    # Convert local format (07 / 01 → 254)
     if phone_number.startswith('0') and len(phone_number) == 10:
         phone_number = '254' + phone_number[1:]
 
-    if re.match(r'^[789]\d{8}$', phone_number):
-        phone_number = '254' + phone_number
+    # Final strict validation
+    if not re.match(r'^254(7\d{8}|1\d{8})$', phone_number):
+        raise ValueError(f"Invalid Kenyan phone number: {phone_number}")
 
     return phone_number
 
@@ -141,7 +144,6 @@ def initiate_stk_push(phone_number, amount, account_reference, transaction_desc)
         
         if response.status_code == 200:
             if response_data.get("ResponseCode") == "0":
-                # Success
                 return {
                     "success": True,
                     "message": "Kindly enter your M-Pesa Pin to complete the payment",
@@ -149,7 +151,6 @@ def initiate_stk_push(phone_number, amount, account_reference, transaction_desc)
                     "ResponseCode": response_data.get("ResponseCode")
                 }
             else:
-                # Request failed
                 return {
                     "success": False,
                     "message": response_data.get("ResponseDescription", "Payment request failed"),
@@ -166,7 +167,7 @@ def initiate_stk_push(phone_number, amount, account_reference, transaction_desc)
         logger.error(f"STK Push request exception: {str(e)}")
         return {
             "success": False,
-            "message": data.get("ResponseDescription", "Payment failed")
+            "message": "Payment failed due to network error"
         }
 
     except Exception as e:
@@ -257,9 +258,14 @@ def pay_membership_fee():
     data = request.get_json()
 
     email = data.get('email', '').strip()
-    phone = normalize_phone_number(data.get('phone', ''))
+    try:
+        phone = normalize_phone_number(data.get('phone_number', ''))
+    except ValueError as e:
+        return jsonify({"success": False, "message": str(e)}), 400
 
     amount = data.get('amount', MEMBERSHIP_FEE_AMOUNT)
+
+    logger.info(f"FINAL PHONE SENT TO MPESA: {phone}")
 
     result = initiate_stk_push(
         phone,
@@ -285,9 +291,15 @@ def pay_membership_fee():
 def pay_registration():
     data = request.get_json()
 
-    phone = normalize_phone_number(data.get('phone_number', ''))
+    try:
+        phone = normalize_phone_number(data.get('phone_number', ''))
+    except ValueError as e:
+        return jsonify({"success": False, "message": str(e)}), 400
+
     email = data.get('User-email', '').strip()
     amount = data.get('amount', 1)
+
+    logger.info(f"FINAL PHONE SENT TO MPESA: {phone}")
 
     stk = initiate_stk_push(
         phone,
@@ -319,8 +331,14 @@ def pay_membership_premium():
     data = request.get_json()
 
     email = data.get('email', '').strip()
-    phone = normalize_phone_number(data.get('phone', ''))
+    try:
+        phone = normalize_phone_number(data.get('phone_number', ''))
+    except ValueError as e:
+        return jsonify({"success": False, "message": str(e)}), 400
+
     amount = data.get('amount', MEMBERSHIP_PREMIUM_AMOUNT)
+
+    logger.info(f"FINAL PHONE SENT TO MPESA: {phone}")
 
     result = initiate_stk_push(
         phone,
