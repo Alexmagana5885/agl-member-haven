@@ -10,7 +10,7 @@ import mysql.connector
 # Import access token from registration module
 import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-from PortalComponents.payments.registration.accessToken import get_access_token
+from ..accessToken import get_access_token
 
 # Configure logger
 logger = logging.getLogger(__name__)

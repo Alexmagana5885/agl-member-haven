@@ -7,7 +7,7 @@ from flask import Blueprint, jsonify, request
 import requests
 import mysql.connector
 
-from ..registration.accessToken import get_access_token
+from ..accessToken import get_access_token
 
 # Configure logger
 logger = logging.getLogger(__name__)
