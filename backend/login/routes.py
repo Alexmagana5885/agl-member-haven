@@ -311,6 +311,7 @@ from datetime import datetime, timedelta
 import os
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from email.mime.image import MIMEImage
 
 
 def generate_otp():
@@ -336,20 +337,101 @@ def send_otp_email(email, otp):
 
     body = f"""
     <html>
+    <head>
+        <style>
+            body {{
+                margin: 0;
+                padding: 20px;
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                background-color: #f0f0f0;
+            }}
+            .card {{
+                max-width: 600px;
+                margin: 0 auto;
+                background-color: #fafbfc;
+                border: 1px solid #b3d9eb;
+                border-radius: 8px;
+                overflow: hidden;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            }}
+            .card-header {{
+                background-color: #f0f6fb;
+                padding: 20px;
+                text-align: center;
+                border-bottom: 1px solid #d9e8f0;
+            }}
+            .logo {{
+                max-width: 150px;
+                height: auto;
+                margin-bottom: 15px;
+            }}
+            .card-body {{
+                padding: 30px 20px;
+            }}
+            .otp-section {{
+                text-align: center;
+                margin: 20px 0;
+            }}
+            .otp-code {{
+                font-size: 24px;
+                letter-spacing: 3px;
+                color: #2c3e50;
+                font-weight: bold;
+                background-color: #f0f6fb;
+                padding: 15px;
+                border-radius: 4px;
+                border-left: 4px solid #4a90a4;
+            }}
+            .message {{
+                color: #555;
+                font-size: 14px;
+                line-height: 1.6;
+                margin: 15px 0;
+            }}
+            .card-footer {{
+                padding: 15px 20px;
+                background-color: #f0f6fb;
+                text-align: center;
+                border-top: 1px solid #d9e8f0;
+                font-size: 12px;
+                color: #777;
+            }}
+        </style>
+    </head>
     <body>
-        <p>Your AGL password reset code is: 
-        <strong style="font-size:18px; letter-spacing:2px; color:#2c3e50;">{otp}</strong>
-        </p>
-
-        <p>This code expires in 15 minutes.</p>
-        <p>If you did not request this, please ignore this email.</p>
-
-        <p>Association of Government Librarians</p>
+        <div class="card">
+            <div class="card-header">
+                <img src="cid:agl_logo" alt="AGL" class="logo">
+            </div>
+            <div class="card-body">
+                <p class="message">Your AGL password reset code is:</p>
+                <div class="otp-section">
+                    <div class="otp-code">{otp}</div>
+                </div>
+                <p class="message">This code expires in 15 minutes.</p>
+                <p class="message">If you did not request this, please ignore this email.</p>
+            </div>
+            <div class="card-footer">
+                <p>Association of Government Librarians</p>
+            </div>
+        </div>
     </body>
     </html>
     """
 
     msg.attach(MIMEText(body, 'html'))
+    
+    # Attach the AGL logo
+    try:
+        logo_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'assets', 'AGL.png')
+        if os.path.exists(logo_path):
+            with open(logo_path, 'rb') as attachment:
+                img = MIMEImage(attachment.read())
+                img.add_header('Content-ID', '<agl_logo>')
+                img.add_header('Content-Disposition', 'inline', filename='AGL.png')
+                msg.attach(img)
+    except Exception as logo_err:
+        logger.warning(f"Could not attach logo to email: {str(logo_err)}")
     
     try:
         server = smtplib.SMTP(smtp_host, smtp_port)
