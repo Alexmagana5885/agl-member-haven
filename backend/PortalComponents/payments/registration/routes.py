@@ -27,7 +27,7 @@ MPESA_CALLBACK_URL = os.environ.get(
     "MPESA_CALLBACK_URL",
     "https://member.log.agl.or.ke/members/forms/Payment/callback.php"
 )
-MPESA_ENVIRONMENT = os.environ.get("MPESA_ENVIRONMENT", "sandbox")
+MPESA_ENVIRONMENT = os.environ.get("ENVIRONMENT", "sandbox")
 
 MPESA_PARTY_B = os.environ.get("MPESA_PARTY_B", "8209382")
 MPESA_ACCOUNT_REFERENCE = os.environ.get("MPESA_ACCOUNT_REFERENCE", "6175135")
