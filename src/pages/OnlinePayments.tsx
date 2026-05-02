@@ -28,6 +28,7 @@ export default function OnlinePayments() {
   const [premPhone, setPremPhone] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const { toast } = useToast();
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   useEffect(() => {
     fetchProfile();

@@ -17,8 +17,8 @@ logger.setLevel(logging.DEBUG)
 registration_payments_bp = Blueprint('registration_payments', __name__, url_prefix='/api/payments')
 
 # M-Pesa API Configuration - Using environment variables with fallbacks
-MPESA_BUSINESS_SHORT_CODE = os.environ.get("MPESA_BUSINESS_SHORT_CODE", "8209382")
-MPESA_PASSKEY = os.environ.get("MPESA_PASSKEY", "your_passkey_here")
+MPESA_BUSINESS_SHORT_CODE = os.environ.get("MY_BUSINESS_SHORT_CODE", "8209382")
+MPESA_PASSKEY = os.environ.get("MY_PASS_KEY", "your_passkey_here")
 MPESA_CALLBACK_URL = os.environ.get("MPESA_CALLBACK_URL", "https://member.log.agl.or.ke/members/forms/Payment/callback.php")
 MPESA_ENVIRONMENT = os.environ.get("MPESA_ENVIRONMENT", "sandbox")
 
@@ -260,8 +260,7 @@ def save_mpesa_transaction(checkout_request_id, email, phone, amount, payment_ty
         logger.error(f"Database error saving transaction: {err}")
         return False
     except Exception as e:
-        logger.error(f"Error saving transaction: {str(e)}")
-        return False
+        logger.error(f"Error saving transaction: {str(e)}")\n        return False\n\n\ndef save_registration_transaction(checkout_request_id, userEmail, phone, money, status="Pending"):\n    \"\"\"Save only to mpesa_transactions like PHP registration script.\"\"\"\n    try:\n        conn = get_db_connection()\n        cursor = conn.cursor()\n        sql = \"INSERT INTO mpesa_transactions (CheckoutRequestID, email, phone, amount, status) VALUES (%s, %s, %s, %s, %s)\"\n        cursor.execute(sql, (checkout_request_id, userEmail, phone, money, status))\n        conn.commit()\n        cursor.close()\n        conn.close()\n        logger.info(f"Registration transaction saved: {checkout_request_id}")\n        return True\n    except Exception as e:\n        logger.error(f"Error saving registration transaction: {str(e)}")\n        return False
 
 
 @registration_payments_bp.route('/register-fee', methods=['POST'])
@@ -363,8 +362,7 @@ def pay_membership_fee():
         }), 500
 
 
-@registration_payments_bp.route('/register-premium', methods=['POST'])
-def pay_membership_premium():
+@registration_payments_bp.route('/pay-registration', methods=['POST'])\ndef pay_registration():\n    \"\"\"\n    Registration payment endpoint matching PHP STK Push script.\n    POST JSON: {\"User-email\": \"\", \"phone_number\": \"\", \"amount\": \"1\"}\n    \"\"\"\n    response = {'success': False, 'message': '', 'errors': []}\n\n    data = request.get_json()\n    if not data:\n        response['message'] = 'Invalid request data'\n        return jsonify(response), 400\n\n    phone_number = data.get('phone_number') or ''\n    phone_number = phone_number.strip() if phone_number else ''\n    money_paid = data.get('amount', '1')\n    userEmail = data.get('User-email') or ''\n    userEmail = userEmail.strip() if userEmail else ''\n\n    if not phone_number:\n        response['errors'].append('Phone number is required.')\n    if not userEmail:\n        response['errors'].append('Email is required.')\n    if response['errors']:\n        return jsonify(response), 400\n\n    phone = normalize_phone_number(phone_number)\n    if not phone:\n        response['errors'].append('Invalid phone number')\n        return jsonify(response), 400\n\n    stk_result = initiate_stk_push(\n        phone_number=phone,\n        amount=money_paid,\n        account_reference=MPESA_ACCOUNT_REFERENCE,\n        transaction_desc='Membership Registration fee payment'\n    )\n\n    if stk_result.get('success'):\n        CheckoutRequestID = stk_result.get('CheckoutRequestID')\n        ResponseCode = stk_result.get('ResponseCode', '')\n        if CheckoutRequestID:\n            if save_registration_transaction(CheckoutRequestID, userEmail, phone, money_paid, 'Pending'):\n                response['success'] = True\n                response['message'] = \"Kindly enter your Mpesa Pin to complete the payment\"\n            else:\n                response['errors'].append(\"Database error\")\n        else:\n            response['errors'].append(\"Error in transaction processing. Please try again.\")\n    else:\n        response['message'] = stk_result.get('message', 'Payment failed')\n\n    return jsonify(response), 200 if response['success'] else 400\n\n@registration_payments_bp.route('/register-premium', methods=['POST'])\ndef pay_membership_premium():
     """
     Process membership premium payment.
     
