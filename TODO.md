@@ -1,10 +1,11 @@
-# Task: Fix event invitation card to use real DB data and include full user data in QR code
+# Login Page Styling Updates - COMPLETE
 
-## TODO Steps:
-- [x] Create TODO.md with steps
-- [x] Step 1: Edit backend/PortalComponents/events/registeredEvents/routes.py to query DB in download_event_card()
-- [x] Step 2: Test endpoint with real DB data
-- [x] Step 3: Restart backend server if needed
-- [x] Step 4: Verify frontend download works
-- [x] Step 5: Update QR code to contain full user data (name, contact, place of work)
-- [x] Step 6: Complete task
+## Plan Summary
+- ✓ Add AGL logo above welcome message (left side, white bg, h-20 w-48).
+- ✓ Right side (form) blue bg (`bg-blue-500/10 lg:bg-blue-600/20`, Card white/transparent).
+- ✓ Responsive: `flex-col lg:flex-row` + orders → form top on small screens, side-by-side lg+.
+
+## Steps
+- ✓ Step 1: Updated `src/pages/Login.tsx` with layout, colors, logo, responsive stacking.
+- ✓ Step 2: File saved successfully. Run `bun run dev` (or `npm run dev`) + check responsive in devtools (mobile: form top/white bottom; desktop: white left/blue right).
+- ✓ Step 3: Task complete.
