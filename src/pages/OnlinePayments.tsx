@@ -80,29 +80,17 @@ export default function OnlinePayments() {
 
     setSubmitting(true);
     try {
-      //   const response = await fetch(endpoint, {
-      //     method: "POST",
-      //     headers: { "Content-Type": "application/json" },
-      //     credentials: "include",
-      //     body: JSON.stringify({
-      //       User_email: profile.email,
-      //       phone_number: phone,
-      //       amount,
-      //     }),
-      //   });
-
       const payload = {
         User_email: profile.email,
         phone_number: phone,
         amount,
       };
 
-      // 🔥 Log what is being sent to backend
-      console.log("📤 Sending payment payload:", {
-        endpoint,
-        type,
-        payload,
-      });
+      //   console.log(" Sending payment payload:", {
+      //     endpoint,
+      //     type,
+      //     payload,
+      //   });
 
       const response = await fetch(endpoint, {
         method: "POST",
