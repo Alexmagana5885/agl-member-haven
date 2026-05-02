@@ -333,15 +333,23 @@ def send_otp_email(email, otp):
     msg['From'] = smtp_email
     msg['To'] = email
     msg['Subject'] = "AGL Password Reset Code"
-    
-    body = f"""Your AGL password reset code is: {otp}
 
-This code expires in 15 minutes.
+    body = f"""
+    <html>
+    <body>
+        <p>Your AGL password reset code is: 
+        <strong style="font-size:18px; letter-spacing:2px; color:#2c3e50;">{otp}</strong>
+        </p>
 
-If you did not request this, please ignore this email.
+        <p>This code expires in 15 minutes.</p>
+        <p>If you did not request this, please ignore this email.</p>
 
-AGL Member Haven"""
-    msg.attach(MIMEText(body, 'plain'))
+        <p>Association of Government Librarians</p>
+    </body>
+    </html>
+    """
+
+    msg.attach(MIMEText(body, 'html'))
     
     try:
         server = smtplib.SMTP(smtp_host, smtp_port)
