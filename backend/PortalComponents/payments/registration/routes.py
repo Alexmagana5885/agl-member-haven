@@ -24,7 +24,7 @@ registration_payments_bp = Blueprint(
 MPESA_BUSINESS_SHORT_CODE = os.environ.get("MY_BUSINESS_SHORT_CODE", "8209382")
 MPESA_PASSKEY = os.environ.get("MY_PASS_KEY", "your_passkey_here")
 MPESA_CALLBACK_URL = os.environ.get(
-    "MPESA_CALLBACK_URL",
+    "REGISTRATION_CALLBACK_URL",
     "https://member.log.agl.or.ke/members/forms/Payment/callback.php"
 )
 MPESA_ENVIRONMENT = os.environ.get("ENVIRONMENT", "sandbox")
@@ -257,7 +257,7 @@ def save_registration_transaction(checkout_request_id, userEmail, phone, money, 
 def pay_membership_fee():
     data = request.get_json()
 
-    email = data.get('email', '').strip()
+    email = data.get('User_email', '').strip()
     try:
         phone = normalize_phone_number(data.get('phone_number', ''))
     except ValueError as e:
@@ -296,7 +296,7 @@ def pay_registration():
     except ValueError as e:
         return jsonify({"success": False, "message": str(e)}), 400
 
-    email = data.get('User-email', '').strip()
+    email = data.get('User_email', '').strip()
     amount = data.get('amount', 1)
 
     logger.info(f"FINAL PHONE SENT TO MPESA: {phone}")
@@ -330,7 +330,7 @@ def pay_registration():
 def pay_membership_premium():
     data = request.get_json()
 
-    email = data.get('email', '').strip()
+    email = data.get('User_email', '').strip()
     try:
         phone = normalize_phone_number(data.get('phone_number', ''))
     except ValueError as e:
