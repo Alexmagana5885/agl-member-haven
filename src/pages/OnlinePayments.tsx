@@ -4,9 +4,22 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { CreditCard, UserCircle, CheckCircle2, Mail, Loader2 } from "lucide-react";
+import {
+  CreditCard,
+  UserCircle,
+  CheckCircle2,
+  Mail,
+  Loader2,
+} from "lucide-react";
 import { getProfileData, type ProfileData } from "@/services/api";
 import avatarImg from "@/assets/AGLlogo.png";
 import mpesaImg from "@/assets/mpesa.png";
@@ -15,7 +28,7 @@ const formatDate = (dateStr: string) => {
   return new Date(dateStr).toLocaleDateString("en-GB", {
     day: "numeric",
     month: "short",
-    year: "numeric"
+    year: "numeric",
   });
 };
 
@@ -50,23 +63,52 @@ export default function OnlinePayments() {
     }
   };
 
-  const makePayment = async (endpoint: string, amount: number, phone: string, type: "registration" | "premium") => {
+  const makePayment = async (
+    endpoint: string,
+    amount: number,
+    phone: string,
+    type: "registration" | "premium",
+  ) => {
     if (!profile?.email) {
-      toast({ title: "Error", description: "Email not found", variant: "destructive" });
+      toast({
+        title: "Error",
+        description: "Email not found",
+        variant: "destructive",
+      });
       return;
     }
 
     setSubmitting(true);
     try {
+      //   const response = await fetch(endpoint, {
+      //     method: "POST",
+      //     headers: { "Content-Type": "application/json" },
+      //     credentials: "include",
+      //     body: JSON.stringify({
+      //       User_email: profile.email,
+      //       phone_number: phone,
+      //       amount,
+      //     }),
+      //   });
+
+      const payload = {
+        User_email: profile.email,
+        phone_number: phone,
+        amount,
+      };
+
+      // 🔥 Log what is being sent to backend
+      console.log("📤 Sending payment payload:", {
+        endpoint,
+        type,
+        payload,
+      });
+
       const response = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({
-          User_email: profile.email,
-          phone_number: phone,
-          amount,
-        }),
+        body: JSON.stringify(payload),
       });
 
       const result = await response.json();
@@ -78,7 +120,8 @@ export default function OnlinePayments() {
         });
         if (type === "registration") setRegDialogOpen(false);
         else setPremDialogOpen(false);
-        setRegPhone(""); setPremPhone("");
+        setRegPhone("");
+        setPremPhone("");
       } else {
         toast({
           title: "Payment Failed",
@@ -112,8 +155,12 @@ export default function OnlinePayments() {
     <DashboardLayout>
       <div className="mx-auto max-w-4xl space-y-6 p-4">
         <div className="space-y-2">
-          <h1 className="text-3xl font-display font-bold tracking-tight">Online Payments</h1>
-          <p className="text-muted-foreground">Manage your membership payments securely with M-Pesa</p>
+          <h1 className="text-3xl font-display font-bold tracking-tight">
+            Payments
+          </h1>
+          <p className="text-muted-foreground">
+            Manage your membership payments securely with M-Pesa
+          </p>
         </div>
 
         {/* Upper Section: User Details */}
@@ -127,7 +174,11 @@ export default function OnlinePayments() {
           <CardContent className="pt-0">
             <div className="flex flex-col lg:flex-row items-start lg:items-center gap-6 mb-8">
               <img
-                src={profile?.image_path ? `/uploads/${profile.image_path.replace(/^uploads[\/\\]/i, '')}` : avatarImg}
+                src={
+                  profile?.image_path
+                    ? `/uploads/${profile.image_path.replace(/^uploads[\/\\]/i, "")}`
+                    : avatarImg
+                }
                 alt="Profile"
                 className="h-24 w-24 rounded-full border-4 border-card object-cover shadow-lg flex-shrink-0"
               />
@@ -137,22 +188,40 @@ export default function OnlinePayments() {
                     <Mail className="h-5 w-5 text-primary mb-2" />
                     <p className="text-sm font-medium">{profile?.email}</p>
                   </div>
-                  <div className={`flex flex-col items-center md:items-start p-4 rounded-lg bg-accent ${profile?.payments.fully_paid ? "border-green-200 ring-2 ring-green-200/50" : ""}`}>
+                  <div
+                    className={`flex flex-col items-center md:items-start p-4 rounded-lg bg-accent ${profile?.payments.fully_paid ? "border-green-200 ring-2 ring-green-200/50" : ""}`}
+                  >
                     <CreditCard className="h-5 w-5 mb-2 text-primary" />
-                    <p className="text-sm font-medium">{profile?.payments.status || "N/A"}</p>
-                    {profile?.payments.fully_paid && <CheckCircle2 className="h-4 w-4 text-green-600 mt-1" />}
+                    <p className="text-sm font-medium">
+                      {profile?.payments.status || "N/A"}
+                    </p>
+                    {profile?.payments.fully_paid && (
+                      <CheckCircle2 className="h-4 w-4 text-green-600 mt-1" />
+                    )}
                   </div>
                   <div className="flex flex-col items-center md:items-start p-4 rounded-lg bg-accent">
                     <CreditCard className="h-5 w-5 text-primary mb-2" />
-                    <p className="text-sm font-medium">KES {profile?.payments.total_paid_this_year?.toLocaleString() || 0}</p>
-                    <p className="text-xs text-muted-foreground">Paid This Year</p>
+                    <p className="text-sm font-medium">
+                      KES{" "}
+                      {profile?.payments.total_paid_this_year?.toLocaleString() ||
+                        0}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Paid This Year
+                    </p>
                   </div>
                 </div>
                 <div className="mt-4 p-4 rounded-lg bg-accent">
                   <p className="text-sm">
                     <span className="font-medium">Next Payment: </span>
-                    <span className={profile?.payments.fully_paid ? "text-green-600" : "text-orange-600"}>
-                      {formatDate(profile?.payments.next_payment_date || '')}
+                    <span
+                      className={
+                        profile?.payments.fully_paid
+                          ? "text-green-600"
+                          : "text-orange-600"
+                      }
+                    >
+                      {formatDate(profile?.payments.next_payment_date || "")}
                     </span>
                   </p>
                 </div>
@@ -165,14 +234,15 @@ export default function OnlinePayments() {
         <Card className="shadow-card">
           <CardHeader>
             <h3 className="text-xl font-bold">Make a Payment</h3>
-            <p className="text-muted-foreground">Select payment type and enter your M-Pesa number</p>
+            <p className="text-muted-foreground">
+              Select payment type and enter your M-Pesa number
+            </p>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              
               {/* Registration Payment */}
               <div className="group">
-                <Button 
+                <Button
                   onClick={() => setRegDialogOpen(true)}
                   className="w-full h-32 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-lg hover:shadow-xl transition-all group-hover:scale-[1.02] relative overflow-hidden"
                 >
@@ -186,7 +256,7 @@ export default function OnlinePayments() {
 
               {/* Premium Payment */}
               <div className="group">
-                <Button 
+                <Button
                   onClick={() => setPremDialogOpen(true)}
                   className="w-full h-32 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white shadow-lg hover:shadow-xl transition-all group-hover:scale-[1.02] relative overflow-hidden"
                 >
@@ -211,21 +281,26 @@ export default function OnlinePayments() {
               Registration Payment
             </DialogTitle>
             <DialogDescription>
-              Confirm payment of Two Thousand Kenyan Shillings (2,000 Ksh) as membership fees to the Association of Government Librarians.
+              Confirm payment of Two Thousand Kenyan Shillings (2,000 Ksh) as
+              membership fees to the Association of Government Librarians.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-2 flex-1 overflow-y-auto">
             <div className="space-y-2">
-              <Label htmlFor="reg-email" className="text-sm font-medium">User Email</Label>
-              <Input 
-                id="reg-email" 
-                value={profile?.email || ""} 
-                readOnly 
+              <Label htmlFor="reg-email" className="text-sm font-medium">
+                User Email
+              </Label>
+              <Input
+                id="reg-email"
+                value={profile?.email || ""}
+                readOnly
                 className="bg-muted/50"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="reg-phone" className="text-sm font-medium">Phone Number</Label>
+              <Label htmlFor="reg-phone" className="text-sm font-medium">
+                Phone Number
+              </Label>
               <Input
                 id="reg-phone"
                 type="tel"
@@ -236,29 +311,43 @@ export default function OnlinePayments() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="reg-amount" className="text-sm font-medium">Amount</Label>
-              <Input 
-                id="reg-amount" 
-                value="2000" 
-                readOnly 
+              <Label htmlFor="reg-amount" className="text-sm font-medium">
+                Amount
+              </Label>
+              <Input
+                id="reg-amount"
+                value="2000"
+                readOnly
                 className="bg-muted/50 font-mono text-lg"
               />
             </div>
           </div>
           <DialogFooter className="gap-2">
-            <Button 
-              type="button" 
-              variant="outline" 
-              onClick={() => { setRegDialogOpen(false); setRegPhone(""); }}
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setRegDialogOpen(false);
+                setRegPhone("");
+              }}
               disabled={submitting}
             >
               Cancel
             </Button>
-            <Button 
-              onClick={() => makePayment("/api/payments/register-fee", 2000, regPhone, "registration")}
+            <Button
+              onClick={() =>
+                makePayment(
+                  "/api/payments/register-fee",
+                  2000,
+                  regPhone,
+                  "registration",
+                )
+              }
               disabled={submitting || !regPhone || !profile?.email}
             >
-              {submitting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+              {submitting ? (
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              ) : null}
               {submitting ? "Processing..." : "Make Payment"}
             </Button>
           </DialogFooter>
@@ -274,21 +363,26 @@ export default function OnlinePayments() {
               Premium Payment
             </DialogTitle>
             <DialogDescription>
-              Confirm payment of 3,600 Ksh as annual membership fees to the Association of Government Librarians.
+              Confirm payment of 3,600 Ksh as annual membership fees to the
+              Association of Government Librarians.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-2 flex-1 overflow-y-auto">
             <div className="space-y-2">
-              <Label htmlFor="prem-email" className="text-sm font-medium">User Email</Label>
-              <Input 
-                id="prem-email" 
-                value={profile?.email || ""} 
-                readOnly 
+              <Label htmlFor="prem-email" className="text-sm font-medium">
+                User Email
+              </Label>
+              <Input
+                id="prem-email"
+                value={profile?.email || ""}
+                readOnly
                 className="bg-muted/50"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="prem-phone" className="text-sm font-medium">Phone Number</Label>
+              <Label htmlFor="prem-phone" className="text-sm font-medium">
+                Phone Number
+              </Label>
               <Input
                 id="prem-phone"
                 type="tel"
@@ -299,29 +393,43 @@ export default function OnlinePayments() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="prem-amount" className="text-sm font-medium">Amount</Label>
-              <Input 
-                id="prem-amount" 
-                value="3600" 
-                readOnly 
+              <Label htmlFor="prem-amount" className="text-sm font-medium">
+                Amount
+              </Label>
+              <Input
+                id="prem-amount"
+                value="3600"
+                readOnly
                 className="bg-muted/50 font-mono text-lg"
               />
             </div>
           </div>
           <DialogFooter className="gap-2">
-            <Button 
-              type="button" 
-              variant="outline" 
-              onClick={() => { setPremDialogOpen(false); setPremPhone(""); }}
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setPremDialogOpen(false);
+                setPremPhone("");
+              }}
               disabled={submitting}
             >
               Cancel
             </Button>
-            <Button 
-              onClick={() => makePayment("/api/payments/premium/pay", 3600, premPhone, "premium")}
+            <Button
+              onClick={() =>
+                makePayment(
+                  "/api/payments/premium/pay",
+                  3600,
+                  premPhone,
+                  "premium",
+                )
+              }
               disabled={submitting || !premPhone || !profile?.email}
             >
-              {submitting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+              {submitting ? (
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              ) : null}
               {submitting ? "Processing..." : "Make Payment"}
             </Button>
           </DialogFooter>

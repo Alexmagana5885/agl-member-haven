@@ -7,10 +7,10 @@ from datetime import datetime, timedelta
 
 logger = logging.getLogger(__name__)
 
-# M-Pesa API Configuration - Using environment variables with fallbacks
-MPESA_CONSUMER_KEY = os.environ.get("MPESA_CONSUMER_KEY", "your_consumer_key_here")
-MPESA_CONSUMER_SECRET = os.environ.get("MPESA_CONSUMER_SECRET", "your_consumer_secret_here")
-MPESA_ENVIRONMENT = os.environ.get("MPESA_ENVIRONMENT", "sandbox")
+# M-Pesa API Configuration
+MPESA_CONSUMER_KEY = os.environ.get("CONSUMER_KEY", "your_consumer_key_here")
+MPESA_CONSUMER_SECRET = os.environ.get("CONSUMER_SECRET", "your_consumer_secret_here")
+MPESA_ENVIRONMENT = os.environ.get("ENVIRONMENT", "sandbox")
 
 # API URLs
 if MPESA_ENVIRONMENT == "production":
