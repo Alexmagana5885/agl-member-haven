@@ -10,6 +10,7 @@ import MemberPremiumsPaymentsPage from "./pages/MemberPremiumsPayments";
 import MessagesPage from "./pages/Messages";
 import PaymentInvoicesPage from "./pages/PaymentInvoices";
 import UserInformationPage from "./pages/UserInformation";
+import OnlinePayments from "./pages/OnlinePayments";
 import PastEventDetail from "./pages/PastEventDetail";
 import BlogDetail from "./pages/BlogDetail";
 import Login from "./pages/Login";
@@ -41,6 +42,7 @@ const App = () => (
           <Route path="/user-info" element={<UserInformationPage />} />
           <Route path="/past-events/:id" element={<PastEventDetail />} />
           <Route path="/blogs/:id" element={<BlogDetail />} />
+          <Route path="/online-payments" element={<OnlinePayments />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

@@ -27,7 +27,8 @@ interface UserSession {
 
 const mainNavWithSend = [
   { title: "Home", url: "/dashboard", icon: Home },
-  { title: "Messages", url: "/messages", icon: MessageSquare },
+{ title: "Messages", url: "/messages", icon: MessageSquare },
+  { title: "Online Payments", url: "/online-payments", icon: CreditCard },
   { title: "Payment Invoices", url: "/payment-invoices", icon: FileText },
   { title: "User Information", url: "/user-info", icon: UserCircle },
 ];
