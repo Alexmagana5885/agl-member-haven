@@ -18,10 +18,11 @@ logger.setLevel(logging.DEBUG)
 premiums_bp = Blueprint('premiums', __name__, url_prefix='/api/payments/premium')
 
 # M-Pesa API Configuration - Using environment variables with fallbacks
-MPESA_BUSINESS_SHORT_CODE = os.environ.get("MPESA_BUSINESS_SHORT_CODE", "8209382")
-MPESA_PASSKEY = os.environ.get("MPESA_PASSKEY", "your_passkey_here")
-MPESA_CALLBACK_URL = os.environ.get("MPESA_CALLBACK_URL", "https://member.log.agl.or.ke/members/forms/Payment/Premiumcallback.php")
-MPESA_ENVIRONMENT = os.environ.get("MPESA_ENVIRONMENT", "sandbox")
+MPESA_BUSINESS_SHORT_CODE = os.environ.get("MY_BUSINESS_SHORT_CODE", "6175135")
+MPESA_PASSKEY = os.environ.get("MY_PASS_KEY", "your_passkey_here")
+MPESA_CALLBACK_URL = os.environ.get("PREMIUMS_CALLBACK_URL", "https://member.log.agl.or.ke/members/forms/Payment/Premiumcallback.php")
+MPESA_ENVIRONMENT = os.environ.get("ENVIRONMENT", "sandbox")
+
 
 # Party B (Business Paybill)
 MPESA_PARTY_B = os.environ.get("MPESA_PARTY_B", "8209382")
