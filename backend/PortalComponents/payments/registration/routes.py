@@ -21,7 +21,7 @@ registration_payments_bp = Blueprint(
 )
 
 # M-Pesa API Configuration
-MPESA_BUSINESS_SHORT_CODE = os.environ.get("MY_BUSINESS_SHORT_CODE", "8209382")
+MPESA_BUSINESS_SHORT_CODE = os.environ.get("MY_BUSINESS_SHORT_CODE", "6175135")
 MPESA_PASSKEY = os.environ.get("MY_PASS_KEY", "your_passkey_here")
 MPESA_CALLBACK_URL = os.environ.get(
     "REGISTRATION_CALLBACK_URL",
