@@ -86,11 +86,11 @@ export default function OnlinePayments() {
         amount,
       };
 
-        // console.log(" Sending payment payload:", {
-        //   endpoint,
-        //   type,
-        //   payload,
-        // });
+        console.log(" Sending payment payload:", {
+          endpoint,
+          type,
+          payload,
+        });
 
       const response = await fetch(endpoint, {
         method: "POST",

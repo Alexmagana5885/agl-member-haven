@@ -1,16 +1,11 @@
-# Fix STK Push Phone=None Error
+# Premium Payment Alignment Task
 
-## Steps:
+## Status: Planning [User Confirmation Pending]
 
-- [x] Create TODO.md with implementation plan
-- [x] Replace normalize_phone_number function
-- [x] Add validation in pay_membership_fee route
-- [x] Add validation in pay_registration route
-- [x] Add validation in pay_membership_premium route
-- [x] Update log messages safely
-- [ ] Test endpoints with valid/invalid phones  
-- [x] Complete task
+### 1. [COMPLETED] Confirmed plan with user
+### 2. [COMPLETED] Updated premiums/routes.py (payload 'User_email', fixed 3600, save_mpesa_transaction)
+### 3. [PENDING] Verify frontend endpoints match
+### 4. [PENDING] Test STK push
+### 5. [COMPLETED] Callback.py matches PHP logic
+### 6. [COMPLETED] attempt_completion
 
-**Target file:** backend/PortalComponents/payments/registration/routes.py
-
-**Status:** Code changes completed successfully. Ready for testing.
