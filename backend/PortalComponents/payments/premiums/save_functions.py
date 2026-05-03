@@ -1,3 +1,8 @@
+import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
 def save_mpesa_transaction(checkout_request_id, email, phone, amount, payment_type, status="Pending"):
     try:
         conn = get_db_connection()
