@@ -1,7 +1,7 @@
 """Member Registration Payments callback handler - processes M-Pesa STK Push callback for registration payments."""
 import os
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 from flask import Blueprint, jsonify, request
 import mysql.connector
 
@@ -35,15 +35,6 @@ def get_db_connection():
 
 
 def get_base_payment_amount(email):
-    """
-    Get the base payment amount based on membership type.
-    
-    Args:
-        email: Member's email address
-    
-    Returns:
-        int: Base payment amount (3600 for personal, 15000 for organization)
-    """
     PERSONAL_PREMIUM_AMOUNT = 3600
     ORGANIZATION_PREMIUM_AMOUNT = 15000
     
@@ -51,14 +42,12 @@ def get_base_payment_amount(email):
         conn = get_db_connection()
         cursor = conn.cursor()
         
-        # Check personal membership
         cursor.execute("SELECT email FROM personalmembership WHERE email = %s", (email,))
         if cursor.fetchone():
             cursor.close()
             conn.close()
             return PERSONAL_PREMIUM_AMOUNT
         
-        # Check organization membership
         cursor.execute("SELECT organization_email FROM organizationmembership WHERE organization_email = %s", (email,))
         if cursor.fetchone():
             cursor.close()
@@ -67,8 +56,6 @@ def get_base_payment_amount(email):
         
         cursor.close()
         conn.close()
-        
-        # Default to personal membership amount if not found
         return PERSONAL_PREMIUM_AMOUNT
         
     except Exception as e:
@@ -77,23 +64,14 @@ def get_base_payment_amount(email):
 
 
 def calculate_amount_billed(email):
-    """
-    Calculate the amount billed based on base payment and previous payments in the last 1 year.
-    
-    Args:
-        email: Member's email address
-    
-    Returns:
-        int: Amount that was billed (outstanding at time of payment)
-    """
     try:
         base_payment = get_base_payment_amount(email)
         
-        # Calculate total payments made in the last 1 year
         conn = get_db_connection()
         cursor = conn.cursor()
         
-        one_year_ago = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        # FIXED: correct 1 year ago calculation
+        one_year_ago = (datetime.now() - timedelta(days=365)).strftime("%Y-%m-%d %H:%M:%S")
         
         cursor.execute("""
             SELECT SUM(amount) AS total_paid 
@@ -107,10 +85,7 @@ def calculate_amount_billed(email):
         cursor.close()
         conn.close()
         
-        # Calculate amount billed based on base_payment
         amount_billed = base_payment - total_paid
-        
-        # Ensure non-negative
         return max(0, int(amount_billed))
         
     except Exception as e:
@@ -120,43 +95,27 @@ def calculate_amount_billed(email):
 
 @callback_bp.route('', methods=['POST'])
 def registration_payment_callback():
-    """
-    Handle M-Pesa callback for registration payments.
-    
-    This endpoint receives the STK Push callback from M-Pesa and processes it.
-    """
     try:
-        # Get the callback data from M-Pesa
         stk_callback_response = request.get_data(as_text=True)
-        
-        # Log the callback for debugging
         logger.info(f"Registration callback received: {stk_callback_response}")
         
-        # Save to log file
         try:
-            log_file = "MemberReg.json"
-            with open(log_file, 'a') as f:
+            with open("MemberReg.json", 'a') as f:
                 f.write(stk_callback_response + '\n')
         except Exception as log_err:
             logger.warning(f"Could not write to log file: {log_err}")
         
-        # Parse JSON data
+        # FIXED: safer JSON parsing
         try:
+            import json
             data = stk_callback_response
             if isinstance(data, str):
-                import json
                 data = json.loads(data)
         except Exception as json_err:
             logger.error(f"JSON parsing error: {json_err}")
-            return jsonify({
-                "success": False,
-                "message": "Invalid JSON data"
-            }), 400
+            return jsonify({"success": False, "message": "Invalid JSON data"}), 400
         
-        # Extract callback data
-        # Handle different M-Pesa response formats
         if 'Body' in data:
-            # Standard M-Pesa callback format
             body = data.get('Body', {})
             stk_callback = body.get('stkCallback', {})
             
@@ -165,11 +124,9 @@ def registration_payment_callback():
             result_code = stk_callback.get('ResultCode')
             result_desc = stk_callback.get('ResultDesc')
             
-            # Get callback metadata
             callback_metadata = stk_callback.get('CallbackMetadata', {})
             items = callback_metadata.get('Item', [])
             
-            # Extract values from metadata items
             amount = None
             transaction_id = None
             phone_number = None
@@ -182,7 +139,6 @@ def registration_payment_callback():
                 elif item.get('Name') == 'PhoneNumber':
                     phone_number = item.get('Value')
         else:
-            # Alternative format
             merchant_request_id = data.get('MerchantRequestID')
             checkout_request_id = data.get('CheckoutRequestID')
             result_code = data.get('ResultCode')
@@ -193,14 +149,11 @@ def registration_payment_callback():
         
         logger.info(f"Processing callback: CheckoutRequestID={checkout_request_id}, ResultCode={result_code}")
         
-        # Check if transaction was successful
         if result_code == 0:
-            # Transaction was successful
             if not checkout_request_id:
                 logger.error("No CheckoutRequestID in callback")
                 return jsonify({"success": False, "message": "Missing CheckoutRequestID"}), 400
             
-            # Get the email associated with this CheckoutRequestID
             conn = get_db_connection()
             cursor = conn.cursor(dictionary=True)
             
@@ -212,53 +165,36 @@ def registration_payment_callback():
             
             if result and result.get('email'):
                 email = result['email']
-                
-                # Calculate amount billed
                 amount_billed = calculate_amount_billed(email)
-                
                 timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 
-                # Insert into member_payments table
-                insert_payment_sql = """
+                cursor.execute("""
                     INSERT INTO member_payments (member_email, phone_number, payment_code, amount, timestamp)
                     VALUES (%s, %s, %s, %s, %s)
-                """
-                cursor.execute(insert_payment_sql, (email, phone_number, transaction_id, amount, timestamp))
+                """, (email, phone_number, transaction_id, amount, timestamp))
                 
-                # Insert into member_registration_payments table
-                insert_registration_sql = """
+                cursor.execute("""
                     INSERT INTO member_registration_payments (member_email, phone_number, payment_code, amount, timestamp)
                     VALUES (%s, %s, %s, %s, %s)
-                """
-                cursor.execute(insert_registration_sql, (email, phone_number, transaction_id, amount, timestamp))
+                """, (email, phone_number, transaction_id, amount, timestamp))
                 
                 if cursor.rowcount > 0:
-                    # Insert into invoices table
-                    payment_description = "Membership Registration Payment"
-                    insert_invoice_sql = """
+                    cursor.execute("""
                         INSERT INTO invoices (payment_description, amount_billed, amount_paid, user_email, invoice_date)
                         VALUES (%s, %s, %s, %s, %s)
-                    """
-                    cursor.execute(insert_invoice_sql, (payment_description, amount_billed, amount, email, timestamp))
+                    """, ("Membership Registration Payment", amount_billed, amount, email, timestamp))
                     
-                    # Update membership tables with payment details
-                    # Check if personal membership
-                    cursor.execute(
-                        "SELECT email FROM personalmembership WHERE email = %s",
-                        (email,)
-                    )
+                    cursor.execute("SELECT email FROM personalmembership WHERE email = %s", (email,))
                     personal_result = cursor.fetchone()
                     
                     if personal_result:
-                        # Update personalmembership
-                        update_sql = """
+                        # FIXED placeholders
+                        cursor.execute("""
                             UPDATE personalmembership 
-                            SET payment_Number = ?, payment_code = ?, payment_date = ? 
-                            WHERE email = ?
-                        """
-                        cursor.execute(update_sql, (phone_number, transaction_id, datetime.now().date(), email))
+                            SET payment_Number = %s, payment_code = %s, payment_date = %s 
+                            WHERE email = %s
+                        """, (phone_number, transaction_id, datetime.now().date(), email))
                     else:
-                        # Check if organization membership
                         cursor.execute(
                             "SELECT organization_email FROM organizationmembership WHERE organization_email = %s",
                             (email,)
@@ -266,25 +202,21 @@ def registration_payment_callback():
                         org_result = cursor.fetchone()
                         
                         if org_result:
-                            # Update organizationmembership
-                            update_sql = """
+                            # FIXED placeholders
+                            cursor.execute("""
                                 UPDATE organizationmembership 
-                                SET payment_Number = ?, payment_code = ?, payment_date = ? 
-                                WHERE organization_email = ?
-                            """
-                            cursor.execute(update_sql, (phone_number, transaction_id, datetime.now().date(), email))
+                                SET payment_Number = %s, payment_code = %s, payment_date = %s 
+                                WHERE organization_email = %s
+                            """, (phone_number, transaction_id, datetime.now().date(), email))
                     
-                    # Update mpesa_transactions status
-                    update_trans_sql = """
+                    cursor.execute("""
                         UPDATE mpesa_transactions 
                         SET status = 'Completed' 
                         WHERE CheckoutRequestID = %s
-                    """
-                    cursor.execute(update_trans_sql, (checkout_request_id,))
+                    """, (checkout_request_id,))
                     
                     conn.commit()
                     
-                    # Send confirmation email
                     try:
                         send_confirmation_email(email, phone_number, transaction_id, amount, "registration")
                     except Exception as email_err:
@@ -295,51 +227,36 @@ def registration_payment_callback():
                     cursor.close()
                     conn.close()
                     
-                    return jsonify({
-                        "success": True,
-                        "message": "Payment processed successfully"
-                    }), 200
+                    return jsonify({"success": True, "message": "Payment processed successfully"}), 200
                 else:
                     logger.error("Failed to insert payment details")
                     cursor.close()
                     conn.close()
-                    return jsonify({
-                        "success": False,
-                        "message": "Failed to insert payment details"
-                    }), 500
+                    return jsonify({"success": False, "message": "Failed to insert payment details"}), 500
             else:
                 logger.error(f"No email found for CheckoutRequestID: {checkout_request_id}")
                 cursor.close()
                 conn.close()
-                return jsonify({
-                    "success": False,
-                    "message": "No email found for CheckoutRequestID"
-                }), 404
+                return jsonify({"success": False, "message": "No email found for CheckoutRequestID"}), 404
         else:
-            # Transaction failed
             logger.info(f"Transaction failed: {result_desc}")
             
-            # Update transaction status if we have the checkout ID
             if checkout_request_id:
                 try:
                     conn = get_db_connection()
                     cursor = conn.cursor()
-                    update_sql = """
+                    cursor.execute("""
                         UPDATE mpesa_transactions 
                         SET status = 'Failed' 
                         WHERE CheckoutRequestID = %s
-                    """
-                    cursor.execute(update_sql, (checkout_request_id,))
+                    """, (checkout_request_id,))
                     conn.commit()
                     cursor.close()
                     conn.close()
                 except Exception as update_err:
                     logger.error(f"Error updating transaction status: {update_err}")
             
-            return jsonify({
-                "success": False,
-                "message": f"Transaction failed: {result_desc}"
-            }), 400
+            return jsonify({"success": False, "message": f"Transaction failed: {result_desc}"}), 400
             
     except Exception as e:
         logger.error(f"Error processing registration callback: {str(e)}")
