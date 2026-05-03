@@ -303,8 +303,8 @@ def pay_premium():
             }), 400
         
         # Extract and validate input
-        email = data.get('email', '').strip()
-        phone = data.get('phone', '').strip()
+        email = data.get('User_email', '').strip()
+        phone = data.get('phone_number', '').strip()
         amount = data.get('amount')
         
         # Validation
@@ -330,7 +330,7 @@ def pay_premium():
             }), 400
         
         # Use provided amount or calculate outstanding amount
-        payment_amount = 3600
+        payment_amount = amount
         
         # Ensure minimum amount of 1
         if payment_amount < 1:
