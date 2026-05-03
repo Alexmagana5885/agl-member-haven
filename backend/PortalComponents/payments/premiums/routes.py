@@ -8,6 +8,7 @@ import requests
 import mysql.connector
 
 from ..accessToken import get_access_token
+from .save_functions import save_mpesa_transaction
 
 # Configure logger
 logger = logging.getLogger(__name__)
@@ -329,15 +330,7 @@ def pay_premium():
             }), 400
         
         # Use provided amount or calculate outstanding amount
-        if amount:
-            try:
-                # Strip any formatting characters (commas, spaces, etc.)
-                clean_amount = str(amount).replace(',', '').replace(' ', '').strip()
-                payment_amount = int(clean_amount)
-            except (ValueError, TypeError):
-                payment_amount = get_outstanding_amount(email)
-        else:
-            payment_amount = get_outstanding_amount(email)
+        payment_amount = 3600
         
         # Ensure minimum amount of 1
         if payment_amount < 1:
@@ -359,17 +352,9 @@ def pay_premium():
                 conn = get_db_connection()
                 cursor = conn.cursor()
                 
-                # Insert into mpesa_transactions table
-                mpesa_sql = """
-                    INSERT INTO mpesa_transactions (CheckoutRequestID, email, phone, amount, status, transaction_date)
-                    VALUES (%s, %s, %s, %s, 'Pending', NOW())
-                """
-                mpesa_values = (checkout_id, email, normalized_phone, payment_amount)
-                cursor.execute(mpesa_sql, mpesa_values)
-                
-                conn.commit()
-                cursor.close()
-                conn.close()
+                save_mpesa_transaction(
+                    checkout_id, email, normalized_phone, payment_amount, "premium"
+                )
                 
                 logger.info(f"Transaction saved: {checkout_id}")
                 
