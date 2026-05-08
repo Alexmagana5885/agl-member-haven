@@ -157,9 +157,9 @@ def send_confirmation_email(email: str, member_name: str, event_name: str, event
         from email.mime.text import MIMEText
         from email.mime.multipart import MIMEMultipart
 
-        smtp_host = os.environ.get("SMTP_HOST", "smtp.gmail.com")
+        smtp_host = os.environ.get("SMTP_HOST", "agl.or.ke")
         smtp_port = int(os.environ.get("SMTP_PORT", "587"))
-        smtp_user = os.environ.get("SMTP_USER", "events@agl.or.ke")
+        smtp_user = "events@agl.or.ke"
         smtp_password = os.environ.get("SMTP_PASSWORD", "")
 
         if not smtp_password:

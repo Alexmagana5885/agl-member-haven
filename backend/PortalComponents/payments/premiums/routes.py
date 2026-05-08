@@ -25,13 +25,13 @@ MPESA_CALLBACK_URL = os.environ.get(
     "PREMIUMS_CALLBACK_URL",
     "https://member.log.agl.or.ke/members/forms/Payment/Premiumcallback.php"
 )
-MPESA_ENVIRONMENT = os.environ.get("ENVIRONMENT", "sandbox")
+MPESA_ENVIRONMENT = os.environ.get("MPESA_ENVIRONMENT", "sandbox")
 
 # Party B (Business Paybill)
 MPESA_PARTY_B = os.environ.get("MPESA_PARTY_B", "8209382")
 
 # Account Reference
-MPESA_ACCOUNT_REFERENCE = os.environ.get("MPESA_ACCOUNT_REFERENCE", "6175135")
+MPESA_ACCOUNT_REFERENCE = os.environ["MPESA_ACCOUNT_REFERENCE_PREMIUM"]
 
 # STK Push API URLs
 if MPESA_ENVIRONMENT == "production":
