@@ -194,8 +194,9 @@ export interface EventRegistrationPayload {
 }
 
 export function registerForEvent(data: EventRegistrationPayload) {
-  return postData("/events/register", data);
+  return postData("/payments/events/register", data);
 }
+
 
 export interface BillToData {
   member_type: 'personal' | 'organization';
