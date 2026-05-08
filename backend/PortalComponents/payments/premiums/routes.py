@@ -208,8 +208,7 @@ def save_mpesa_transaction(
     payment_type,
     status="Pending"
 ):
-    """
-    Save M-Pesa transaction to database tables.
+    """Save M-Pesa transaction to database.
     """
 
     conn = None
@@ -219,18 +218,6 @@ def save_mpesa_transaction(
         conn = get_db_connection()
         cursor = conn.cursor()
 
-        # Safe whitelist for tables
-        VALID_TABLES = {
-            "fee": "member_registration_payments",
-            "premium": "member_premium_payments"
-        }
-
-        table = VALID_TABLES.get(payment_type)
-
-        if not table:
-            raise ValueError("Invalid payment type provided")
-
-        # Save to mpesa_transactions
         cursor.execute("""
             INSERT INTO mpesa_transactions
             (
@@ -247,52 +234,12 @@ def save_mpesa_transaction(
             email,
             phone,
             amount,
-            status
-        ))
-
-        # Save to specific payment table
-        cursor.execute(f"""
-            INSERT INTO {table}
-            (
-                member_email,
-                phone_number,
-                payment_code,
-                amount,
-                timestamp
-            )
-            VALUES (%s, %s, %s, %s, NOW())
-        """, (
-            email,
-            phone,
-            checkout_request_id,
-            amount
-        ))
-
-        # Create invoice
-        cursor.execute("""
-            INSERT INTO invoices
-            (
-                payment_description,
-                amount_billed,
-                amount_paid,
-                user_email,
-                invoice_date
-            )
-            VALUES (%s, %s, %s, %s, NOW())
-        """, (
-            "Membership Registration Payment"
-            if payment_type == "fee"
-            else "Membership Premium Payment",
-
-            amount,
-            0,
-            email
+            status,
         ))
 
         conn.commit()
 
-        logger.info(f"Transaction saved successfully: {checkout_request_id}")
-
+        logger.info(f"Transaction saved successfully (mpesa_transactions): {checkout_request_id}")
         return True
 
     except Exception as e:
@@ -313,6 +260,7 @@ def save_mpesa_transaction(
 
         except Exception as close_error:
             logger.error(f"DB close error: {str(close_error)}")
+
 
 
 def initiate_stk_push(
@@ -487,7 +435,7 @@ def pay_premium():
 
         # Minimum amount
         if payment_amount < 1:
-            payment_amount = 1
+            payment_amount = 3600
 
         # STK Push
         result = initiate_stk_push(
