@@ -312,11 +312,24 @@ const getImageSrc = (path?: string) => {
                       <Label className="text-xs font-medium text-muted-foreground">Next Payment Due</Label>
                       <div className="p-3 rounded-lg bg-accent border">
                         <p>
-                          {new Date(profile.payments.next_payment_date).toLocaleDateString("en-GB", {
-                            year: "numeric",
-                            month: "long",
-                            day: "numeric",
-                          })}
+                          {(() => {
+                            const nextRaw = profile?.payments?.next_payment_date || "";
+                            const nextDate = nextRaw ? new Date(nextRaw) : null;
+                            const currentYear = new Date().getFullYear();
+                            const nextYear = nextDate?.getFullYear();
+
+                            // If premium for the current year isn't fully paid, force Next Payment Due within current year.
+                            if (!profile?.payments?.fully_paid) {
+                              if (nextYear !== currentYear) return "currentYear";
+                            }
+
+                            return new Date(nextRaw).toLocaleDateString("en-GB", {
+                              year: "numeric",
+                              month: "long",
+                              day: "numeric",
+                            });
+                          })()}
+
                         </p>
                       </div>
                     </div>

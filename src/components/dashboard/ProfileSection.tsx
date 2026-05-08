@@ -234,11 +234,22 @@ const getImageSrc = (path?: string) => {
             {/* Payments read-only */}
             <InfoItem icon={CreditCard} label="Premium Status" value={profile?.payments.status || ''} />
             <InfoItem 
-              icon={profile?.payments.fully_paid ? CheckCircle2 : CreditCard} 
-              label="Next Payment" 
-              value={formatDate(profile?.payments.next_payment_date || '')}
+              icon={profile?.payments.fully_paid ? CheckCircle2 : CreditCard}
+              label="Next Payment"
+              value={(() => {
+                const nextRaw = profile?.payments.next_payment_date || "";
+                const nextDate = nextRaw ? new Date(nextRaw) : null;
+                const currentYear = new Date().getFullYear();
+                const nextYear = nextDate?.getFullYear();
+
+                // If premium for the current year isn't fully paid, force Next Payment within current year.
+                if (profile?.payments?.fully_paid) return formatDate(nextRaw);
+                if (nextYear !== currentYear) return "currentYear";
+                return formatDate(nextRaw);
+              })()}
               className={profile?.payments.fully_paid ? "text-green-600" : ""}
             />
+
             <InfoItem icon={CreditCard} label="Paid This Year" value={`KES ${profile?.payments.total_paid_this_year || 0}`} />
           </div>
         </div>

@@ -170,9 +170,9 @@ export function PlannedEventsSection() {
             <div className="space-y-2">
               <Label htmlFor="reg-contact" className="flex items-center gap-1.5">
                 <Phone className="h-3.5 w-3.5" />
-                Contact
+                Phone Number
               </Label>
-              <Input id="reg-contact" type="tel" placeholder="Enter your phone number" value={contact} onChange={(e) => setContact(e.target.value)} />
+              <Input id="reg-contact" type="tel" placeholder="Enter phone number to pay with" value={contact} onChange={(e) => setContact(e.target.value)} />
             </div>
             <div className="space-y-2">
               <Label>Registration Amount</Label>
