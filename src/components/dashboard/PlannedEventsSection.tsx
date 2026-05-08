@@ -7,8 +7,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { CalendarDays, MapPin, Mail, Phone, UserCheck, Loader2, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import type { PlannedEvent } from "@/services/api";
-import { getPlannedEvents, registerForEvent } from "@/services/api";
+import type { PlannedEvent, ProfileData } from "@/services/api";
+import { getPlannedEvents, registerForEvent, getProfileData } from "@/services/api";
 // import { Skeleton } from "@/components/ui/skeleton";
 
 export function PlannedEventsSection() {
@@ -20,6 +20,8 @@ export function PlannedEventsSection() {
   const [contact, setContact] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const { toast } = useToast();
+  const [profile, setProfile] = useState<ProfileData | null>(null);
+
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -39,12 +41,29 @@ export function PlannedEventsSection() {
     fetchEvents();
   }, [toast]);
 
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const p = await getProfileData();
+        setProfile(p);
+        setEmail(p.email || "");
+        setName(p.name || "");
+      } catch (err) {
+        // If profile can't be loaded, keep fields empty and allow manual entry.
+        console.error("Failed to load profile for event registration:", err);
+      }
+    };
+    fetchProfile();
+  }, []);
+
+
   const handleClose = () => {
     setRegEvent(null);
-    setEmail("");
-    setName("");
+    // Email/Name should come from the logged-in profile session.
+    // Keep them intact so reopening the dialog reuses the autofilled values.
     setContact("");
   };
+
 
   const handleRegister = async () => {
     if (!regEvent) return;
@@ -170,10 +189,11 @@ export function PlannedEventsSection() {
             <div className="space-y-2">
               <Label htmlFor="reg-contact" className="flex items-center gap-1.5">
                 <Phone className="h-3.5 w-3.5" />
-                Phone Number
+                {regEvent && regEvent.RegistrationAmount > 0 ? "Phone Number to pay with" : "Phone Number"}
               </Label>
-              <Input id="reg-contact" type="tel" placeholder="Enter phone number to pay with" value={contact} onChange={(e) => setContact(e.target.value)} />
+              <Input id="reg-contact" type="tel" placeholder="Enter phone number" value={contact} onChange={(e) => setContact(e.target.value)} />
             </div>
+
             <div className="space-y-2">
               <Label>Registration Amount</Label>
               <Input readOnly value={`Ksh ${regEvent?.RegistrationAmount || "0"}`} className="bg-accent" />
