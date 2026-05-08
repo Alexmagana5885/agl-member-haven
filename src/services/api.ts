@@ -32,7 +32,7 @@ async function putData<T>(endpoint: string, data: T): Promise<{ success: boolean
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.message || `Request failed with status ${response.status}`);
+      throw new Error(errorData.message || `Request failed with status11 ${response.status}`);
     }
 
     return await response.json();
@@ -51,7 +51,7 @@ async function fetchData(endpoint: string): Promise<any> {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.message || `Request failed with status ${response.status}`);
+      throw new Error(errorData.message || `Failed to load data`);
     }
 
     return await response.json();

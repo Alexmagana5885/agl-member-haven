@@ -209,7 +209,20 @@ export default function OnlinePayments() {
                           : "text-orange-600"
                       }
                     >
-                      {formatDate(profile?.payments.next_payment_date || "")}
+                      {(() => {
+                        const nextRaw = profile?.payments.next_payment_date || "";
+                        const nextDate = nextRaw ? new Date(nextRaw) : null;
+                        const currentYear = new Date().getFullYear();
+                        const nextYear = nextDate?.getFullYear();
+
+                        // If premium for the current year isn't fully paid, force Next Payment display within current year.
+                        if (!profile?.payments?.fully_paid) {
+                          if (nextYear !== currentYear) return "currentYear";
+                        }
+
+                        return formatDate(nextRaw);
+                      })()}
+
                     </span>
                   </p>
                 </div>
