@@ -158,9 +158,9 @@ def send_confirmation_email(email: str, member_name: str, event_name: str, event
         from email.mime.multipart import MIMEMultipart
 
         smtp_host = os.environ.get("SMTP_HOST", "agl.or.ke")
-        smtp_port = int(os.environ.get("SMTP_PORT", "587"))
-        smtp_user = "events@agl.or.ke"
-        smtp_password = os.environ.get("SMTP_PASSWORD", "")
+        smtp_port = os.environ.get("SMTP_PORT", "587")
+        smtp_user = "aglevents@agl.or.ke"
+        smtp_password = os.environ.get('SMTP_PASSWORD')
 
         if not smtp_password:
             logger.warning("SMTP password not configured, skipping email")
