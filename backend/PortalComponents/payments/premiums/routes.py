@@ -175,14 +175,17 @@ def get_outstanding_amount(email):
         conn = get_db_connection()
         cursor = conn.cursor()
 
-        one_year_ago = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        # Calculate from January 1st of the current year (00:00:00)
+        current_year = datetime.now().year
+        jan_1 = datetime(current_year, 1, 1, 0, 0, 0).strftime("%Y-%m-%d %H:%M:%S")
 
         cursor.execute("""
             SELECT SUM(amount) AS total_paid
             FROM member_premium_payments
             WHERE member_email = %s
-            AND timestamp > %s
-        """, (email, one_year_ago))
+            AND timestamp >= %s
+        """, (email, jan_1))
+
 
         result = cursor.fetchone()
 
