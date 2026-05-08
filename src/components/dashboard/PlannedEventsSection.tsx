@@ -69,13 +69,17 @@ export function PlannedEventsSection() {
     if (!regEvent) return;
     setSubmitting(true);
     try {
-      await registerForEvent({ 
-        eventTitle: regEvent.event_name, 
-        email, 
-        name, 
-        contact, 
-        regAmount: regEvent.RegistrationAmount.toString() 
-      });
+      await registerForEvent({
+        event_id: String(regEvent.id),
+        event_name: regEvent.event_name,
+        event_location: regEvent.event_location,
+        event_date: regEvent.event_date,
+        User_email: email,
+        memberName: name,
+        phone_number: contact,
+        amount: regEvent.RegistrationAmount.toString(),
+      } as any);
+
       toast({ title: "Success", description: "Registration submitted successfully" });
       handleClose();
     } catch (err: any) {
@@ -189,7 +193,8 @@ export function PlannedEventsSection() {
             <div className="space-y-2">
               <Label htmlFor="reg-contact" className="flex items-center gap-1.5">
                 <Phone className="h-3.5 w-3.5" />
-                {regEvent && regEvent.RegistrationAmount > 0 ? "Phone Number to pay with" : "Phone Number"}
+{regEvent && Number(regEvent.RegistrationAmount) > 0 ? "Phone Number to pay with" : "Phone Number"}
+
               </Label>
               <Input id="reg-contact" type="tel" placeholder="Enter phone number" value={contact} onChange={(e) => setContact(e.target.value)} />
             </div>
