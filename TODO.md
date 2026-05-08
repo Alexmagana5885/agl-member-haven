@@ -1,11 +1,7 @@
-# Premium Payment Alignment Task
+# TODO
 
-## Status: Planning [User Confirmation Pending]
+- [x] Fix DB save failure for premium STK push
+  - [x] Import/define `get_db_connection()` inside `backend/PortalComponents/payments/premiums/save_functions.py`
+  - [ ] Re-run premium STK push and confirm rows are inserted into `mpesa_transactions`
 
-### 1. [COMPLETED] Confirmed plan with user
-### 2. [COMPLETED] Updated premiums/routes.py (payload 'User_email', fixed 3600, save_mpesa_transaction)
-### 3. [PENDING] Verify frontend endpoints match
-### 4. [PENDING] Test STK push
-### 5. [COMPLETED] Callback.py matches PHP logic
-### 6. [COMPLETED] attempt_completion
 
