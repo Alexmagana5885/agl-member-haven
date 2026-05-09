@@ -7,6 +7,7 @@ from datetime import datetime
 from flask import Blueprint, jsonify, request
 import requests
 import mysql.connector
+from email.mime.image import MIMEImage
 
 import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))) )
@@ -171,36 +172,123 @@ def send_confirmation_email(email: str, member_name: str, event_name: str, event
         msg["To"] = email
         msg["Subject"] = "Registration Successful!"
 
-        message = f"""Dear {member_name},
+        body = f"""
+    <html>
+    <head>
+        <style>
+            body {{
+                margin: 0;
+                padding: 20px;
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                background-color: #f0f0f0;
+            }}
+            .card {{
+                max-width: 600px;
+                margin: 0 auto;
+                background-color: #fafbfc;
+                border: 1px solid #b3d9eb;
+                border-radius: 8px;
+                overflow: hidden;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            }}
+            .card-header {{
+                background-color: #f0f6fb;
+                padding: 20px;
+                text-align: center;
+                border-bottom: 1px solid #d9e8f0;
+            }}
+            .logo {{
+                max-width: 150px;
+                height: auto;
+                margin-bottom: 15px;
+            }}
+            .card-body {{
+                padding: 30px 20px;
+            }}
+            .message {{
+                color: #555;
+                font-size: 14px;
+                line-height: 1.6;
+                margin: 15px 0;
+            }}
+            .details {{
+                background-color: #f0f6fb;
+                border: 1px solid #d9e8f0;
+                border-radius: 6px;
+                padding: 14px 16px;
+                margin: 15px 0;
+                font-size: 14px;
+                color: #2c3e50;
+                line-height: 1.6;
+            }}
+            .details strong {{
+                color: #2c3e50;
+            }}
+            .card-footer {{
+                padding: 15px 20px;
+                background-color: #f0f6fb;
+                text-align: center;
+                border-top: 1px solid #d9e8f0;
+                font-size: 12px;
+                color: #777;
+            }}
+        </style>
+    </head>
+    <body>
+        <div class="card">
+            <div class="card-header">
+                <img src="cid:agl_logo" alt="AGL" class="logo">
+            </div>
+            <div class="card-body">
+                <p class="message">Dear {member_name},</p>
 
-Thank you for registering for {event_name}!
-We're excited to have you join us on {event_date}.
+                <p class="message">Thank you for registering for <strong>{event_name}</strong>!</p>
+                <p class="message">We're excited to have you join us on <strong>{event_date}</strong>.</p>
 
-Event Details:
+                <div class="details">
+                    <strong>Event Details</strong><br>
+                    <strong>Location:</strong> {event_location}<br>
+                    <strong>Date:</strong> {event_date}
+                </div>
 
-Location: {event_location}
-Date: {event_date}
+                <p class="message">Please check your email for more details and any future updates.</p>
+                <p class="message">We look forward to seeing you there!</p>
+            </div>
+            <div class="card-footer">
+                <p>Association of Government Librarians</p>
+            </div>
+        </div>
+    </body>
+    </html>
+    """
 
-Please check your email for more details and any future updates.
+        msg.attach(MIMEText(body, "html"))
+        
+        try:
+            logo_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))), "assets", "AGL.png")
+            if os.path.exists(logo_path):
+                with open(logo_path, "rb") as f:
+                    img = MIMEImage(f.read())
+                    img.add_header("Content-ID", "<agl_logo>")
+                    img.add_header("Content-Disposition", "inline", filename="AGL.png")
+                    msg.attach(img)
+        except Exception as logo_err:
+            logger.warning(f"Could not attach logo to email: {str(logo_err)}")
 
-We look forward to seeing you there!
-
-Warm regards,
-The AGL Team
-"""
-
-        msg.attach(MIMEText(message, "plain"))
-
-        server = smtplib.SMTP(smtp_host, smtp_port)
-        server.starttls()
-        server.login(smtp_user, smtp_password)
-        server.sendmail(smtp_user, email, msg.as_string())
-        server.quit()
-
-        return True
+        try:
+            server = smtplib.SMTP(smtp_host, smtp_port)
+            server.starttls()
+            server.login(smtp_user, smtp_password)
+            text = msg.as_string()
+            server.sendmail(smtp_user, email, msg.as_string())
+            server.quit()
+            return True
+        except Exception as e:
+            logger.error(f"Error sending email: {str(e)}")
+            return False
 
     except Exception as e:
-        logger.error(f"Error sending email: {str(e)}")
+        logger.error(f"Error in send_confirmation_email: {str(e)}")
         return False
 
 
