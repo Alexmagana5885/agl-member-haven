@@ -200,7 +200,7 @@ Payment Code: {row.get('payment_code', '')}
     pdf.rect(0, 0, 100, 150, 'F')
     
     # Logo
-    logo_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'AGLlogo.jpg'))
+    logo_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'AGLlogo.png'))
     logger.info(f"Event card request: email={email}, event_id={event_id}")
     logger.info(f"DB row found: {bool(row)}")
     if row:
