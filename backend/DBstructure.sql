@@ -109,6 +109,9 @@ CREATE TABLE `event_registrations` (
 -- Dumping data for table `event_registrations`
 --
 
+
+
+
 INSERT INTO `event_registrations` (`id`, `event_id`, `event_name`, `event_location`, `event_date`, `member_email`, `member_name`, `contact`, `registration_date`, `payment_code`, `invitation_card`) VALUES
 (0, 13, 'AGL 2024 Annual Workshop', 'Tom Mboya Labour College-KISUMU', '2024-10-27', 'maganaalex634@gmail.com', ' Maglex Maglex Maglex Maglex Maglex Maglex Maglex Maglex Maglex', '254748027123', '2024-10-26 22:45:21', '00', NULL),
 (0, 13, 'AGL 2024 Annual Workshop', 'Tom Mboya Labour College-KISUMU', '2024-10-27', 'maganaadmin@agl.or.ke', 'Alex Magana', '254748027123', '2024-10-26 22:47:48', '00', NULL),
@@ -122,6 +125,24 @@ INSERT INTO `event_registrations` (`id`, `event_id`, `event_name`, `event_locati
 --
 -- Table structure for table `invoices`
 --
+
+
+CREATE TABLE `directmpesapayments` (
+  `id` int(11) NOT NULL,
+  `MerchantRequestID` varchar(100) NOT NULL,
+  `CheckoutRequestID` varchar(100) NOT NULL,
+  `ResultCode` int(11) NOT NULL,
+  `ResultDesc` varchar(255) NOT NULL,
+  `Amount` decimal(10,2) DEFAULT NULL,
+  `MpesaReceiptNumber` varchar(50) DEFAULT NULL,
+  `Balance` varchar(100) DEFAULT NULL,
+  `TransactionDate` bigint(20) DEFAULT NULL,
+  `PhoneNumber` varchar(20) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `account` varchar(100) DEFAULT NULL,
+  `transactionCommited` varchar(20) NOT NULL DEFAULT 'notcommited'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 
 CREATE TABLE `invoices` (
   `id` int(11) NOT NULL,
