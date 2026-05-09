@@ -14,7 +14,7 @@ import mysql.connector
 app = Flask(__name__)
 
 # CORS configuration
-CORS(app, supports_credentials=True, origins=["http://localhost:5173", "http://localhost:3000", "http://localhost:8080", "http://192.168.16.100:8080"])
+CORS(app, supports_credentials=True, origins=["http://localhost:5173", "http://localhost:3000", "http://localhost:8080", "http://192.168.0.100:8080"])
 
 # Database configuration variables (read from .env)
 DB_HOST = os.environ.get("DB_HOST")
