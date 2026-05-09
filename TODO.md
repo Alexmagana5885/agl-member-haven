@@ -1,9 +1,7 @@
-- [x] Update src/components/dashboard/PlannedEventsSection.tsx
-  - [x] Fetch logged-in user profile (email + name) and auto-fill dialog fields
-  - [x] Keep phone input editable, but adjust label text:
-    - [x] RegistrationAmount > 0 => label: "Phone Number to pay with"
-    - [x] RegistrationAmount == 0 => label: "Phone Number"
-  - [x] Ensure email/name are repopulated when opening dialog after close
-  - [x] Clear only contact on close (email/name restored from session)
-- [ ] Run lint/tests (if available)
+# TODO - C2B route registration
+
+- [x] Register `directPayments/c2b_routes.py` (confirmation + validation blueprints) in `backend/app.py`.
+
+- [ ] Ensure the correct URL prefixes match the payload used in `register_c2b.py`.
+- [ ] (Optional) Run a quick grep/search to confirm blueprint registration is present.
 

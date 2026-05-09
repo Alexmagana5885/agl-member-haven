@@ -47,6 +47,10 @@ from PortalComponents.payments.premiums import callback_bp as premium_callback_b
 from PortalComponents.payments.events import events_bp
 from PortalComponents.payments.events import callback_bp as events_callback_bp
 
+# C2B (Safaricom registerurl confirmation/validation webhooks)
+from PortalComponents.payments.directPayments.c2b_routes import init_app as init_c2b_app
+
+
 # NEW: Events, Blogs, and Communications blueprints
 from PortalComponents.events.pastEvents import past_events_bp
 from PortalComponents.events.comingEvents import planned_events_bp
@@ -81,6 +85,13 @@ app.register_blueprint(user_info_bp)
 # Invoices blueprint
 from PortalComponents.payments.invoices import invoices_bp
 app.register_blueprint(invoices_bp)
+
+# Register C2B webhooks
+init_c2b_app(app)
+
+
+
+
 
 
 
