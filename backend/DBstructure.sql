@@ -144,6 +144,17 @@ CREATE TABLE `directmpesapayments` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 
+CREATE TABLE `organisationinnermembers` (
+  `id` int(11) NOT NULL,
+  `name` varchar(150) NOT NULL,
+  `email` varchar(150) NOT NULL,
+  `phone_number` varchar(20) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `motherOrganisationID` int(11) DEFAULT NULL,
+  `motherOrganisationEmail` varchar(150) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 CREATE TABLE `invoices` (
   `id` int(11) NOT NULL,
   `payment_description` varchar(255) NOT NULL,

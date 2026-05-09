@@ -13,6 +13,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+
+
 import { useToast } from "@/hooks/use-toast";
 import { RichTextEditor } from "@/components/ui/RichTextEditor";
 import {
@@ -54,7 +56,10 @@ export function DashboardSidebar() {
   const [activeDialog, setActiveDialog] = useState<AdminDialog>(null);
   const [submitting, setSubmitting] = useState(false);
   const [isOfficial, setIsOfficial] = useState(false);
+  const [memberType, setMemberType] = useState<string | null>(null);
   const navigate = useNavigate();
+  const canViewMyMembers = memberType === "organization";
+
   const { toast } = useToast();
 
   useEffect(() => {
@@ -64,6 +69,7 @@ export function DashboardSidebar() {
         const data = await response.json();
         if (data.status === "success" && data.user) {
           setIsOfficial(data.user.is_official || false);
+          setMemberType(data.user.member_type ?? null);
         }
       } catch (error) {
         console.error("Error checking session:", error);
@@ -93,7 +99,7 @@ export function DashboardSidebar() {
     try {
       const response = await action();
       if (response?.success) {
-        toast({ title: successMessage, variant: "success" });
+toast({ title: successMessage, variant: "default" });
         closeDialog();
       } else {
         toast({
@@ -132,7 +138,9 @@ export function DashboardSidebar() {
           <SidebarGroupLabel className="text-sidebar-muted text-xs uppercase tracking-wider">Navigation</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {mainNavWithSend.map((item) => (
+                {mainNavWithSend.map((item) => (
+                   
+
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild tooltip={item.title}>
                     <NavLink to={item.url} end={item.url === "/"} className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors" activeClassName="bg-sidebar-accent text-sidebar-accent-foreground font-medium">
@@ -149,6 +157,19 @@ export function DashboardSidebar() {
                       <ShieldCheck className="h-4 w-4" />
                       <span>Admin</span>
                       {!collapsed && <ChevronDown className={`ml-auto h-4 w-4 transition-transform ${adminOpen ? "rotate-180" : ""}`} />}
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                )}
+
+                {canViewMyMembers && !collapsed && (
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      tooltip="My Members"
+                      onClick={() => navigate("/my-members")}
+                      className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors pl-8 cursor-pointer"
+                    >
+                      <Users className="h-4 w-4" />
+                      <span>My Members</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 )}
