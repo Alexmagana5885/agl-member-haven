@@ -42,7 +42,10 @@ from PortalComponents.admin.payments.memberPayments import member_payments_bp
 from PortalComponents.admin.payments.membersPremiumsPayments import member_premiums_payments_bp
 from PortalComponents.payments.registration import registration_payments_bp
 from PortalComponents.payments.registration import callback_bp as registration_callback_bp
-from PortalComponents.admin.members.my_members import my_members_bp
+# Legacy endpoint (kept for backward compatibility); new logic lives in organisationMembership
+# from PortalComponents.admin.members.my_members import my_members_bp
+from PortalComponents.organisationMembership import organisation_members_bp
+
 
 from PortalComponents.payments.premiums import premiums_bp
 from PortalComponents.payments.premiums import callback_bp as premium_callback_bp
@@ -65,7 +68,9 @@ app.register_blueprint(register_bp)
 app.register_blueprint(member_payments_bp)
 app.register_blueprint(member_premiums_payments_bp)
 app.register_blueprint(registration_payments_bp)
-app.register_blueprint(my_members_bp)
+# app.register_blueprint(my_members_bp)
+app.register_blueprint(organisation_members_bp)
+
 
 app.register_blueprint(registration_callback_bp)
 app.register_blueprint(premiums_bp)
