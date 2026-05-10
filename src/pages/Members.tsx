@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Users, Mail, Phone, CalendarDays, Download, MoreVertical } from "lucide-react";
+import { ArrowLeft, Users, Mail, Phone, CalendarDays, Download, MoreVertical, Pencil, Trash2, Save, X } from "lucide-react";
+
 
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,10 +18,13 @@ import {
   downloadMembersRecordsPdf,
   fetchMemberDetails,
   fetchMembersByType,
+  updateMemberDetails,
+  deleteMember,
   type BasicMember,
   type MemberDetails,
   type MemberType,
 } from "@/services/members";
+
 
 const toMemberTypeLabel = (t: MemberType) => (t === "personal" ? "Personal Members" : "Organisation Members");
 
@@ -36,6 +40,14 @@ export default function MembersPage() {
   const [selectedMember, setSelectedMember] = useState<BasicMember | null>(null);
   const [detailsLoading, setDetailsLoading] = useState(false);
   const [details, setDetails] = useState<MemberDetails | null>(null);
+
+  const [editing, setEditing] = useState(false);
+  const [editDetails, setEditDetails] = useState<MemberDetails | null>(null);
+  const [editSubmitting, setEditSubmitting] = useState(false);
+
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [deleteSubmitting, setDeleteSubmitting] = useState(false);
+
 
   const titleCount = useMemo(() => `Members (${members.length})`, [members.length]);
 
@@ -77,6 +89,55 @@ export default function MembersPage() {
       });
     } finally {
       setDetailsLoading(false);
+    }
+  };
+
+  const enterEditMode = () => {
+    if (!details) return;
+    setEditDetails({ ...details });
+    setEditing(true);
+  };
+
+  const cancelEdit = () => {
+    setEditing(false);
+    setEditDetails(null);
+  };
+
+  const submitEditSave = async () => {
+    if (!selectedMember || !editDetails) return;
+    setEditSubmitting(true);
+    try {
+      const { member_type, ...rest } = editDetails;
+await updateMemberDetails(selectedMember.member_type, selectedMember.id, rest);
+      const data = await fetchMemberDetails(selectedMember.member_type, selectedMember.id);
+      setDetails(data.member);
+      setEditing(false);
+      setEditDetails(null);
+toast({ title: "Member updated", variant: "default" });
+    } catch (e: any) {
+      toast({ title: "Update failed", description: e?.message || "Please try again", variant: "destructive" });
+    } finally {
+      setEditSubmitting(false);
+    }
+  };
+
+  const confirmDelete = async () => {
+    if (!selectedMember) return;
+    setDeleteSubmitting(true);
+    try {
+      await deleteMember(selectedMember.member_type, selectedMember.id);
+toast({ title: "Member deleted", variant: "default" });
+      setDeleteConfirmOpen(false);
+      setMoreOpen(false);
+      setSelectedMember(null);
+      setDetails(null);
+      setEditing(false);
+      setEditDetails(null);
+      await loadMembers(memberType);
+    } catch (e: any) {
+      toast({ title: "Delete failed", description: e?.message || "Please try again", variant: "destructive" });
+    } finally {
+      setDeleteSubmitting(false);
     }
   };
 
@@ -251,26 +312,88 @@ export default function MembersPage() {
               <div className="py-6 text-center text-muted-foreground">No details.</div>
             ) : (
               <div className="max-h-[60vh] overflow-y-auto overflow-x-auto">
-                <Table>
-                  <TableBody>
-                    {detailsRows.map((row) => (
-                      <TableRow key={row.key}>
-                        <TableCell className="w-[260px] font-medium">{row.key.replace(/_/g, " ")}</TableCell>
-                        <TableCell className="break-words">{row.value || "-"}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                  <Table>
+                    <TableBody>
+                    {(editing ? Object.entries(editDetails || {}).filter(([k]) => k !== "member_type") : detailsRows.map((r) => [r.key, r.value] as const)).map((pair: any) => {
+                      const key = pair[0] as string;
+                      const value = editing ? (pair[1] ?? "") : (pair[1] ?? "");
+                      return (
+                        <TableRow key={key}>
+                          <TableCell className="w-[260px] font-medium">{key.replace(/_/g, " ")}</TableCell>
+                          <TableCell className="break-words">
+                            {editing ? (
+                              <input aria-label={key}
+                                className="w-full rounded-md border px-2 py-1 text-sm"
+                                value={String(value ?? "")}
+                                onChange={(e) =>
+                                  setEditDetails((prev) => {
+                                    if (!prev) return prev;
+                                    return { ...prev, [key]: e.target.value } as MemberDetails;
+                                  })
+                                }
+                              />
+                            ) : (
+                              <span>{String(value ?? "") || "-"}</span>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                    </TableBody>
+                  </Table>
               </div>
             )}
 
 
             <DialogFooter className="gap-2 sm:gap-0">
-              <Button variant="outline" onClick={() => setMoreOpen(false)}>
-                Close
+              {!editing ? (
+                <>
+                  <Button variant="outline" onClick={() => setMoreOpen(false)}>
+                    Close
+                  </Button>
+                  <div className="flex items-center gap-2">
+                    <Button variant="outline" onClick={enterEditMode} disabled={!details || detailsLoading} className="gap-2">
+                      <Pencil className="h-4 w-4" /> Edit
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      onClick={() => setDeleteConfirmOpen(true)}
+                      disabled={!details || detailsLoading}
+                      className="gap-2"
+                    >
+                      <Trash2 className="h-4 w-4" /> Delete
+                    </Button>
+                  </div>
+                  <Button onClick={handlePrintSelected} disabled={!selectedMember || detailsLoading} className="bg-primary text-primary-foreground hover:bg-primary/90">
+                    <Download className="h-4 w-4 mr-2" /> Print Information
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button variant="outline" onClick={cancelEdit} disabled={editSubmitting}>
+                    Cancel
+                  </Button>
+                  <Button onClick={submitEditSave} disabled={!editDetails || editSubmitting} className="bg-primary text-primary-foreground hover:bg-primary/90">
+                    {editSubmitting ? "Saving..." : "Save"}
+                  </Button>
+                </>
+              )}
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={deleteConfirmOpen} onOpenChange={(open) => !open && setDeleteConfirmOpen(false)}>
+          <DialogContent className="sm:max-w-sm">
+            <DialogHeader>
+              <DialogTitle>Delete member?</DialogTitle>
+              <DialogDescription>This action cannot be undone.</DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setDeleteConfirmOpen(false)} disabled={deleteSubmitting}>
+                Cancel
               </Button>
-              <Button onClick={handlePrintSelected} disabled={!selectedMember || detailsLoading} className="bg-primary text-primary-foreground hover:bg-primary/90">
-                <Download className="h-4 w-4 mr-2" /> Print Information
+              <Button onClick={confirmDelete} disabled={deleteSubmitting} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                {deleteSubmitting ? "Deleting..." : "Delete"}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -279,4 +402,5 @@ export default function MembersPage() {
     </DashboardLayout>
   );
 }
+
 
