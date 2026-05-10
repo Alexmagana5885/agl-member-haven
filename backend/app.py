@@ -45,6 +45,9 @@ from PortalComponents.payments.registration import callback_bp as registration_c
 # Legacy endpoint (kept for backward compatibility); new logic lives in organisationMembership
 # from PortalComponents.admin.members.my_members import my_members_bp
 from PortalComponents.organisationMembership import organisation_members_bp
+from PortalComponents.admin.members import admin_members_bp
+app.register_blueprint(admin_members_bp)
+
 
 
 from PortalComponents.payments.premiums import premiums_bp
