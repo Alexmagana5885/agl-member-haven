@@ -158,62 +158,70 @@ export default function MembersPage() {
               </Button>
             </div>
 
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-[60px]">#</TableHead>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead className="hidden md:table-cell">Phone</TableHead>
-                    <TableHead className="hidden sm:table-cell">Joined</TableHead>
-                    <TableHead className="text-right">More</TableHead>
-                  </TableRow>
-                </TableHeader>
-
-                <TableBody>
-                  {loading ? (
-                    <TableRow>
-                      <TableCell colSpan={6} className="py-10 text-center text-muted-foreground">
-                        Loading...
-                      </TableCell>
-                    </TableRow>
-                  ) : members.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={6} className="py-10 text-center text-muted-foreground">
-                        No members found.
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    members.map((m, idx) => (
-                      <TableRow key={`${m.member_type}-${m.id}`} className="hover:bg-accent/30 transition-colors">
-                        <TableCell className="text-muted-foreground">{idx + 1}</TableCell>
-                        <TableCell className="font-medium text-foreground">{m.name}</TableCell>
-                        <TableCell className="text-muted-foreground">
-                          <span className="flex items-center gap-1">
-                            <Mail className="h-3 w-3" /> {m.email}
-                          </span>
-                        </TableCell>
-                        <TableCell className="hidden md:table-cell text-muted-foreground">
-                          <span className="flex items-center gap-1">
-                            <Phone className="h-3 w-3" /> {m.phone}
-                          </span>
-                        </TableCell>
-                        <TableCell className="hidden sm:table-cell text-muted-foreground">
-                          <span className="flex items-center gap-1">
-                            <CalendarDays className="h-3 w-3" /> {m.joined}
-                          </span>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <Button variant="outline" size="sm" className="gap-2 inline-flex" onClick={() => openMore(m)}>
-                            <MoreVertical className="h-4 w-4" /> More
-                          </Button>
-                        </TableCell>
+            <div className="relative overflow-x-auto">
+              <div className="grid" style={{ gridTemplateRows: "auto minmax(0, 1fr)" }}>
+                <div className="w-full" aria-hidden="true">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="w-[60px]">#</TableHead>
+                        <TableHead>Name</TableHead>
+                        <TableHead>Email</TableHead>
+                        <TableHead className="hidden md:table-cell">Phone</TableHead>
+                        <TableHead className="hidden sm:table-cell">Joined</TableHead>
+                        <TableHead className="text-right">More</TableHead>
                       </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
+                    </TableHeader>
+                  </Table>
+                </div>
+
+                <div className="max-h-[70vh] overflow-y-auto">
+                  <Table>
+                    <TableBody>
+                      {loading ? (
+                        <TableRow>
+                          <TableCell colSpan={6} className="py-10 text-center text-muted-foreground">
+                            Loading...
+                          </TableCell>
+                        </TableRow>
+                      ) : members.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={6} className="py-10 text-center text-muted-foreground">
+                            No members found.
+                          </TableCell>
+                        </TableRow>
+                      ) : (
+                        members.map((m, idx) => (
+                          <TableRow key={`${m.member_type}-${m.id}`} className="hover:bg-accent/30 transition-colors">
+                            <TableCell className="text-muted-foreground">{idx + 1}</TableCell>
+                            <TableCell className="font-medium text-foreground">{m.name}</TableCell>
+                            <TableCell className="text-muted-foreground">
+                              <span className="flex items-center gap-1">
+                                <Mail className="h-3 w-3" /> {m.email}
+                              </span>
+                            </TableCell>
+                            <TableCell className="hidden md:table-cell text-muted-foreground">
+                              <span className="flex items-center gap-1">
+                                <Phone className="h-3 w-3" /> {m.phone}
+                              </span>
+                            </TableCell>
+                            <TableCell className="hidden sm:table-cell text-muted-foreground">
+                              <span className="flex items-center gap-1">
+                                <CalendarDays className="h-3 w-3" /> {m.joined}
+                              </span>
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <Button variant="outline" size="sm" className="gap-2 inline-flex" onClick={() => openMore(m)}>
+                                <MoreVertical className="h-4 w-4" /> More
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -242,7 +250,7 @@ export default function MembersPage() {
             ) : !details || !selectedMember ? (
               <div className="py-6 text-center text-muted-foreground">No details.</div>
             ) : (
-              <div className="overflow-x-auto">
+              <div className="max-h-[60vh] overflow-y-auto overflow-x-auto">
                 <Table>
                   <TableBody>
                     {detailsRows.map((row) => (
@@ -255,6 +263,7 @@ export default function MembersPage() {
                 </Table>
               </div>
             )}
+
 
             <DialogFooter className="gap-2 sm:gap-0">
               <Button variant="outline" onClick={() => setMoreOpen(false)}>
