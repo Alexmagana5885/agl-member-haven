@@ -52,6 +52,21 @@ export async function fetchMemberDetails(type: MemberType, memberId: string): Pr
   return getJson(`/admin/members/${type}/${memberId}/details`);
 }
 
+export async function updateMemberDetails(
+  type: MemberType,
+  memberId: string,
+  payload: Partial<MemberDetails>
+): Promise<{ success: boolean; message?: string; member?: MemberDetails }> {
+  return postJson(`/admin/members/${type}/${memberId}/details`, payload, "PUT");
+}
+
+export async function deleteMember(type: MemberType, memberId: string): Promise<{ success: boolean; message?: string }> {
+  return postJson(`/admin/members/${type}/${memberId}/details`, {} as any, "DELETE");
+}
+
+
+
+
 
 export async function downloadMembersRecordsPdf(type: MemberType): Promise<void> {
   const res = await fetch(`${API_BASE_URL}/admin/members/print`, {

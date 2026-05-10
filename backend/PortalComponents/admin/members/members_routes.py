@@ -236,6 +236,88 @@ def _generate_member_details_pdf(member_type: str, member: Dict[str, str]):
     return pdf_buffer
 
 
+@admin_members_bp.route("/<member_type>/<member_id>/details", methods=["PUT"])
+@login_required
+def update_member_details(member_type: str, member_id: str):
+    mt = (member_type or "").strip().lower()
+    if mt not in ["personal", "organization"]:
+        return jsonify({"success": False, "message": "Invalid member_type"}), 400
+    if not member_id:
+        return jsonify({"success": False, "message": "member_id is required"}), 400
+
+    data = request.get_json(silent=True) or {}
+    if not isinstance(data, dict) or len(data) == 0:
+        return jsonify({"success": False, "message": "No update payload provided"}), 400
+
+    # Allowed columns per table (do not allow id to be updated)
+    if mt == "personal":
+        allowed_columns = {"name", "email", "phone", "home_address", "passport_image", "highest_degree", "institution", "graduation_year", "completion_letter", "profession", "experience", "current_company", "position", "work_address", "payment_Number", "payment_code", "payment_date", "password", "registration_date", "gender"}
+        table = PERSONAL_TABLE
+    else:
+        allowed_columns = {"organization_name", "organization_email", "contact_person", "logo_image", "contact_phone_number", "date_of_registration", "organization_address", "location_country", "location_county", "location_town", "registration_certificate", "organization_type", "start_date", "what_you_do", "payment_Number", "payment_code", "payment_date", "password", "created_at", "registration_date", "organization_address"}
+        table = ORG_TABLE
+
+    set_clauses = []
+    values = []
+    for k, v in data.items():
+        if k in ["member_type", "id"]:
+            continue
+        if k not in allowed_columns:
+            continue
+        set_clauses.append(f"{k}=%s")
+        values.append(v)
+
+    if not set_clauses:
+        return jsonify({"success": False, "message": "No allowed fields provided"}), 400
+
+    # Build query: UPDATE table SET a=%s,... WHERE id=%s
+    values.append(member_id)
+    sql = f"UPDATE {table} SET {', '.join(set_clauses)} WHERE id=%s"
+
+    conn = get_db_connection()
+    try:
+        cursor = conn.cursor()
+        cursor.execute(sql, tuple(values))
+        conn.commit()
+        if cursor.rowcount == 0:
+            return jsonify({"success": False, "message": "Member not found"}), 404
+
+        # Return fresh details
+        cursor.close()
+    except mysql.connector.Error as e:
+        logger.exception("DB error updating member details")
+        return jsonify({"success": False, "message": str(e)}), 500
+    finally:
+        conn.close()
+
+    # Re-fetch using existing endpoint logic
+    return member_details(mt, member_id)
+
+@admin_members_bp.route("/<member_type>/<member_id>/details", methods=["DELETE"])
+@login_required
+def delete_member_details(member_type: str, member_id: str):
+    mt = (member_type or "").strip().lower()
+    if mt not in ["personal", "organization"]:
+        return jsonify({"success": False, "message": "Invalid member_type"}), 400
+    if not member_id:
+        return jsonify({"success": False, "message": "member_id is required"}), 400
+
+    table = PERSONAL_TABLE if mt == "personal" else ORG_TABLE
+
+    conn = get_db_connection()
+    try:
+        cursor = conn.cursor()
+        cursor.execute(f"DELETE FROM {table} WHERE id=%s", (member_id,))
+        conn.commit()
+        if cursor.rowcount == 0:
+            return jsonify({"success": False, "message": "Member not found"}), 404
+        return jsonify({"success": True, "message": "Member deleted"}), 200
+    except mysql.connector.Error as e:
+        logger.exception("DB error deleting member details")
+        return jsonify({"success": False, "message": str(e)}), 500
+    finally:
+        conn.close()
+
 @admin_members_bp.route("/print", methods=["POST"])
 @login_required
 def print_members_records():
