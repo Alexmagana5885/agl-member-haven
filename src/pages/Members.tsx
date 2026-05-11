@@ -13,7 +13,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 
 import { useToast } from "@/hooks/use-toast";
 
-import {
+import { 
   downloadMemberDetailsPdf,
   downloadMembersRecordsPdf,
   fetchMemberDetails,
@@ -24,6 +24,9 @@ import {
   type MemberDetails,
   type MemberType,
 } from "@/services/members";
+
+import { downloadCompletionLetter, getPassportImageUrl } from "@/services/members_files";
+
 
 
 const toMemberTypeLabel = (t: MemberType) => (t === "personal" ? "Personal Members" : "Organisation Members");
@@ -311,38 +314,155 @@ toast({ title: "Member deleted", variant: "default" });
             ) : !details || !selectedMember ? (
               <div className="py-6 text-center text-muted-foreground">No details.</div>
             ) : (
-              <div className="max-h-[60vh] overflow-y-auto overflow-x-auto">
-                  <Table>
-                    <TableBody>
-                    {(editing ? Object.entries(editDetails || {}).filter(([k]) => k !== "member_type") : detailsRows.map((r) => [r.key, r.value] as const)).map((pair: any) => {
-                      const key = pair[0] as string;
-                      const value = editing ? (pair[1] ?? "") : (pair[1] ?? "");
-                      return (
-                        <TableRow key={key}>
-                          <TableCell className="w-[260px] font-medium">{key.replace(/_/g, " ")}</TableCell>
-                          <TableCell className="break-words">
-                            {editing ? (
-                              <input aria-label={key}
-                                className="w-full rounded-md border px-2 py-1 text-sm"
-                                value={String(value ?? "")}
-                                onChange={(e) =>
-                                  setEditDetails((prev) => {
-                                    if (!prev) return prev;
-                                    return { ...prev, [key]: e.target.value } as MemberDetails;
-                                  })
-                                }
-                              />
-                            ) : (
-                              <span>{String(value ?? "") || "-"}</span>
-                            )}
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
-                    </TableBody>
-                  </Table>
+              <div className="space-y-4">
+                <div className="rounded-xl bg-gradient-to-br from-blue-600/10 via-sky-500/10 to-cyan-400/10 border border-blue-600/20 shadow-sm p-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div className="flex items-center gap-4">
+                      <div className="h-16 w-16 rounded-full bg-white border border-blue-600/20 overflow-hidden flex items-center justify-center shadow-sm">
+                        {(() => {
+                          const passportPath = !editing ? (details as any)?.passport_image : undefined;
+                          const url = passportPath ? getPassportImageUrl(selectedMember!.member_type, selectedMember!.id, passportPath) : null;
+                          return url ? (
+                            <img src={url} alt="Passport" className="h-full w-full object-cover" />
+                          ) : (
+                            <div className="text-xs text-muted-foreground">No Image</div>
+                          );
+                        })()}
+                      </div>
+                      <div>
+                        <div className="text-lg font-semibold text-foreground">
+                          {selectedMember?.name || ""}
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                          {selectedMember?.member_type === "personal" ? "Personal Member" : "Organisation Member"}
+                        </div>
+                      </div>
+                    </div>
+                    {!editing ? (
+                      <div className="flex items-center gap-2 flex-wrap justify-end">
+                        <Button
+                          variant="outline"
+                          className="gap-2"
+                          onClick={() => {
+                            setEditDetails(details);
+                            setEditing(false);
+                          }}
+                          style={{ display: "none" }}
+                        >
+                          Hidden
+                        </Button>
+                      </div>
+                    ) : null}
+                  </div>
+                </div>
+
+                <div className="rounded-xl border bg-white shadow-sm overflow-hidden">
+                  <div className="p-3 bg-gradient-to-r from-blue-600/10 to-cyan-500/10 border-b border-blue-600/20">
+                    <div className="text-sm font-semibold text-foreground">Member Information</div>
+                    <div className="text-xs text-muted-foreground">Refined view (sensitive fields removed).</div>
+                  </div>
+                  <div className="max-h-[52vh] overflow-y-auto">
+                    <Table>
+                      <TableBody>
+                        {(editing ? Object.entries(editDetails || {}).filter(([k]) => k !== "member_type") : detailsRows
+                          .filter((r) => {
+                            const k = r.key;
+                            return ![
+                              "password",
+                              "payment_Number",
+                              "payment_code",
+                              "payment_date",
+                            ].includes(k);
+                          })
+                          .map((r) => [r.key, r.value] as const)
+                        ).map((pair: any) => {
+                          const key = pair[0] as string;
+                          const value = editing ? (pair[1] ?? "") : (pair[1] ?? "");
+
+                          const passportPath = !editing ? (details as any)?.passport_image : null;
+                          if (!editing && (key === "passport_image" || key === "completion_letter" || key === "payment_Number" || key === "payment_code" || key === "payment_date" || key === "password")) {
+                            return null;
+                          }
+
+                          // Special render: completion_letter & passport_image
+                          if (!editing && key === "completion_letter") {
+                            const path = String((details as any)?.completion_letter || "");
+                            return (
+                              <TableRow key={key}>
+                                <TableCell className="w-[260px] font-medium">Completion Letter</TableCell>
+                                <TableCell>
+                                  {path ? (
+                                    <Button
+                                      variant="outline"
+                                      className="gap-2"
+                                      onClick={async () => {
+                                        try {
+                                          await downloadCompletionLetter(selectedMember!.member_type, selectedMember!.id, path);
+                                        } catch (e: any) {
+                                          toast({ title: "Download failed", description: e?.message || "Please try again", variant: "destructive" });
+                                        }
+                                      }}
+                                    >
+                                      <Download className="h-4 w-4" /> Download Letter
+                                    </Button>
+                                  ) : (
+                                    <span className="text-muted-foreground">-</span>
+                                  )}
+                                </TableCell>
+                              </TableRow>
+                            );
+                          }
+
+                          if (!editing && key === "passport_image") {
+                            const path = String((details as any)?.passport_image || "");
+                            return (
+                              <TableRow key={key}>
+                                <TableCell className="w-[260px] font-medium">Passport Image</TableCell>
+                                <TableCell className="flex items-center gap-3">
+                                  {path ? (
+                                    <img
+                                      alt="Passport"
+                                      src={getPassportImageUrl(selectedMember!.member_type, selectedMember!.id, path)}
+                                      className="h-12 w-12 rounded-md border border-blue-600/20 object-cover shadow-sm"
+                                    />
+                                  ) : (
+                                    <div className="text-muted-foreground">-</div>
+                                  )}
+                                </TableCell>
+                              </TableRow>
+                            );
+                          }
+
+                          return (
+                            <TableRow key={key}>
+                              <TableCell className="w-[260px] font-medium">{key.replace(/_/g, " ")}</TableCell>
+                              <TableCell className="break-words">
+                                {editing ? (
+                                  <input
+                                    aria-label={key}
+                                    className="w-full rounded-md border px-2 py-1 text-sm"
+                                    value={String(value ?? "")}
+                                    onChange={(e) =>
+                                      setEditDetails((prev) => {
+                                        if (!prev) return prev;
+                                        return { ...prev, [key]: e.target.value } as MemberDetails;
+                                      })
+                                    }
+                                  />
+                                ) : (
+                                  <span>{String(value ?? "") || "-"}</span>
+                                )}
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </div>
               </div>
             )}
+
 
 
             <DialogFooter className="gap-2 sm:gap-0">
