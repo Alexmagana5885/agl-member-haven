@@ -6,7 +6,11 @@ from io import BytesIO
 from typing import Any, Dict, List, Tuple
 
 import mysql.connector
-from flask import Blueprint, jsonify, request, session, send_file
+from flask import Blueprint, jsonify, request, send_file, abort, make_response
+
+
+
+
 from fpdf import FPDF
 from login.decorators import login_required
 
@@ -366,9 +370,87 @@ def print_members_records():
     )
 
 
+def _resolve_uploaded_file(upload_subdir: str, path_value: str) -> str:
+    # path_value may already be a stored relative path like: uploads/passports/xxx.jpg
+    cleaned = (path_value or "").replace("\\", "/")
+    if not cleaned:
+        raise FileNotFoundError("Empty path")
+
+    # Keep only the filename portion (defense-in-depth)
+    filename = cleaned.split("/")[-1]
+
+    uploads_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "uploads")
+    # uploads_dir is .../backend/uploads
+    file_path = os.path.join(uploads_dir, upload_subdir, filename)
+
+    if not os.path.isfile(file_path):
+        raise FileNotFoundError(file_path)
+
+    return file_path
+
+
+def _guess_mime(filename: str) -> str:
+    ext = filename.lower().rsplit(".", 1)[-1] if "." in filename else ""
+    return {
+        "png": "image/png",
+        "jpg": "image/jpeg",
+        "jpeg": "image/jpeg",
+        "gif": "image/gif",
+        "webp": "image/webp",
+        "pdf": "application/pdf",
+    }.get(ext, "application/octet-stream")
+
+
+@admin_members_bp.route("/<member_type>/<member_id>/completion-letter", methods=["POST"])
+@login_required
+def completion_letter_file(member_type: str, member_id: str):
+    mt = (member_type or "").strip().lower()
+    if mt not in ["personal", "organization"]:
+        return jsonify({"success": False, "message": "Invalid member_type"}), 400
+
+    data = request.get_json(silent=True) or {}
+    path_value = data.get("path") or ""
+    if not path_value:
+        return jsonify({"success": False, "message": "Missing completion letter path"}), 400
+
+    try:
+        file_path = _resolve_uploaded_file("completion_letters", path_value)
+        filename = os.path.basename(file_path)
+        return send_file(
+            file_path,
+            as_attachment=True,
+            download_name=filename,
+            mimetype="application/pdf",
+        )
+    except FileNotFoundError:
+        return jsonify({"success": False, "message": "File not found"}), 404
+
+
+@admin_members_bp.route("/<member_type>/<member_id>/passport-image", methods=["GET"])
+@login_required
+def passport_image(member_type: str, member_id: str):
+    mt = (member_type or "").strip().lower()
+    if mt not in ["personal", "organization"]:
+        return jsonify({"success": False, "message": "Invalid member_type"}), 400
+
+    path_value = request.args.get("path") or ""
+    if not path_value:
+        return jsonify({"success": False, "message": "Missing passport image path"}), 400
+
+    try:
+        file_path = _resolve_uploaded_file("passports", path_value)
+        filename = os.path.basename(file_path)
+        mimetype = _guess_mime(filename)
+        return send_file(file_path, mimetype=mimetype)
+    except FileNotFoundError:
+        return jsonify({"success": False, "message": "File not found"}), 404
+
+
+
 @admin_members_bp.route("/<member_type>/<member_id>/print-details", methods=["POST"])
 @login_required
 def print_member_details(member_type: str, member_id: str):
+
     mt = (member_type or "").strip().lower()
     if mt not in ["personal", "organization"]:
         return jsonify({"success": False, "message": "Invalid member_type"}), 400

@@ -99,7 +99,9 @@ export async function downloadMembersRecordsPdf(type: MemberType): Promise<void>
 export async function downloadMemberDetailsPdf(type: MemberType, memberId: string): Promise<void> {
   const res = await fetch(`${API_BASE_URL}/admin/members/${type}/${memberId}/print-details`, {
     method: "POST",
+
     headers: { "Content-Type": "application/json" },
+
     credentials: "include",
     body: JSON.stringify({}),
   });
