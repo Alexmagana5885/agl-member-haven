@@ -359,7 +359,6 @@ toast({ title: "Member deleted", variant: "default" });
                 <div className="rounded-xl border bg-white shadow-sm overflow-hidden">
                   <div className="p-3 bg-gradient-to-r from-blue-600/10 to-cyan-500/10 border-b border-blue-600/20">
                     <div className="text-sm font-semibold text-foreground">Member Information</div>
-                    <div className="text-xs text-muted-foreground">Refined view (sensitive fields removed).</div>
                   </div>
                   <div className="max-h-[52vh] overflow-y-auto">
                     <Table>
