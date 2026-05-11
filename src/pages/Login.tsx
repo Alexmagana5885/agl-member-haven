@@ -39,21 +39,15 @@ const Login = () => {
     }
 
     const payload = { email, password, memberType };
-    console.log("[LOGIN] Payload being sent to backend:", payload);
-
     setSubmitting(true);
     try {
-      console.log(
-        "[LOGIN] Sending request to:",
-        `${API_BASE_URL}/api/auth/login`,
-      );
+
       const res = await fetch(`${API_BASE_URL}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify(payload),
       });
-      console.log("[LOGIN] Response status:", res.status);
       if (!res.ok) throw new Error("Login failed");
       toast({ title: "", description: "Welcome Back!!" });
       navigate("/dashboard");
