@@ -303,7 +303,7 @@ toast({ title: "Member deleted", variant: "default" });
           <DialogContent className="max-w-4xl">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
-                <Badge variant="secondary">Member Details</Badge>
+                {/* <Badge variant="secondary">Member Details</Badge> */}
                 <span className="truncate">{selectedMember?.name || ""}</span>
               </DialogTitle>
               <DialogDescription>Full member information.</DialogDescription>
