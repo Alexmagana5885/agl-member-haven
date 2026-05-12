@@ -40,3 +40,9 @@ node_modules
 *.tiff
 *.svg
 !AGLlogo.png
+
+
+.env
+.env.*
+backend/.env
+backend/.env.*
