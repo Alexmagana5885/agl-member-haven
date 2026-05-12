@@ -70,13 +70,23 @@ export function DashboardSidebar() {
         if (data.status === "success" && data.user) {
           setIsOfficial(data.user.is_official || false);
           setMemberType(data.user.member_type ?? null);
+          return;
+        }
+
+        // Session expired (server-side inactivity timeout)
+        if (response.status === 401 || data?.message?.toLowerCase().includes("inactivity") || data?.message?.toLowerCase().includes("expired")) {
+          sessionStorage.clear();
+          localStorage.clear();
+          sessionStorage.setItem("session_expired", "1");
+          navigate("/login", { replace: true });
         }
       } catch (error) {
         console.error("Error checking session:", error);
       }
     };
     checkUserSession();
-  }, []);
+  }, [navigate]);
+
 
   const [plannedEvent, setPlannedEvent] = useState<PlannedEventPayload>({ title: "", date: "", venue: "", description: "", regAmount: "" });
   const [pastEvent, setPastEvent] = useState<PastEventPayload>({ title: "", date: "", venue: "", description: "" });
@@ -208,7 +218,21 @@ toast({ title: successMessage, variant: "default" });
         <SidebarFooter className="p-2">
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton tooltip="Logout" onClick={() => { sessionStorage.clear(); localStorage.clear(); navigate("/"); }} className="text-sidebar-foreground hover:bg-destructive hover:text-destructive-foreground transition-colors cursor-pointer">
+<SidebarMenuButton
+                tooltip="Logout"
+                onClick={async () => {
+                  try {
+                    await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
+                  } catch (e) {
+                    // ignore
+                  }
+                  sessionStorage.clear();
+                  localStorage.clear();
+                  sessionStorage.setItem("session_expired", "1");
+                  navigate("/login", { replace: true });
+                }}
+                className="text-sidebar-foreground hover:bg-destructive hover:text-destructive-foreground transition-colors cursor-pointer"
+              >
                 <LogOut className="h-4 w-4" />
                 <span>Logout</span>
               </SidebarMenuButton>
