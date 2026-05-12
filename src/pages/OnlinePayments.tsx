@@ -34,6 +34,11 @@ const formatDate = (dateStr: string) => {
 
 export default function OnlinePayments() {
   const [profile, setProfile] = useState<ProfileData | null>(null);
+
+  const isOrganisation =
+    profile?.user_type === "organisation" ||
+    profile?.bill_to_data?.member_type === "organization";
+  const premiumAmount = isOrganisation ? 15000 : 3600;
   const [loading, setLoading] = useState(true);
   const [regDialogOpen, setRegDialogOpen] = useState(false);
   const [premDialogOpen, setPremDialogOpen] = useState(false);
@@ -264,7 +269,7 @@ export default function OnlinePayments() {
                   <CreditCard className="h-8 w-8 mb-2" />
                   <div>
                     <div className="font-bold text-lg">Annual Premium</div>
-                    <div className="text-sm opacity-90">KES 3,600</div>
+                    <div className="text-sm opacity-90">KES {premiumAmount.toLocaleString()}</div>
                   </div>
                 </Button>
               </div>
@@ -364,7 +369,7 @@ export default function OnlinePayments() {
               Premium Payment
             </DialogTitle>
             <DialogDescription>
-              Confirm payment of 3,600 Ksh as annual membership fees to the
+              Confirm payment of {premiumAmount.toLocaleString()} Ksh as annual membership fees to the
               Association of Government Librarians.
             </DialogDescription>
           </DialogHeader>
@@ -399,7 +404,7 @@ export default function OnlinePayments() {
               </Label>
               <Input
                 id="prem-amount"
-                value="3600"
+                value={String(premiumAmount)}
                 readOnly
                 className="bg-muted/50 font-mono text-lg"
               />
@@ -421,7 +426,7 @@ export default function OnlinePayments() {
               onClick={() =>
                 makePayment(
                   "/api/payments/premium/pay",
-                  3600,
+                  premiumAmount,
                   premPhone,
                   "premium",
                 )
