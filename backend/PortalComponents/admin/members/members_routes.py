@@ -51,7 +51,7 @@ def _pdf_header(pdf: FPDF, title: str):
 
     left_margin = 10
     top = 8
-    header_h = 22
+    header_h = 26
 
     # Bluish header background
     pdf.set_fill_color(13, 110, 253)  # bootstrap-ish primary
@@ -105,51 +105,73 @@ def _pdf_footer(pdf: FPDF):
 
 
 def _pdf_table_header(pdf: FPDF, col_xs: List[float], labels: List[str]):
-    # header background + borders
-    pdf.set_fill_color(228, 240, 255)
-    pdf.set_draw_color(13, 110, 253)
-    pdf.set_line_width(0.5)
-    pdf.set_font("Arial", "B", 10)
+    pdf.set_fill_color(13, 110, 253)
+    pdf.set_text_color(255, 255, 255)
+
+    pdf.set_draw_color(220, 230, 245)
+    pdf.set_line_width(0.4)
+
+    pdf.set_font("Arial", "B", 11)
 
     y = pdf.get_y()
-    height = 7
+    height = 10
+
     for i, label in enumerate(labels):
         x = col_xs[i]
         w = col_xs[i + 1] - col_xs[i]
+
         pdf.set_xy(x, y)
-        pdf.cell(w, height, label, 1, 0, "C", True)
+        pdf.cell(w, height, label, border=1, ln=0, align="C", fill=True)
 
     pdf.ln(height)
 
+    # Reset text color
+    pdf.set_text_color(0, 0, 0)
 
-def _pdf_table_row(pdf: FPDF, col_xs: List[float], values: List[str]):
-    pdf.set_font("Arial", "", 9)
-    pdf.set_draw_color(180, 200, 230)
+
+def _pdf_table_row(pdf: FPDF, col_xs: List[float], values: List[str], fill=False):
+    pdf.set_font("Arial", "", 10)
+
+    if fill:
+        pdf.set_fill_color(245, 249, 255)
+    else:
+        pdf.set_fill_color(255, 255, 255)
+
+    pdf.set_draw_color(225, 230, 240)
     pdf.set_line_width(0.3)
 
     y_start = pdf.get_y()
-    # Determine max height based on wrapped text
+
     heights = []
+
     for i, v in enumerate(values):
         w = col_xs[i + 1] - col_xs[i]
-        # Rough line count estimate based on character length
-        max_chars = max(int(w * 2.1), 10)
+
+        max_chars = max(int(w * 2), 12)
         lines = max(1, (len(v) // max_chars) + 1)
+
         heights.append(lines)
 
-    height = max(5, min(12, 5 + (max(heights) - 1) * 3.2))
+    row_height = max(10, min(18, 8 + (max(heights) - 1) * 4))
 
     for i, v in enumerate(values):
         x = col_xs[i]
         w = col_xs[i + 1] - col_xs[i]
-        pdf.set_xy(x, y_start)
-        pdf.multi_cell(w, 3.2, v, border=1, align="L")
 
-        # multi_cell moves cursor; reset to row baseline for next cell
+        pdf.set_xy(x, y_start)
+
+        pdf.multi_cell(
+            w,
+            row_height / max(heights),
+            v,
+            border=1,
+            align="L",
+            fill=fill
+        )
+
         pdf.set_xy(x + w, y_start)
 
-    # Move to next row
-    pdf.set_y(y_start + height)
+    pdf.set_y(y_start + row_height)
 
 
 def _coerce_pdf_text(value: Any, max_len: int | None = None) -> str:
@@ -335,9 +357,9 @@ def _generate_members_records_pdf(member_type: str, members: List[Dict[str, Any]
 
     _pdf_header(pdf, f"Members Records - {member_type.title()}")
 
-    # Table: # | Name | Email | Phone | Joined
-    col_xs = [10, 20, 70, 125, 160, 200]
-    labels = ["#", "Name", "Email", "Phone", "Joined"]
+    # Table: # | Name | Email | Phone
+    col_xs = [10, 25, 90, 155, 200]
+    labels = ["#", "Name", "Email", "Phone"]
 
     _pdf_table_header(pdf, col_xs, labels)
 
@@ -352,9 +374,8 @@ def _generate_members_records_pdf(member_type: str, members: List[Dict[str, Any]
             _coerce_pdf_text(_coerce_str(m.get("name")), max_len=60),
             _coerce_pdf_text(_coerce_str(m.get("email")), max_len=55),
             _coerce_pdf_text(_coerce_str(m.get("phone")), max_len=30),
-            _coerce_pdf_text(_coerce_str(m.get("joined")), max_len=20),
         ]
-        _pdf_table_row(pdf, col_xs, values)
+        _pdf_table_row(pdf, col_xs, values, fill=(idx % 2 == 0))
 
     _pdf_footer(pdf)
 

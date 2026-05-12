@@ -232,7 +232,6 @@ toast({ title: "Member deleted", variant: "default" });
                         <TableHead>Name</TableHead>
                         <TableHead>Email</TableHead>
                         <TableHead className="hidden md:table-cell">Phone</TableHead>
-                        <TableHead className="hidden sm:table-cell">Joined</TableHead>
                         <TableHead className="text-right">More</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -269,11 +268,7 @@ toast({ title: "Member deleted", variant: "default" });
                                 <Phone className="h-3 w-3" /> {m.phone}
                               </span>
                             </TableCell>
-                            <TableCell className="hidden sm:table-cell text-muted-foreground">
-                              <span className="flex items-center gap-1">
-                                <CalendarDays className="h-3 w-3" /> {m.joined}
-                              </span>
-                            </TableCell>
+
                             <TableCell className="text-right">
                               <Button variant="outline" size="sm" className="gap-2 inline-flex" onClick={() => openMore(m)}>
                                 <MoreVertical className="h-4 w-4" /> More
