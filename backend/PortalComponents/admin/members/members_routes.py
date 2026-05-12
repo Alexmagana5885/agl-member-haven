@@ -31,66 +31,103 @@ OMIT_DETAIL_FIELDS = {
 
 
 
-def _get_agl_logo_path() -> str:
-    # Prefer backend/assets if present; fallback to frontend asset path if copied.
-    candidates = [
-        os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "assets", "AGLlogo.png"),
-        os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))), "src", "assets", "AGLlogo.png"),
-        os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "..", "..", "..", "src", "assets", "AGLlogo.png"),
-    ]
-    for p in candidates:
-        p = os.path.normpath(p)
-        if os.path.isfile(p):
-            return p
-    raise FileNotFoundError("AGLlogo.png not found in expected locations")
 
+def _get_agl_logo_path() -> str:
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+
+    logo_path = os.path.normpath(
+        os.path.join(current_dir, "..", "..", "..", "assets", "AGL.png")
+    )
+
+    if os.path.isfile(logo_path):
+        return logo_path
+
+    raise FileNotFoundError(f"AGL logo not found: {logo_path}")
 
 def _pdf_header(pdf: FPDF, title: str):
-    # A4 portrait: w=210mm
     pdf.set_auto_page_break(auto=False)
 
+    page_width = 210  # A4 width
     left_margin = 10
     top = 8
-    header_h = 26
+    header_h = 30
 
-    # Bluish header background
-    pdf.set_fill_color(13, 110, 253)  # bootstrap-ish primary
-    pdf.rect(0, top, 210, header_h, "F")
+    # Colors
+    dark_blue = (8, 61, 119)
+    primary_blue = (13, 110, 253)
+    light_blue = (182, 211, 245)
 
-    # Logo left
-    logo_w = 18
-    logo_h = 18
+    # -----------------------------
+    # Split Header Background
+    # -----------------------------
+
+    # Left section (logo area)
+    pdf.set_fill_color(*light_blue)
+    pdf.rect(0, top, 65, header_h, "F")
+
+    # Right section (title area)
+    pdf.set_fill_color(*primary_blue)
+    pdf.rect(65, top, page_width - 65, header_h, "F")
+
+    # Bottom dark blue strip
+    pdf.set_fill_color(*dark_blue)
+    pdf.rect(0, top + header_h, page_width, 2, "F")
+
+    # -----------------------------
+    # Logo
+    # -----------------------------
+    logo_w = 48
+    logo_h = 15
+
     try:
         logo_path = _get_agl_logo_path()
-        pdf.image(logo_path, left_margin, top + 2, logo_w, logo_h)
-        logo_right_x = left_margin + logo_w + 3
+
+        pdf.image(
+            logo_path,
+            18,
+            top + 2,
+            logo_w,
+            logo_h
+        )
+
     except Exception:
-        # If logo missing, still keep spacing
-        logo_right_x = left_margin + logo_w + 3
+        pass
 
-    # Right-side header text
+    # -----------------------------
+    # Header Text
+    # -----------------------------
     pdf.set_text_color(255, 255, 255)
-    pdf.set_font("Arial", "B", 11)
-    pdf.set_xy(105, top + 6)
-    pdf.cell(0, 6, "Association of Government Librarians", 0, 1, "R")
 
-    # Optional smaller title line (white)
+    # Main Title
+    pdf.set_font("Arial", "B", 14)
+    pdf.set_xy(72, top + 8)
+    pdf.cell(
+        120,
+        7,
+        "Association of Government Librarians",
+        0,
+        1,
+        "R"
+    )
+
+    # Subtitle
     if title:
-        pdf.set_font("Arial", "", 9)
-        pdf.set_xy(105, top + 13)
-        pdf.cell(0, 5, title, 0, 1, "R")
+        pdf.set_font("Arial", "", 10)
+        pdf.set_xy(72, top + 17)
+        pdf.cell(
+            120,
+            6,
+            title,
+            0,
+            1,
+            "R"
+        )
 
-    # Reset colors
+    # Reset styles
     pdf.set_text_color(0, 0, 0)
 
-    # Blue divider line
-    pdf.set_draw_color(13, 110, 253)
-    pdf.set_line_width(0.6)
-    y_line = top + header_h + 1
-    pdf.line(10, y_line, 200, y_line)
-
-    pdf.ln(25)
-
+    # Space after header
+    pdf.set_y(top + header_h + 8)
 
 def _pdf_footer(pdf: FPDF):
     # Place footer near bottom; support multi-page by drawing every page
