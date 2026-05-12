@@ -20,7 +20,8 @@ from login.decorators import login_required
 OMIT_DETAIL_FIELDS = {
     # Database field names to omit from the “Member Details” PDF
     "password",
-    "Payment_Number",
+    "PaymentNumber",
+    "payment_Number",
     "Payment Code",
     "payment_code",
     "Payment_Date",
