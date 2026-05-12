@@ -14,6 +14,153 @@ from flask import Blueprint, jsonify, request, send_file, abort, make_response
 from fpdf import FPDF
 from login.decorators import login_required
 
+# --- PDF styling helpers (modern bluish theme) ---
+
+# Fields to omit from “Member Details” PDF
+OMIT_DETAIL_FIELDS = {
+    # Database field names to omit from the “Member Details” PDF
+    "password",
+    "Payment_Number",
+    "Payment Code",
+    "payment_code",
+    "Payment_Date",
+    "payment_date",
+    "Completion Letter",
+    "completion_letter",
+}
+
+
+
+def _get_agl_logo_path() -> str:
+    # Prefer backend/assets if present; fallback to frontend asset path if copied.
+    candidates = [
+        os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "assets", "AGLlogo.png"),
+        os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))), "src", "assets", "AGLlogo.png"),
+        os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "..", "..", "..", "src", "assets", "AGLlogo.png"),
+    ]
+    for p in candidates:
+        p = os.path.normpath(p)
+        if os.path.isfile(p):
+            return p
+    raise FileNotFoundError("AGLlogo.png not found in expected locations")
+
+
+def _pdf_header(pdf: FPDF, title: str):
+    # A4 portrait: w=210mm
+    pdf.set_auto_page_break(auto=False)
+
+    left_margin = 10
+    top = 8
+    header_h = 22
+
+    # Bluish header background
+    pdf.set_fill_color(13, 110, 253)  # bootstrap-ish primary
+    pdf.rect(0, top, 210, header_h, "F")
+
+    # Logo left
+    logo_w = 18
+    logo_h = 18
+    try:
+        logo_path = _get_agl_logo_path()
+        pdf.image(logo_path, left_margin, top + 2, logo_w, logo_h)
+        logo_right_x = left_margin + logo_w + 3
+    except Exception:
+        # If logo missing, still keep spacing
+        logo_right_x = left_margin + logo_w + 3
+
+    # Right-side header text
+    pdf.set_text_color(255, 255, 255)
+    pdf.set_font("Arial", "B", 11)
+    pdf.set_xy(105, top + 6)
+    pdf.cell(0, 6, "Association of Government Librarians", 0, 1, "R")
+
+    # Optional smaller title line (white)
+    if title:
+        pdf.set_font("Arial", "", 9)
+        pdf.set_xy(105, top + 13)
+        pdf.cell(0, 5, title, 0, 1, "R")
+
+    # Reset colors
+    pdf.set_text_color(0, 0, 0)
+
+    # Blue divider line
+    pdf.set_draw_color(13, 110, 253)
+    pdf.set_line_width(0.6)
+    y_line = top + header_h + 1
+    pdf.line(10, y_line, 200, y_line)
+
+    pdf.ln(25)
+
+
+def _pdf_footer(pdf: FPDF):
+    # Place footer near bottom; support multi-page by drawing every page
+    pdf.set_y(-14)
+    pdf.set_draw_color(13, 110, 253)
+    pdf.set_line_width(0.4)
+    pdf.line(10, pdf.get_y(), 200, pdf.get_y())
+
+    pdf.set_font("Arial", "I", 9)
+    pdf.set_text_color(0, 0, 0)
+    pdf.cell(0, 6, "Association of Government Librarians", 0, 0, "C")
+
+
+def _pdf_table_header(pdf: FPDF, col_xs: List[float], labels: List[str]):
+    # header background + borders
+    pdf.set_fill_color(228, 240, 255)
+    pdf.set_draw_color(13, 110, 253)
+    pdf.set_line_width(0.5)
+    pdf.set_font("Arial", "B", 10)
+
+    y = pdf.get_y()
+    height = 7
+    for i, label in enumerate(labels):
+        x = col_xs[i]
+        w = col_xs[i + 1] - col_xs[i]
+        pdf.set_xy(x, y)
+        pdf.cell(w, height, label, 1, 0, "C", True)
+
+    pdf.ln(height)
+
+
+def _pdf_table_row(pdf: FPDF, col_xs: List[float], values: List[str]):
+    pdf.set_font("Arial", "", 9)
+    pdf.set_draw_color(180, 200, 230)
+    pdf.set_line_width(0.3)
+
+    y_start = pdf.get_y()
+    # Determine max height based on wrapped text
+    heights = []
+    for i, v in enumerate(values):
+        w = col_xs[i + 1] - col_xs[i]
+        # Rough line count estimate based on character length
+        max_chars = max(int(w * 2.1), 10)
+        lines = max(1, (len(v) // max_chars) + 1)
+        heights.append(lines)
+
+    height = max(5, min(12, 5 + (max(heights) - 1) * 3.2))
+
+    for i, v in enumerate(values):
+        x = col_xs[i]
+        w = col_xs[i + 1] - col_xs[i]
+        pdf.set_xy(x, y_start)
+        pdf.multi_cell(w, 3.2, v, border=1, align="L")
+
+        # multi_cell moves cursor; reset to row baseline for next cell
+        pdf.set_xy(x + w, y_start)
+
+    # Move to next row
+    pdf.set_y(y_start + height)
+
+
+def _coerce_pdf_text(value: Any, max_len: int | None = None) -> str:
+    if value is None:
+        return ""
+    s = str(value)
+    if max_len is not None:
+        s = s[:max_len]
+    return s
+
+
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
@@ -183,61 +330,99 @@ def _write_kv_table(pdf: FPDF, title: str, kv: List[Tuple[str, str]]):
 
 def _generate_members_records_pdf(member_type: str, members: List[Dict[str, Any]]):
     pdf = FPDF("P", "mm", "A4")
+    pdf.set_margins(10, 10, 10)
     pdf.add_page()
 
-    pdf.set_font("Arial", "B", 14)
-    pdf.cell(0, 8, "Association of Government Librarians (AGL)", 0, 1, "C")
-    pdf.set_font("Arial", "", 11)
-    pdf.cell(0, 8, f"Members Records - {member_type.title()}", 0, 1, "C")
-    pdf.ln(5)
+    _pdf_header(pdf, f"Members Records - {member_type.title()}")
 
-    pdf.set_font("Arial", "B", 10)
-    pdf.cell(15, 7, "#", 1)
-    pdf.cell(50, 7, "Name", 1)
-    pdf.cell(55, 7, "Email", 1)
-    pdf.cell(35, 7, "Phone", 1)
-    pdf.cell(30, 7, "Joined", 1)
-    pdf.ln()
+    # Table: # | Name | Email | Phone | Joined
+    col_xs = [10, 20, 70, 125, 160, 200]
+    labels = ["#", "Name", "Email", "Phone", "Joined"]
 
-    pdf.set_font("Arial", "", 9)
+    _pdf_table_header(pdf, col_xs, labels)
+
     for idx, m in enumerate(members, start=1):
-        pdf.cell(15, 7, str(idx), 1)
-        pdf.cell(50, 7, _coerce_str(m.get("name"))[:22], 1)
-        pdf.cell(55, 7, _coerce_str(m.get("email"))[:25], 1)
-        pdf.cell(35, 7, _coerce_str(m.get("phone"))[:18], 1)
-        pdf.cell(30, 7, _coerce_str(m.get("joined"))[:14], 1)
-        pdf.ln()
+        if pdf.get_y() > 270:  # near bottom
+            pdf.add_page()
+            _pdf_header(pdf, f"Members Records - {member_type.title()}")
+            _pdf_table_header(pdf, col_xs, labels)
+
+        values = [
+            _coerce_pdf_text(str(idx)),
+            _coerce_pdf_text(_coerce_str(m.get("name")), max_len=60),
+            _coerce_pdf_text(_coerce_str(m.get("email")), max_len=55),
+            _coerce_pdf_text(_coerce_str(m.get("phone")), max_len=30),
+            _coerce_pdf_text(_coerce_str(m.get("joined")), max_len=20),
+        ]
+        _pdf_table_row(pdf, col_xs, values)
+
+    _pdf_footer(pdf)
 
     pdf_buffer = BytesIO()
     pdf_bytes = pdf.output(dest="S").encode("latin-1")
     pdf_buffer.write(pdf_bytes)
     pdf_buffer.seek(0)
     return pdf_buffer
+
 
 
 def _generate_member_details_pdf(member_type: str, member: Dict[str, str]):
     pdf = FPDF("P", "mm", "A4")
+    pdf.set_margins(10, 10, 10)
     pdf.add_page()
 
     name = member.get("name") or member.get("organization_name") or "Member"
-    pdf.set_font("Arial", "B", 14)
-    pdf.cell(0, 8, "Association of Government Librarians (AGL)", 0, 1, "C")
-    pdf.set_font("Arial", "", 11)
-    pdf.cell(0, 8, "Member Information", 0, 1, "C")
-    pdf.ln(4)
+
+    _pdf_header(pdf, "Member Information")
 
     pdf.set_font("Arial", "B", 12)
+    pdf.set_y(pdf.get_y() + 6)
     pdf.cell(0, 8, f"{member_type.title()} - {name}", 0, 1)
     pdf.ln(2)
 
-    kv = sorted([(k, v) for k, v in member.items() if k != "member_type"], key=lambda x: x[0])
-    _write_kv_table(pdf, "Details", kv)
+    # Omit sensitive/unwanted fields
+    kv_items: List[Tuple[str, str]] = []
+    for k, v in member.items():
+        if k == "member_type":
+            continue
+        if k in OMIT_DETAIL_FIELDS:
+            continue
+        kv_items.append((k, v))
+
+    kv_items.sort(key=lambda x: x[0])
+
+    # Render as a 2-column table-like block for consistency
+    # Use our reusable row layout for nicer typography
+    pdf.set_font("Arial", "B", 10)
+    pdf.cell(0, 7, "Details", 0, 1)
+    pdf.ln(1)
+
+    # Key/value rows (borders + alignment)
+    # 50%/50% columns with left alignment
+    col_xs = [10, 105, 200]
+    # approximate width: value column will wrap
+    # header
+    _pdf_table_header(pdf, [10, 105, 200], ["Field", "Value"])
+
+    def _draw_kv_rows(pairs: List[Tuple[str, str]]):
+        for k, v in pairs:
+            field = str(k).replace("_", " ").title() + ":"
+            value = v if v is not None and str(v).strip() else "-"
+            _pdf_table_row(pdf, [10, 105, 200], [field, str(value)])
+
+    _draw_kv_rows(kv_items)
+
+    # If the table pushes content below footer area, footer still draws but table may overlap.
+    # Keep styling consistent by drawing footer at the end.
+    _pdf_footer(pdf)
+
 
     pdf_buffer = BytesIO()
     pdf_bytes = pdf.output(dest="S").encode("latin-1")
     pdf_buffer.write(pdf_bytes)
     pdf_buffer.seek(0)
     return pdf_buffer
+
 
 
 @admin_members_bp.route("/<member_type>/<member_id>/details", methods=["PUT"])

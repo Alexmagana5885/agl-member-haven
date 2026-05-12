@@ -1,22 +1,29 @@
-# TODO - Member admin More table Edit/Delete
+# TODO
 
-- [ ] Implement backend admin endpoints for updating and deleting member details
-  - [ ] `PUT /api/admin/members/<member_type>/<member_id>/details`
-  - [ ] `DELETE /api/admin/members/<member_type>/<member_id>/details`
-  - [ ] Restrict update fields to allowed DB columns per table
+## AGL Members PDF Styling Upgrade
 
-- [ ] Add frontend service methods for update/delete
-  - [ ] `updateMemberDetails`
-  - [ ] `deleteMember`
+### Step 1: Identify and update PDF generators
+- [ ] Update `backend/PortalComponents/admin/members/members_routes.py` for both endpoints:
+  - `/admin/members/print` (All Members table PDF)
+  - `/<member_type>/<member_id>/print-details` (Member Details PDF)
 
-- [ ] Update `src/pages/Members.tsx`
-  - [ ] Add Edit/Delete buttons to the “Member Details” dialog
-  - [ ] Implement read-only -> editable mode transition
-  - [ ] Add Save/Cancel buttons
-  - [ ] Save persists changes via backend and refreshes details
-  - [ ] Cancel discards changes and restores read-only mode
-  - [ ] Delete opens confirmation dialog before deleting
-  - [ ] After delete, close details dialog and refresh members list
+### Step 2: Modern bluish header + logo + title
+- [ ] Add consistent header drawing helper using `src/assets/AGLlogo.png` equivalent server-side file (`backend/assets` or bundled frontend assets as available)
+- [ ] Style header with bluish theme
+- [ ] Logo left, “Association of Government Librarians” right
 
-- [ ] Run quick lint/build and manual smoke test
+### Step 3: Omit sensitive fields in Member Details PDF
+- [ ] Exclude from key/value table: Password, Payment Number, Payment Code, Payment Date, Completion Letter
+
+### Step 4: Improve table layout (professional typography)
+- [ ] Add clean table header styling (background, borders, alignment)
+- [ ] Improve row spacing, consistent column widths, wrapping where needed
+- [ ] Ensure both PDFs use the same styling system
+
+### Step 5: Professional footer
+- [ ] Add footer on each page with italic “Association of Government Librarians”
+
+### Step 6: Validate and test
+- [ ] Run app / quick PDF generation smoke test
+- [ ] Spot-check member_type=personal and organization
 
