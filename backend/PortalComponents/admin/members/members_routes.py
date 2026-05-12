@@ -28,6 +28,7 @@ OMIT_DETAIL_FIELDS = {
     "payment_date",
     "Completion Letter",
     "completion_letter",
+    "passport_image",
 }
 
 
