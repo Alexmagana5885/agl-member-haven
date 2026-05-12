@@ -156,7 +156,9 @@ def login():
     session['user_type'] = user['type']  # 'individual' or 'organization'
     session['member_type'] = user_type  # Store the actual member type used for login
     session.permanent = True
+    session['last_activity'] = __import__('time').time()
     logger.debug(f"Session created successfully")
+
     
     # Check if user is an official
     is_official = check_is_official(email)
@@ -259,6 +261,10 @@ def get_session():
     if 'user_id' not in session:
         logger.warning("Session check failed: User not authenticated")
         return jsonify({"status": "error", "message": "Not authenticated"}), 401
+
+    # Sliding inactivity timeout refresh on successful session checks
+    session['last_activity'] = __import__('time').time()
+
     
     logger.debug(f"Session found for user ID: {session['user_id']}")
     

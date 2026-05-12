@@ -1,7 +1,10 @@
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { DashboardSidebar } from "@/components/DashboardSidebar";
+import { useInactivityLogout } from "@/hooks/useInactivityLogout";
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
+  useInactivityLogout();
+
   return (
     <SidebarProvider>
       <div className="flex min-h-screen w-full">
@@ -21,3 +24,4 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
     </SidebarProvider>
   );
 }
+

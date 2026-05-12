@@ -63,8 +63,15 @@ const Login = () => {
     }
   };
 
+  // If we were redirected due to inactivity/logout, wipe client state.
+  if (typeof window !== "undefined" && sessionStorage.getItem("session_expired") === "1") {
+    sessionStorage.clear();
+    localStorage.clear();
+  }
+
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">
+
       {/* Left/Welcome - top on small, left on lg */}
       <div className="w-full lg:w-1/2 bg-white order-1 p-8 lg:p-12 flex items-center justify-center">
         <div className="text-center space-y-6 max-w-md">

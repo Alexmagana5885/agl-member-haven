@@ -4,20 +4,34 @@ from flask import session, jsonify
 
 
 def login_required(f):
-    """
-    Decorator to require login for a route.
-    
-    Usage:
-        @app.route('/protected')
-        @login_required
-        def protected_route():
-            return jsonify({"data": "secret"})
-    """
+    """Decorator to require login + enforce 15 minutes inactivity timeout."""
+
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if 'user_id' not in session:
             return jsonify({"status": "error", "message": "Authentication required"}), 401
+
+        # Inactivity enforcement (15 minutes)
+        last_activity = session.get('last_activity')
+        if last_activity is None:
+            # Backward compatibility: if legacy session has no marker, allow it once.
+            session['last_activity'] = session.get('last_activity', __import__('time').time())
+            return f(*args, **kwargs)
+
+        try:
+            now = __import__('time').time()
+            if (now - float(last_activity)) > (15 * 60):
+                session.clear()
+                return jsonify({"status": "error", "message": "Session expired due to inactivity"}), 401
+
+            # Update last activity (sliding expiration)
+            session['last_activity'] = now
+        except Exception:
+            session.clear()
+            return jsonify({"status": "error", "message": "Session invalid"}), 401
+
         return f(*args, **kwargs)
+
     return decorated_function
 
 

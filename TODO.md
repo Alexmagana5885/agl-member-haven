@@ -1,29 +1,11 @@
-# TODO
+# TODO: 15-min inactivity auto logout + back-button lock
 
-## AGL Members PDF Styling Upgrade
+- [x] Implement server-side inactivity timeout (15 minutes) by tracking last activity in session and clearing session on expiry.
+- [x] Add middleware/decorator to enforce inactivity timeout on protected routes (or augment existing login_required).
+- [x] Implement client-side inactivity timer (15 minutes) that calls logout + redirects to /login.
+- [x] Handle browser back button: prevent returning to portal after logout/expiry via history replacement and popstate handling.
+- [x] Clear any client cached/sessionStorage/localStorage data on logout.
+- [x] Ensure /login page triggers a fresh state when redirected from session expiry.
+- [ ] Smoke test: login, idle for 16 minutes, verify redirect; try browser back after expiry/logout.
 
-### Step 1: Identify and update PDF generators
-- [ ] Update `backend/PortalComponents/admin/members/members_routes.py` for both endpoints:
-  - `/admin/members/print` (All Members table PDF)
-  - `/<member_type>/<member_id>/print-details` (Member Details PDF)
-
-### Step 2: Modern bluish header + logo + title
-- [ ] Add consistent header drawing helper using `src/assets/AGLlogo.png` equivalent server-side file (`backend/assets` or bundled frontend assets as available)
-- [ ] Style header with bluish theme
-- [ ] Logo left, “Association of Government Librarians” right
-
-### Step 3: Omit sensitive fields in Member Details PDF
-- [ ] Exclude from key/value table: Password, Payment Number, Payment Code, Payment Date, Completion Letter
-
-### Step 4: Improve table layout (professional typography)
-- [ ] Add clean table header styling (background, borders, alignment)
-- [ ] Improve row spacing, consistent column widths, wrapping where needed
-- [ ] Ensure both PDFs use the same styling system
-
-### Step 5: Professional footer
-- [ ] Add footer on each page with italic “Association of Government Librarians”
-
-### Step 6: Validate and test
-- [ ] Run app / quick PDF generation smoke test
-- [ ] Spot-check member_type=personal and organization
 
