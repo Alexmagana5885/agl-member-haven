@@ -23,7 +23,7 @@ CORS(
                 "http://localhost:5173",
                 "http://localhost:3000",
                 "http://localhost:8080",
-                "https://agl-member-haven.vercel.app/"
+                "https://agl-member-haven.vercel.app"
             ]
         }
     },
