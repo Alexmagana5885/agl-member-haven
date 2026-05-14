@@ -14,7 +14,24 @@ import mysql.connector
 app = Flask(__name__)
 
 # CORS configuration
-CORS(app, supports_credentials=True, origins=["http://localhost:5173", "http://localhost:3000", "http://localhost:8080", "http://192.168.0.112:8080/"])
+#CORS(app, supports_credentials=True, origins=["http://localhost:5173", "http://localhost:3000", "http://localhost:8080", "http://192.168.0.112:8080/"])
+
+
+
+app = Flask(__name__)
+
+CORS(
+    app,
+    resources={
+        r"/api/*": {
+            "origins": [
+                "http://localhost:8080",
+                "https://member.log.agl.or.ke"
+            ]
+        }
+    },
+    supports_credentials=True
+)
 
 # Database configuration variables (read from .env)
 DB_HOST = os.environ.get("DB_HOST")
@@ -27,9 +44,12 @@ app.config['SESSION_TYPE'] = 'filesystem'
 app.config['SESSION_PERMANENT'] = True
 app.config['PERMANENT_SESSION_LIFETIME'] = 86400  # 24 hours
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
-app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+# app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+# app.config['SESSION_COOKIE_HTTPONLY'] = True
+# app.config['SESSION_COOKIE_SECURE'] = False  # Dev only
+app.config['SESSION_COOKIE_SAMESITE'] = 'None'
 app.config['SESSION_COOKIE_HTTPONLY'] = True
-app.config['SESSION_COOKIE_SECURE'] = False  # Dev only
+app.config['SESSION_COOKIE_SECURE'] = True
 Session(app)
 
 # directory where uploaded files will be stored
