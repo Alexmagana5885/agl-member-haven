@@ -15,27 +15,23 @@ import mysql.connector
 app = Flask(__name__)
 
 # CORS configuration
-#CORS(app, supports_credentials=True, origins=["http://localhost:5173", "http://localhost:3000", "http://localhost:8080", "http://192.168.0.112:8080/"])
+CORS(
+    app,
+    resources={
+        r"/api/*": {
+            "origins": [
+                "http://localhost:5173",
+                "http://localhost:3000",
+                "http://localhost:8080",
+                "https://agl-member-haven.vercel.app/"
+            ]
+        }
+    },
+    supports_credentials=True,
+    methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["Content-Type", "Authorization"]
+)
 
-
-# CORS(
-#     app,
-#     resources={
-#         r"/api/*": {
-#             "origins": [
-#                 "http://localhost:5173",
-#                 "http://localhost:3000",
-#                 "http://localhost:8080"
-#             ]
-#         }
-#     },
-#     supports_credentials=True,
-#     methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-#     allow_headers=["Content-Type", "Authorization"]
-# )
-
-
-CORS(app)
 
 # Database configuration variables (read from .env)
 DB_HOST = os.environ.get("DB_HOST")
