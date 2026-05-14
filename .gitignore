@@ -31,16 +31,6 @@ node_modules
 *.doc
 *.docx
 
-# Ignore images
-*.jpg
-*.jpeg
-*.png
-*.gif
-*.bmp
-*.tiff
-*.svg
-!AGLlogo.png
-
 
 .env
 .env.*
