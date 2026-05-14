@@ -6,6 +6,7 @@ from flask_cors import CORS
 from flask_session import Session
 import logging  # Add logging config
 
+
 # Configure logging to console
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
@@ -25,12 +26,15 @@ CORS(
     resources={
         r"/api/*": {
             "origins": [
-                "http://localhost:8080",
-                "https://member.log.agl.or.ke"
+                "http://localhost:5173",
+                "http://localhost:3000",
+                "http://localhost:8080"
             ]
         }
     },
-    supports_credentials=True
+    supports_credentials=True,
+    methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["Content-Type", "Authorization"]
 )
 
 # Database configuration variables (read from .env)
