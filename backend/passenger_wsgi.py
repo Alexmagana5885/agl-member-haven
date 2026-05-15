@@ -1,3 +1,5 @@
+# passenger_wsgi.py
+
 import sys
 import os
 

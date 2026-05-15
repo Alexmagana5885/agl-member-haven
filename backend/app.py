@@ -12,7 +12,10 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(level
 
 import mysql.connector
 
+print("Flask application started")
+
 app = Flask(__name__)
+
 
 #CORS configuration
 
