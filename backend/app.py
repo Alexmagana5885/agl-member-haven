@@ -16,21 +16,55 @@ app = Flask(__name__)
 
 #CORS configuration
 
+# CORS(
+#     app,
+#     resources={r"/*": {
+#         "origins": [
+#             "http://localhost:5173",
+#             "http://localhost:3000",
+#             "http://localhost:8080",
+#             "https://agl-member-haven.vercel.app"
+#         ]
+#     }},
+#     supports_credentials=True,
+#     methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+#     allow_headers=["Content-Type", "Authorization"]
+# )
+
+
 CORS(
     app,
-    resources={r"/*": {
-        "origins": [
-            "http://localhost:5173",
-            "http://localhost:3000",
-            "http://localhost:8080",
-            "https://agl-member-haven.vercel.app"
-        ]
-    }},
     supports_credentials=True,
-    methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allow_headers=["Content-Type", "Authorization"]
+    origins=[
+        "http://localhost:5173",
+        "http://localhost:3000",
+        "http://localhost:8080",
+        "https://agl-member-haven.vercel.app"
+    ],
+    allow_headers=["Content-Type", "Authorization"],
+    methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"]
 )
 
+@app.after_request
+def after_request(response):
+
+    origin = request.headers.get("Origin")
+
+    allowed = [
+        "http://localhost:5173",
+        "http://localhost:3000",
+        "http://localhost:8080",
+        "https://agl-member-haven.vercel.app"
+    ]
+
+    if origin in allowed:
+        response.headers["Access-Control-Allow-Origin"] = origin
+
+    response.headers["Access-Control-Allow-Credentials"] = "true"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
+    response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
+
+    return response
 
 # Database configuration variables (read from .env)
 DB_HOST = os.environ.get("DB_HOST")
