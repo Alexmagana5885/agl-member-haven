@@ -6,50 +6,15 @@ from flask_cors import CORS
 from flask_session import Session
 import logging  # Add logging config
 
-
 # Configure logging to console
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 import mysql.connector
 
-print("Flask application started")
-
 app = Flask(__name__)
 
-
-CORS(
-    app,
-    supports_credentials=True,
-    origins=[
-        "http://localhost:5173",
-        "http://localhost:3000",
-        "http://localhost:8080",
-        "https://agl-member-haven.vercel.app"
-    ],
-    allow_headers=["Content-Type", "Authorization"],
-    methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"]
-)
-
-@app.after_request
-def after_request(response):
-
-    origin = request.headers.get("Origin")
-
-    allowed = [
-        "http://localhost:5173",
-        "http://localhost:3000",
-        "http://localhost:8080",
-        "https://agl-member-haven.vercel.app"
-    ]
-
-    if origin in allowed:
-        response.headers["Access-Control-Allow-Origin"] = origin
-
-    response.headers["Access-Control-Allow-Credentials"] = "true"
-    response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
-    response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
-
-    return response
+# CORS configuration
+CORS(app, supports_credentials=True, origins=["http://localhost:5173", "http://localhost:3000", "http://localhost:8080", "http://192.168.0.110:8080", "https://agl-member-haven.vercel.app"])
 
 # Database configuration variables (read from .env)
 DB_HOST = os.environ.get("DB_HOST")
@@ -62,12 +27,9 @@ app.config['SESSION_TYPE'] = 'filesystem'
 app.config['SESSION_PERMANENT'] = True
 app.config['PERMANENT_SESSION_LIFETIME'] = 86400  # 24 hours
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
-# app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
-# app.config['SESSION_COOKIE_HTTPONLY'] = True
-# app.config['SESSION_COOKIE_SECURE'] = False  # Dev only
-app.config['SESSION_COOKIE_SAMESITE'] = 'None'
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 app.config['SESSION_COOKIE_HTTPONLY'] = True
-app.config['SESSION_COOKIE_SECURE'] = True
+app.config['SESSION_COOKIE_SECURE'] = False  # Dev only
 Session(app)
 
 # directory where uploaded files will be stored

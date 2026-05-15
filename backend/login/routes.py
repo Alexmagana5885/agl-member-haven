@@ -1,10 +1,6 @@
 """Login routes for authentication."""
 import logging
-# from flask import Blueprint, request, jsonify, session
-
-from flask import Blueprint, request, jsonify, session, make_response
-from flask_cors import CORS
-
+from flask import Blueprint, request, jsonify, session
 from datetime import datetime
 import json
 import mysql.connector
@@ -17,45 +13,7 @@ from .auth import authenticate_user, get_user_info, get_profile_data, find_user_
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
-# login_bp = Blueprint('login', __name__, url_prefix='/api/auth')
-
 login_bp = Blueprint('login', __name__, url_prefix='/api/auth')
-
-CORS(
-    login_bp,
-    supports_credentials=True,
-    origins=[
-        "http://localhost:5173",
-        "http://localhost:3000",
-        "http://localhost:8080",
-        "https://agl-member-haven.vercel.app"
-    ]
-)
-# new.....
-@login_bp.before_request
-def handle_preflight():
-    if request.method == "OPTIONS":
-        response = make_response("", 200)
-
-        origin = request.headers.get("Origin")
-
-        allowed = [
-            "http://localhost:5173",
-            "http://localhost:3000",
-            "http://localhost:8080",
-            "https://agl-member-haven.vercel.app"
-        ]
-
-        if origin in allowed:
-            response.headers["Access-Control-Allow-Origin"] = origin
-
-        response.headers["Access-Control-Allow-Credentials"] = "true"
-        response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
-        response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
-
-        return response
-    
-# new.....
 
 
 def get_db_connection():
@@ -121,8 +79,7 @@ def get_member_data(email, user_type):
         return None
 
 
-# @login_bp.route('/login', methods=['POST'])
-@login_bp.route('/login', methods=['POST', 'OPTIONS'])
+@login_bp.route('/login', methods=['POST'])
 def login():
     """
     Login endpoint for users.
@@ -276,8 +233,7 @@ def login():
 
 
 
-# @login_bp.route('/logout', methods=['POST'])
-@login_bp.route('/logout', methods=['POST', 'OPTIONS'])
+@login_bp.route('/logout', methods=['POST'])
 def logout():
     """
     Logout endpoint to clear session.
@@ -630,5 +586,3 @@ def set_new_password():
     except Exception as e:
         logger.error(f"Set new password error: {str(e)}")
         return jsonify({"status": "error", "message": "Server error"}), 500
-
-
