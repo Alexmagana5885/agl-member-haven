@@ -4,4 +4,4 @@
 .env.*
 backend/.env
 backend/.env.*
-backend/flask_session/
+flask_session/
