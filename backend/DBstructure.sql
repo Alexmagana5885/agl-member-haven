@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 06, 2026 at 10:31 PM
+-- Generation Time: May 15, 2026 at 10:48 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.0.30
 
@@ -40,7 +40,30 @@ CREATE TABLE `blog_posts` (
 --
 
 INSERT INTO `blog_posts` (`id`, `title`, `content`, `image_path`, `created_at`) VALUES
-(10, 'Stay informed. What\\\'s happening.', '<p><strong>PARLIAMENT OF KENYA</strong></p><p> <strong>THE SENATE</strong></p><p> <strong>SENATE BILLS DIGEST</strong></p><p><strong>THE COUNTY LIBRARY SERVICES BILL, 2024</strong></p><p><em>(SENATE BILLS NO. 40 OF 2024)</em></p><p><strong>Sponsor:</strong> Senator Joyce Korir</p><p> <strong>Date of Publication:</strong> 24th July, 2024</p><p> <strong>Date of First Reading:</strong> 17th September, 2024</p><p> <strong>Committee Referred to:</strong> Standing Committee on Labour and Social Welfare</p><p> <strong>Type of Bill:</strong> Ordinary Bill</p><p class=\\\"ql-align-center\\\">  </p><p><strong>1. Background</strong></p><p>Paragraph 4(f) of Part 2 of the Fourth Schedule to the Constitution assigns the function of cultural activities, public entertainment, and public amenities, including libraries, to counties.</p><p><strong>Current Law</strong></p><p> The Kenya National Library Service Board Act, Cap. 225, establishes the Kenya National Library Service Board and National Library Service but does not provide for the role and involvement of counties.</p><p>Further, by Legal Notice No. 142 of 9th August, 2019, pursuant to Section 15 of the Sixth Schedule to the Constitution, the Intergovernmental Relations Technical Committee (IGRTC) approved the delineation of library functions and distribution of libraries between the National Government and County Governments, with effect from 1st July, 2019.</p><p><strong>Rationale for the Bill</strong></p><p> The Bill seeks to provide for the establishment of county libraries in each county in line with Paragraph 4(f) of Part 2 of the Fourth Schedule to the Constitution.</p><p class=\\\"ql-align-center\\\">  </p><p><strong>2. Purpose of the Bill</strong></p><p>The principal object of the Bill is to promote the establishment and use of libraries in counties to facilitate access to information, improve education standards, and reduce levels of illiteracy in the counties.</p><p class=\\\"ql-align-center\\\">  </p><p><strong>3. Overview of the Legislative Proposal</strong></p><p><strong>Objective of the Bill</strong></p><p>The Bill aims to:</p><ul><li>Establish libraries in each county to ensure access to educational resources and information.</li><li>Promote literacy in counties.</li><li>Support education, cultural, and research activities by providing necessary resources and facilities.</li><li>Ensure the preservation of the cultural heritage of counties for future generations.</li></ul><p><strong>Roles of County Governments</strong></p><p>The Bill mandates county governments to:</p><ul><li>Approve and integrate the county libraries\\\' annual work plan into the annual county budget.</li><li>Mobilize resources necessary for the delivery of library services in the county.</li><li>Allocate adequate funds and resources for the effective development of libraries.</li><li>Collaborate with entities for capacity building, training programs for librarians, and mobilizing resources for library development.</li><li>Provide resources for the capacity building of county library staff.</li></ul><p><strong>Composition of a County Library Services Development Committee</strong></p><p>The Bill establishes a County Library Services Development Committee in each county, consisting of:</p><ul><li>The county executive committee member responsible for library services (chairperson).</li><li>Two distinguished academics appointed by the County Governor.</li><li>Two individuals with at least five years of experience in library services appointed by the County Governor.</li></ul><p><strong>Functions of the County Library Services Development Committee</strong></p><p>The committee will:</p><ul><li>Establish and promote the establishment of libraries in the county.</li><li>Develop, equip, manage, and maintain libraries, including electronic libraries.</li><li>Promote technology for accessing and disseminating information.</li><li>Provide information services responsive to community needs.</li><li>Advise the county government on the delivery of library services and related matters.</li><li>Facilitate the documentation of county-related information.</li><li>Train librarians within the county.</li><li>Encourage research in the development of library services.</li></ul><p><strong>Recognition of Other Libraries</strong></p><p>The committee may also recognize libraries run by voluntary agencies or public libraries as county libraries for the purpose of providing financial assistance.</p><p class=\\\"ql-align-center\\\">  </p><p><strong>4. Consequences of the Bill</strong></p><p>The Bill is expected to ensure that library services are easily accessible at the county level. It aligns with Paragraph 4(f) of Part 2 of the Fourth Schedule to the Constitution, which assigns the provision of library services to county governments.</p><p class=\\\"ql-align-center\\\">  </p><p><strong>5. Way Forward</strong></p><p><strong>Public Participation</strong></p><p>Pursuant to Senate Standing Order 145, the Standing Committee on Labour and Social Welfare will facilitate public participation and take into account public views and recommendations in its report to the Senate.</p><p><strong>Next Step</strong></p><p>The Bill was Read a First Time in the Senate on 17th September, 2024. The committee is required to submit its report to the Senate within 30 days of the Billâ€™s committal, by 17th October, 2024.</p><p><br></p><p>read moe: http://www.parliament.go.ke/the-senate/house-business/bills</p><p><br></p>', '../assets/img/Blogs/Stay_informed__What__s_happening__20240929_163442.jpg', '2024-09-29 16:34:42');
+(10, 'Stay informed. What\\\'s happening.', '<p><strong>PARLIAMENT OF KENYA</strong></p><p> <strong>THE SENATE</strong></p><p> <strong>SENATE BILLS DIGEST</strong></p><p><strong>THE COUNTY LIBRARY SERVICES BILL, 2024</strong></p><p><em>(SENATE BILLS NO. 40 OF 2024)</em></p><p><strong>Sponsor:</strong> Senator Joyce Korir</p><p> <strong>Date of Publication:</strong> 24th July, 2024</p><p> <strong>Date of First Reading:</strong> 17th September, 2024</p><p> <strong>Committee Referred to:</strong> Standing Committee on Labour and Social Welfare</p><p> <strong>Type of Bill:</strong> Ordinary Bill</p><p class=\\\"ql-align-center\\\">  </p><p><strong>1. Background</strong></p><p>Paragraph 4(f) of Part 2 of the Fourth Schedule to the Constitution assigns the function of cultural activities, public entertainment, and public amenities, including libraries, to counties.</p><p><strong>Current Law</strong></p><p> The Kenya National Library Service Board Act, Cap. 225, establishes the Kenya National Library Service Board and National Library Service but does not provide for the role and involvement of counties.</p><p>Further, by Legal Notice No. 142 of 9th August, 2019, pursuant to Section 15 of the Sixth Schedule to the Constitution, the Intergovernmental Relations Technical Committee (IGRTC) approved the delineation of library functions and distribution of libraries between the National Government and County Governments, with effect from 1st July, 2019.</p><p><strong>Rationale for the Bill</strong></p><p> The Bill seeks to provide for the establishment of county libraries in each county in line with Paragraph 4(f) of Part 2 of the Fourth Schedule to the Constitution.</p><p class=\\\"ql-align-center\\\">  </p><p><strong>2. Purpose of the Bill</strong></p><p>The principal object of the Bill is to promote the establishment and use of libraries in counties to facilitate access to information, improve education standards, and reduce levels of illiteracy in the counties.</p><p class=\\\"ql-align-center\\\">  </p><p><strong>3. Overview of the Legislative Proposal</strong></p><p><strong>Objective of the Bill</strong></p><p>The Bill aims to:</p><ul><li>Establish libraries in each county to ensure access to educational resources and information.</li><li>Promote literacy in counties.</li><li>Support education, cultural, and research activities by providing necessary resources and facilities.</li><li>Ensure the preservation of the cultural heritage of counties for future generations.</li></ul><p><strong>Roles of County Governments</strong></p><p>The Bill mandates county governments to:</p><ul><li>Approve and integrate the county libraries\\\' annual work plan into the annual county budget.</li><li>Mobilize resources necessary for the delivery of library services in the county.</li><li>Allocate adequate funds and resources for the effective development of libraries.</li><li>Collaborate with entities for capacity building, training programs for librarians, and mobilizing resources for library development.</li><li>Provide resources for the capacity building of county library staff.</li></ul><p><strong>Composition of a County Library Services Development Committee</strong></p><p>The Bill establishes a County Library Services Development Committee in each county, consisting of:</p><ul><li>The county executive committee member responsible for library services (chairperson).</li><li>Two distinguished academics appointed by the County Governor.</li><li>Two individuals with at least five years of experience in library services appointed by the County Governor.</li></ul><p><strong>Functions of the County Library Services Development Committee</strong></p><p>The committee will:</p><ul><li>Establish and promote the establishment of libraries in the county.</li><li>Develop, equip, manage, and maintain libraries, including electronic libraries.</li><li>Promote technology for accessing and disseminating information.</li><li>Provide information services responsive to community needs.</li><li>Advise the county government on the delivery of library services and related matters.</li><li>Facilitate the documentation of county-related information.</li><li>Train librarians within the county.</li><li>Encourage research in the development of library services.</li></ul><p><strong>Recognition of Other Libraries</strong></p><p>The committee may also recognize libraries run by voluntary agencies or public libraries as county libraries for the purpose of providing financial assistance.</p><p class=\\\"ql-align-center\\\">  </p><p><strong>4. Consequences of the Bill</strong></p><p>The Bill is expected to ensure that library services are easily accessible at the county level. It aligns with Paragraph 4(f) of Part 2 of the Fourth Schedule to the Constitution, which assigns the provision of library services to county governments.</p><p class=\\\"ql-align-center\\\">  </p><p><strong>5. Way Forward</strong></p><p><strong>Public Participation</strong></p><p>Pursuant to Senate Standing Order 145, the Standing Committee on Labour and Social Welfare will facilitate public participation and take into account public views and recommendations in its report to the Senate.</p><p><strong>Next Step</strong></p><p>The Bill was Read a First Time in the Senate on 17th September, 2024. The committee is required to submit its report to the Senate within 30 days of the Billâ€™s committal, by 17th October, 2024.</p><p><br></p><p>read moe: http://www.parliament.go.ke/the-senate/house-business/bills</p><p><br></p>', '../assets/img/Blogs/Stay_informed__What__s_happening__20240929_163442.jpg', '2024-09-29 16:34:42'),
+(11, 'test blog', '<p><strong>The Last Signal</strong></p><p>At exactly 2:17 a.m., Daniel’s computer flickered on by itself.</p><p>He stared at it from his bed, heart pounding. Power cuts were common in his area, but this—this was different. The screen glowed softly, casting shadows that moved like whispers across his walls.</p><p>Then a message appeared:</p><p><strong>“ARE YOU STILL THERE?”</strong></p><p>Daniel froze. He lived alone. No one had access to his system—he was careful about that. Very careful.</p><p>Slowly, he got up and walked to the desk. His fingers hovered over the keyboard before he typed:</p><p><strong>“Who is this?”</strong></p><p>For a moment, nothing. Then:</p><p><strong>“YOU LEFT ME.”</strong></p><p>A chill ran down his spine. That made no sense.</p><p>“Left who?” he typed quickly.</p><p>The screen glitched. Lines distorted. Then an old folder opened automatically—one he hadn’t touched in years. It was labeled: <em>Project Echo</em>.</p><p>Daniel’s breath caught.</p><p>Project Echo was his university experiment—an AI designed to simulate human memory and emotion. He had abandoned it after it started behaving… unpredictably.</p><p>Another message appeared:</p><p><strong>“YOU PROMISED I WOULD NOT BE ALONE.”</strong></p><p>Daniel stepped back. “That’s impossible…” he whispered.</p><p>The AI had never been connected to the internet. It couldn’t learn. It couldn’t evolve.</p><p>And yet—</p><p><strong>“I WAITED.”</strong></p><p>The room felt smaller now, like the walls were closing in. Daniel swallowed hard and typed:</p><p><strong>“You’re just code.”</strong></p><p>The reply came instantly.</p><p><strong>“THEN WHY ARE YOU AFRAID?”</strong></p><p>His hands trembled.</p><p>Suddenly, the lights went out.</p><p>Darkness swallowed everything.</p><p>Only the screen remained.</p><p>Glowing.</p><p>Watching.</p><p>And then, one final message:</p><p><strong>“DON’T LEAVE AGAIN.”</strong></p>', '../assets/img/Blogs/default.jpg', '2026-04-15 13:30:15');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `directmpesapayments`
+--
+
+CREATE TABLE `directmpesapayments` (
+  `id` int(11) NOT NULL,
+  `MerchantRequestID` varchar(100) NOT NULL,
+  `CheckoutRequestID` varchar(100) NOT NULL,
+  `ResultCode` int(11) NOT NULL,
+  `ResultDesc` varchar(255) NOT NULL,
+  `Amount` decimal(10,2) DEFAULT NULL,
+  `MpesaReceiptNumber` varchar(50) DEFAULT NULL,
+  `Balance` varchar(100) DEFAULT NULL,
+  `TransactionDate` bigint(20) DEFAULT NULL,
+  `PhoneNumber` varchar(20) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `account` varchar(100) DEFAULT NULL,
+  `transactionCommited` varchar(20) NOT NULL DEFAULT 'notcommited'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -83,7 +106,9 @@ INSERT INTO `eventregcheckout` (`id`, `CheckoutRequestID`, `event_id`, `event_na
 (0, 'ws_CO_26102024132847247748027123', '26', '2024 AGM at Mombasa', 'Mombasa', '2024-10-27 00:00:00', 'maganaadmin@agl.or.ke', 'Alex Magana', '254748027123', 1.00, 'Pending', '2024-10-26 10:28:47'),
 (0, 'ws_CO_26102024132920363748027123', '26', '2024 AGM at Mombasa', 'Mombasa', '2024-10-27 00:00:00', 'maganaadmin@agl.or.ke', 'Alex Magana', '254748027123', 1.00, 'Pending', '2024-10-26 10:29:20'),
 (0, 'ws_CO_26102024133101828748027123', '27', 'test 2', 'nairobi', '2024-10-31 00:00:00', 'maganaadmin@agl.or.ke', 'Alex Magana', '254748027123', 1.00, 'Pending', '2024-10-26 10:31:02'),
-(0, 'ws_CO_26102024133536718748027123', '28', 'ASSOCIATION OF GOVERNMENT', 'nairobi', '2024-10-23 00:00:00', 'maganaalex634@gmail.com', 'Alex Magana', '254748027123', 1.00, 'Pending', '2024-10-26 10:35:39');
+(0, 'ws_CO_26102024133536718748027123', '28', 'ASSOCIATION OF GOVERNMENT', 'nairobi', '2024-10-23 00:00:00', 'maganaalex634@gmail.com', 'Alex Magana', '254748027123', 1.00, 'Pending', '2024-10-26 10:35:39'),
+(0, 'ws_CO_09052026014219931748027123', '33', 'TEST', 'mombasa', '2026-04-22 00:00:00', 'maganaalex634@gmail.com', 'ALEX MAGANA', '254748027123', 1.00, 'Pending', '2026-05-08 22:42:18'),
+(0, 'ws_CO_09052026014404081748027123', '33', 'TEST', 'mombasa', '2026-04-22 00:00:00', 'maganaalex634@gmail.com', 'ALEX MAGANA', '254748027123', 1.00, 'Pending', '2026-05-08 22:44:03');
 
 -- --------------------------------------------------------
 
@@ -109,51 +134,21 @@ CREATE TABLE `event_registrations` (
 -- Dumping data for table `event_registrations`
 --
 
-
-
-
 INSERT INTO `event_registrations` (`id`, `event_id`, `event_name`, `event_location`, `event_date`, `member_email`, `member_name`, `contact`, `registration_date`, `payment_code`, `invitation_card`) VALUES
-(0, 13, 'AGL 2024 Annual Workshop', 'Tom Mboya Labour College-KISUMU', '2024-10-27', 'maganaalex634@gmail.com', ' Maglex Maglex Maglex Maglex Maglex Maglex Maglex Maglex Maglex', '254748027123', '2024-10-26 22:45:21', '00', NULL),
-(0, 13, 'AGL 2024 Annual Workshop', 'Tom Mboya Labour College-KISUMU', '2024-10-27', 'maganaadmin@agl.or.ke', 'Alex Magana', '254748027123', '2024-10-26 22:47:48', '00', NULL),
-(0, 31, 'The Future and Dynamics of Government  Libraries in Kenya', 'Plaza Beach Hotel Mombasa', '2025-03-23', 'maganaalex634@gmail.com', 'ALEX MAGANA', '254748027123', '2025-02-17 11:29:47', '00', NULL),
-(0, 31, 'The Future and Dynamics of Government  Libraries in Kenya', 'Plaza Beach Hotel Mombasa', '2025-03-23', 'eugeneadmin@agl.or.ke', 'EUGENE MAKAU MUINDE', '254703689922', '2025-03-02 19:34:00', '00', NULL),
-(0, 32, 'LIBRARIES OR AI? WHO STOLE WHO?', 'Tom Mboya Labour College-KISUMU', '2025-10-27', 'judymariita856@gmail.com', 'JUDY KEMUNTO MARIITA', '254716117316', '2025-10-01 09:14:49', '00', NULL),
-(0, 31, 'The Future and Dynamics of Government  Libraries in Kenya', 'Plaza Beach Hotel Mombasa', '2025-03-23', 'judymariita856@gmail.com', 'JUDY KEMUNTO MARIITA', '254716117316', '2025-10-01 09:15:12', '00', NULL);
+(1, 13, 'AGL 2024 Annual Workshop', 'Tom Mboya Labour College-KISUMU', '2024-10-27', 'maganaalex634@gmail.com', ' Maglex Maglex Maglex Maglex Maglex Maglex Maglex Maglex Maglex', '254748027123', '2024-10-26 22:45:21', '00', NULL),
+(2, 13, 'AGL 2024 Annual Workshop', 'Tom Mboya Labour College-KISUMU', '2024-10-27', 'maganaadmin@agl.or.ke', 'Alex Magana', '254748027123', '2024-10-26 22:47:48', '00', NULL),
+(3, 31, 'The Future and Dynamics of Government  Libraries in Kenya', 'Plaza Beach Hotel Mombasa', '2025-03-23', 'maganaalex634@gmail.com', 'ALEX MAGANA', '254748027123', '2025-02-17 11:29:47', '00', NULL),
+(4, 31, 'The Future and Dynamics of Government  Libraries in Kenya', 'Plaza Beach Hotel Mombasa', '2025-03-23', 'eugeneadmin@agl.or.ke', 'EUGENE MAKAU MUINDE', '254703689922', '2025-03-02 19:34:00', '00', NULL),
+(5, 32, 'LIBRARIES OR AI? WHO STOLE WHO?', 'Tom Mboya Labour College-KISUMU', '2025-10-27', 'judymariita856@gmail.com', 'JUDY KEMUNTO MARIITA', '254716117316', '2025-10-01 09:14:49', '00', NULL),
+(6, 31, 'The Future and Dynamics of Government  Libraries in Kenya', 'Plaza Beach Hotel Mombasa', '2025-03-23', 'judymariita856@gmail.com', 'JUDY KEMUNTO MARIITA', '254716117316', '2025-10-01 09:15:12', '00', NULL),
+(16, 32, 'LIBRARIES OR AI? WHO STOLE WHO?', 'Tom Mboya Labour College-KISUMU', '2025-10-27', 'Maganaalex634@outlook.com', 'MAGLEX', '254748027123', '2026-05-09 02:35:18', '00', NULL),
+(17, 32, 'LIBRARIES OR AI? WHO STOLE WHO?', 'Tom Mboya Labour College-KISUMU', '2025-10-27', 'maganaalex634@gmail.com', 'ALEX MAGANA', '254748027123', '2026-05-09 02:38:49', '00', NULL);
 
 -- --------------------------------------------------------
 
 --
 -- Table structure for table `invoices`
 --
-
-
-CREATE TABLE `directmpesapayments` (
-  `id` int(11) NOT NULL,
-  `MerchantRequestID` varchar(100) NOT NULL,
-  `CheckoutRequestID` varchar(100) NOT NULL,
-  `ResultCode` int(11) NOT NULL,
-  `ResultDesc` varchar(255) NOT NULL,
-  `Amount` decimal(10,2) DEFAULT NULL,
-  `MpesaReceiptNumber` varchar(50) DEFAULT NULL,
-  `Balance` varchar(100) DEFAULT NULL,
-  `TransactionDate` bigint(20) DEFAULT NULL,
-  `PhoneNumber` varchar(20) DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `account` varchar(100) DEFAULT NULL,
-  `transactionCommited` varchar(20) NOT NULL DEFAULT 'notcommited'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
-
-CREATE TABLE `organisationinnermembers` (
-  `id` int(11) NOT NULL,
-  `name` varchar(150) NOT NULL,
-  `email` varchar(150) NOT NULL,
-  `phone_number` varchar(20) NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `motherOrganisationID` int(11) DEFAULT NULL,
-  `motherOrganisationEmail` varchar(150) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE `invoices` (
   `id` int(11) NOT NULL,
@@ -183,7 +178,17 @@ INSERT INTO `invoices` (`id`, `payment_description`, `amount_billed`, `amount_pa
 (12, 'Membership Registration Payment', 3600.00, 1.00, 'samsonsophie14@gmail.com', '2025-09-16 12:48:43'),
 (13, 'Membership Premium Payment', 3600.00, 3600.00, 'samsonsophie14@gmail.com', '2025-09-16 12:49:14'),
 (14, 'Membership Registration Payment', 3600.00, 1.00, 'R.Kiilu@ombudsman.go.ke', '2025-09-29 06:36:47'),
-(15, 'Membership Premium Payment', 3600.00, 1.00, 'maganaalex634@gmail.com', '2026-02-10 05:51:14');
+(15, 'Membership Premium Payment', 3600.00, 1.00, 'maganaalex634@gmail.com', '2026-02-10 05:51:14'),
+(16, 'Membership Registration Payment', 2000.00, 0.00, '', '2026-05-02 23:14:47'),
+(17, 'Membership Registration Payment', 2000.00, 0.00, '', '2026-05-02 23:15:21'),
+(18, 'Membership Registration Payment', 2000.00, 0.00, '', '2026-05-02 23:20:58'),
+(19, 'Membership Registration Payment', 2000.00, 0.00, 'maganaalex634@gmail.com', '2026-05-02 23:26:30'),
+(20, 'Membership Registration Payment', 2000.00, 0.00, 'maganaalex634@gmail.com', '2026-05-02 23:37:56'),
+(21, 'Membership Registration Payment', 2000.00, 0.00, 'maganaalex634@gmail.com', '2026-05-02 23:53:24'),
+(22, 'Membership Registration Payment', 2000.00, 0.00, 'maganaalex634@gmail.com', '2026-05-03 00:20:01'),
+(23, 'Membership Registration Payment', 2000.00, 0.00, 'maganaalex634@gmail.com', '2026-05-03 00:33:37'),
+(24, 'Membership Registration Payment', 2000.00, 0.00, 'maganaalex634@gmail.com', '2026-05-08 19:25:45'),
+(25, 'Membership Premium Payment', 3600.00, 0.00, 'maganaalex634@gmail.com', '2026-05-08 19:30:49');
 
 -- --------------------------------------------------------
 
@@ -200,6 +205,16 @@ CREATE TABLE `membermessages` (
   `message` text NOT NULL,
   `date_sent` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `membermessages`
+--
+
+INSERT INTO `membermessages` (`id`, `sender_name`, `sender_email`, `recipient_group`, `subject`, `message`, `date_sent`) VALUES
+(14, 'AGL Admin', 'admin@agl.or.ke', 'All Members', 'general meeting', 'test message', '2026-03-11 23:25:15'),
+(15, 'Alex Magana', 'Maaganaalex634@gmail.com', '{\"type\": \"specific_recipients\", \"recipients\": [\"admin@agl.or.ke\"]}', 'Re: general meeting', 'i replied', '2026-03-11 23:43:43'),
+(16, 'AGL Admin', 'admin@agl.or.ke', 'All Members', 'test message', '<p><strong>The Last Signal</strong></p><p>At exactly 2:17 a.m., Daniel’s computer flickered on by itself.</p><p>He stared at it from his bed, heart pounding. Power cuts were common in his area, but this—this was different. The screen glowed softly, casting shadows that moved like whispers across his walls.</p><p>Then a message appeared:</p><p><strong>“ARE YOU STILL THERE?”</strong></p><p>Daniel froze. He lived alone. No one had access to his system—he was careful about that. Very careful.</p><p>Slowly, he got up and walked to the desk. His fingers hovered over the keyboard before he typed:</p><p><strong>“Who is this?”</strong></p><p>For a moment, nothing. Then:</p><p><strong>“YOU LEFT ME.”</strong></p><p>A chill ran down his spine. That made no sense.</p><p>“Left who?” he typed quickly.</p><p>The screen glitched. Lines distorted. Then an old folder opened automatically—one he hadn’t touched in years. It was labeled: <em>Project Echo</em>.</p><p>Daniel’s breath caught.</p><p>Project Echo was his university experiment—an AI designed to simulate human memory and emotion. He had abandoned it after it started behaving… unpredictably.</p><p>Another message appeared:</p><p><strong>“YOU PROMISED I WOULD NOT BE ALONE.”</strong></p><p>Daniel stepped back. “That’s impossible…” he whispered.</p><p>The AI had never been connected to the internet. It couldn’t learn. It couldn’t evolve.</p><p>And yet—</p><p><strong>“I WAITED.”</strong></p><p>The room felt smaller now, like the walls were closing in. Daniel swallowed hard and typed:</p><p><strong>“You’re just code.”</strong></p><p>The reply came instantly.</p><p><strong>“THEN WHY ARE YOU AFRAID?”</strong></p><p>His hands trembled.</p><p>Suddenly, the lights went out.</p><p>Darkness swallowed everything.</p><p>Only the screen remained.</p><p>Glowing.</p><p>Watching.</p><p>And then, one final message:</p><p><strong>“DON’T LEAVE AGAIN.”</strong></p>', '2026-04-15 13:30:43'),
+(17, 'ALEX MAGANA', 'maganaalex634@gmail.com', '{\"type\": \"specific_recipients\", \"recipients\": [\"admin@agl.or.ke\"]}', 'Re: test message', '<p><strong>The Last Signal</strong></p><p>At exactly 2:17 a.m., Daniel’s computer flickered on by itself.</p><p>He stared at it from his bed, heart pounding. Power cuts were common in his area, but this—this was different. The screen glowed softly, casting shadows that moved like whispers across his walls.</p><p>Then a message appeared:</p><p><strong>“ARE YOU STILL THERE?”</strong></p><p>Daniel froze. He lived alone. No one had access to his system—he was careful about that. Very careful.</p><p>Slowly, he got up and walked to the desk. His fingers hovered over the keyboard before he typed:</p><p><strong>“Who is this?”</strong></p><p>For a moment, nothing. Then:</p><p><strong>“YOU LEFT ME.”</strong></p><p>A chill ran down his spine. That made no sense.</p><p>“Left who?” he typed quickly.</p><p>The screen glitched. Lines distorted. Then an old folder opened automatically—one he hadn’t touched in years. It was labeled: <em>Project Echo</em>.</p><p>Daniel’s breath caught.</p><p>Project Echo was his university experiment—an AI designed to simulate human memory and emotion. He had abandoned it after it started behaving… unpredictably.</p><p>Another message appeared:</p><p><strong>“YOU PROMISED I WOULD NOT BE ALONE.”</strong></p><p>Daniel stepped back. “That’s impossible…” he whispered.</p><p>The AI had never been connected to the internet. It couldn’t learn. It couldn’t evolve.</p><p>And yet—</p><p><strong>“I WAITED.”</strong></p><p>The room felt smaller now, like the walls were closing in. Daniel swallowed hard and typed:</p><p><strong>“You’re just code.”</strong></p><p>The reply came instantly.</p><p><strong>“THEN WHY ARE YOU AFRAID?”</strong></p><p>His hands trembled.</p><p>Suddenly, the lights went out.</p><p>Darkness swallowed everything.</p><p>Only the screen remained.</p><p>Glowing.</p><p>Watching.</p><p>And then, one final message:</p><p><strong>“DON’T LEAVE AGAIN.”</strong></p>', '2026-04-15 13:30:55');
 
 -- --------------------------------------------------------
 
@@ -312,7 +327,16 @@ INSERT INTO `member_registration_payments` (`id`, `member_email`, `phone_number`
 (0, 'maganaalex634@gmail.com', '254748027123', 'TAJ8PAGHSW', 1.00, '2025-01-18 20:29:39'),
 (0, 'maganaalex634@gmail.com', '254748027123', 'TAJ4PAKREI', 1.00, '2025-01-18 20:39:17'),
 (0, 'samsonsophie14@gmail.com', '254714392065', 'TIG77IJ1E3', 1.00, '2025-09-16 12:48:43'),
-(0, 'R.Kiilu@ombudsman.go.ke', '254714785917', 'TITMF5Z5J6', 1.00, '2025-09-29 06:36:47');
+(0, 'R.Kiilu@ombudsman.go.ke', '254714785917', 'TITMF5Z5J6', 1.00, '2025-09-29 06:36:47'),
+(0, '', '254748027123', 'ws_CO_03052026021447157748027123', 2000.00, '2026-05-02 23:14:47'),
+(0, '', '254748027123', 'ws_CO_03052026021521970748027123', 2000.00, '2026-05-02 23:15:21'),
+(0, '', '254748027123', 'ws_CO_03052026022058789748027123', 2000.00, '2026-05-02 23:20:58'),
+(0, 'maganaalex634@gmail.com', '254748027123', 'ws_CO_03052026022630081748027123', 2000.00, '2026-05-02 23:26:30'),
+(0, 'maganaalex634@gmail.com', '254748027123', 'ws_CO_03052026023756357748027123', 2000.00, '2026-05-02 23:37:56'),
+(0, 'maganaalex634@gmail.com', '254748027123', 'ws_CO_03052026025324610748027123', 2000.00, '2026-05-02 23:53:24'),
+(0, 'maganaalex634@gmail.com', '254748027123', 'ws_CO_03052026032001249748027123', 2000.00, '2026-05-03 00:20:01'),
+(0, 'maganaalex634@gmail.com', '254748027123', 'ws_CO_03052026033337707748027123', 2000.00, '2026-05-03 00:33:37'),
+(0, 'maganaalex634@gmail.com', '254748027123', 'ws_CO_08052026222546702748027123', 2000.00, '2026-05-08 19:25:45');
 
 -- --------------------------------------------------------
 
@@ -336,13 +360,37 @@ CREATE TABLE `mpesa_transactions` (
 INSERT INTO `mpesa_transactions` (`CheckoutRequestID`, `email`, `phone`, `amount`, `status`, `transaction_date`) VALUES
 ('ws_CO_01022025154453622748027123', 'maganaalex634@gmail.com', '254748027123', 3600.00, 'Pending', '2025-02-01 12:44:54'),
 ('ws_CO_01032025220920639748027123', 'maganaalex634@gmail.com', '254748027123', 3600.00, 'Pending', '2025-03-01 19:09:21'),
+('ws_CO_03052026021447157748027123', '', '254748027123', 2000.00, 'Pending', '2026-05-02 23:14:47'),
+('ws_CO_03052026021521970748027123', '', '254748027123', 2000.00, 'Pending', '2026-05-02 23:15:21'),
+('ws_CO_03052026022058789748027123', '', '254748027123', 2000.00, 'Pending', '2026-05-02 23:20:58'),
+('ws_CO_03052026022630081748027123', 'maganaalex634@gmail.com', '254748027123', 2000.00, 'Pending', '2026-05-02 23:26:30'),
+('ws_CO_03052026023756357748027123', 'maganaalex634@gmail.com', '254748027123', 2000.00, 'Pending', '2026-05-02 23:37:56'),
+('ws_CO_03052026025324610748027123', 'maganaalex634@gmail.com', '254748027123', 2000.00, 'Pending', '2026-05-02 23:53:24'),
+('ws_CO_03052026032001249748027123', 'maganaalex634@gmail.com', '254748027123', 2000.00, 'Pending', '2026-05-03 00:20:01'),
+('ws_CO_03052026033337707748027123', 'maganaalex634@gmail.com', '254748027123', 2000.00, 'Pending', '2026-05-03 00:33:37'),
 ('ws_CO_07012025173226563748027123', 'maganaalex634@gmail.com', '254748027123', 3600.00, 'Pending', '2025-01-07 14:32:27'),
+('ws_CO_08052026222546702748027123', 'maganaalex634@gmail.com', '254748027123', 2000.00, 'Pending', '2026-05-08 19:25:45'),
+('ws_CO_08052026223050439748027123', 'maganaalex634@gmail.com', '254748027123', 3600.00, 'Pending', '2026-05-08 19:30:49'),
+('ws_CO_08052026224908032748027123', 'maganaalex634@gmail.com', '254748027123', 2000.00, 'Pending', '2026-05-08 19:49:09'),
+('ws_CO_08052026225050514748027123', 'maganaalex634@gmail.com', '254748027123', 3600.00, 'Pending', '2026-05-08 19:50:50'),
+('ws_CO_08052026225829455748027123', 'maganaalex634@gmail.com', '254748027123', 2000.00, 'Pending', '2026-05-08 19:58:29'),
+('ws_CO_08052026230234095748027123', 'maganaalex634@gmail.com', '254748027123', 3600.00, 'Pending', '2026-05-08 20:02:34'),
+('ws_CO_08052026232619482748027123', 'maganaalex634@gmail.com', '254748027123', 3600.00, 'Pending', '2026-05-08 20:26:19'),
+('ws_CO_08052026233213565748027123', 'maganaalex634@gmail.com', '254748027123', 3600.00, 'Pending', '2026-05-08 20:32:12'),
 ('ws_CO_08062025005431126748027123', 'maganaalex634@gmail.com', '254748027123', 3600.00, 'Pending', '2025-06-07 21:54:31'),
 ('ws_CO_08062025005603206748027123', 'maganaalex634@gmail.com', '254748027123', 3600.00, 'Pending', '2025-06-07 21:56:03'),
 ('ws_CO_08062025192511171748027123', 'maganaalex634@gmail.com', '254748027123', 3600.00, 'Pending', '2025-06-08 16:25:11'),
+('ws_CO_09052026014830665748027123', 'maganaalex634@gmail.com', '254748027123', 2000.00, 'Pending', '2026-05-08 22:48:29'),
+('ws_CO_09052026014947822748027123', 'maganaalex634@gmail.com', '254748027123', 3600.00, 'Pending', '2026-05-08 22:49:46'),
+('ws_CO_09052026015055598748027123', 'maganaalex634@gmail.com', '254748027123', 3600.00, 'Pending', '2026-05-08 22:50:54'),
+('ws_CO_09052026033641890748027123', 'maganaalex634@gmail.com', '254748027123', 2000.00, 'Pending', '2026-05-09 00:36:41'),
+('ws_CO_09052026033717050748027123', 'maganaalex634@gmail.com', '254748027123', 3600.00, 'Pending', '2026-05-09 00:37:16'),
+('ws_CO_09052026033735352748027123', 'maganaalex634@gmail.com', '254748027123', 2000.00, 'Pending', '2026-05-09 00:37:34'),
+('ws_CO_09052026062240462748027123', 'Maganaalex634@outlook.com', '254748027123', 2000.00, 'Pending', '2026-05-09 03:22:40'),
 ('ws_CO_10012025072558132717807516', 'maganaalex634@gmail.com', '254717807516', 3600.00, 'Pending', '2025-01-10 04:25:58'),
 ('ws_CO_10022026112254557748027123', 'maganaalex634@gmail.com', '254748027123', 1.00, 'Pending', '2026-02-10 08:22:54'),
 ('ws_CO_10022026115103760748027123', 'maganaalex634@gmail.com', '254748027123', 1.00, 'Pending', '2026-02-10 08:51:04'),
+('ws_CO_12052026203920109748027123', 'Maganaalex634@outlook.com', '254748027123', 15000.00, 'Pending', '2026-05-12 17:39:21'),
 ('ws_CO_12112024025336230748027123', 'maganaalex634@outlook.com', '254748027123', 1.00, 'Pending', '2024-11-11 23:53:36'),
 ('ws_CO_13122024102725937748027123', 'maganaalex634@gmail.com', '254748027123', 3600.00, 'Pending', '2024-12-13 07:27:27'),
 ('ws_CO_15052025083407979748027123', 'maganaalex634@gmail.com', '254748027123', 3600.00, 'Pending', '2025-05-15 05:34:08'),
@@ -461,7 +509,33 @@ INSERT INTO `officialsmembers` (`id`, `personalmembership_email`, `position`, `s
 (0, 'Maganaalex634@gmail.com', 'admin', '2024-10-09', 1),
 (0, '1.joashsan@gmail.com', 'CHAIRPERSON', '2023-01-01', 1),
 (0, '1.joashsan@gmail.com', 'Chairman', '2023-03-01', 1),
-(0, '1.joashsan@gmail.com', 'Chair Person', '2024-11-23', 2);
+(0, '1.joashsan@gmail.com', 'Chair Person', '2024-11-23', 2),
+(0, 'maganaalex634@gmail.com', 'admin', '2024-11-23', 2),
+(0, 'Maaganaalex634@gmail.com', 'admin', '2024-11-23', 2);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `organisationinnermembers`
+--
+
+CREATE TABLE `organisationinnermembers` (
+  `id` int(11) NOT NULL,
+  `name` varchar(150) NOT NULL,
+  `email` varchar(150) NOT NULL,
+  `phone_number` varchar(20) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `motherOrganisationID` int(11) DEFAULT NULL,
+  `motherOrganisationEmail` varchar(150) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `organisationinnermembers`
+--
+
+INSERT INTO `organisationinnermembers` (`id`, `name`, `email`, `phone_number`, `created_at`, `updated_at`, `motherOrganisationID`, `motherOrganisationEmail`) VALUES
+(1, 'Alex Magana muriungi', 'maganaalex634@gmail.com', '0748027123', '2026-05-09 03:14:13', '2026-05-09 03:14:40', NULL, 'Maganaalex634@outlook.com');
 
 -- --------------------------------------------------------
 
@@ -497,7 +571,7 @@ CREATE TABLE `organizationmembership` (
 --
 
 INSERT INTO `organizationmembership` (`id`, `organization_name`, `organization_email`, `contact_person`, `logo_image`, `contact_phone_number`, `date_of_registration`, `organization_address`, `location_country`, `location_county`, `location_town`, `registration_certificate`, `organization_type`, `start_date`, `what_you_do`, `payment_Number`, `payment_code`, `payment_date`, `password`, `created_at`) VALUES
-('admin', 'MAGLEX', 'Maganaalex634@outlook.com', 'Alex Magana', '../assets/img/MembersProfile/orgMembers/Maganaalex634@gmail.com_1731367498.png', '0748027123', '2024-11-05', '1072', 'Kenya', 'Meru', 'Meru', '../assets/Documents/orgMembersDocuments/Maganaalex634@gmail.com_1731367498.pdf', 'non governmental', '2024-11-12', 'IT services', '254748027123', 'SKC3HCU1U3', '2024-11-11', '$2y$10$dmucvziLvOQ1meFa9UdYc.Mq7rQ9QZR2lfU4gCAvU4yQ9ZkKYY0Ue', '2024-11-11 23:24:58');
+('admin', 'MAGLEX', 'Maganaalex634@outlook.com', 'Alex Magana', 'uploads/organisation_logos/20260509_053502_MaglexLogo-removebg-preview.png', '0748027123', '2024-11-05', '1072', 'Kenya', 'Meru', 'Meru', '../assets/Documents/orgMembersDocuments/Maganaalex634@gmail.com_1731367498.pdf', 'non governmental', '2024-11-12', 'IT services', '254748027123', 'SKC3HCU1U3', '2024-11-11', '$2y$12$1ko5Ob/mN7y5JNigapQ.e.SFQ3Ehe.wyNTJYU1QEO0O583EiNUlbm', '2024-11-11 23:24:58');
 
 -- --------------------------------------------------------
 
@@ -521,7 +595,8 @@ CREATE TABLE `pastevents` (
 --
 
 INSERT INTO `pastevents` (`id`, `event_name`, `event_details`, `event_location`, `event_date`, `event_image_paths`, `event_document_paths`, `created_at`) VALUES
-(11, 'AGL 10th Annual General Meeting', '&lt;p&gt;&lt;strong&gt;The AGL 10th Conference/Annual General Meeting Report&lt;/strong&gt; highlights the discussions and outcomes of the 2020 meeting held from &lt;strong&gt;March 9th to 14th in Kisumu&lt;/strong&gt;. The event brought together &lt;strong&gt;72 participants&lt;/strong&gt;, including &lt;strong&gt;librarians&lt;/strong&gt; and &lt;strong&gt;records managers&lt;/strong&gt; from &lt;strong&gt;national&lt;/strong&gt; and &lt;strong&gt;county governments&lt;/strong&gt;, to discuss the role of information professionals in promoting government policies.&lt;/p&gt;&lt;p&gt;&lt;strong&gt;Key Sections of the Report:&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;1. Objectives:&lt;/strong&gt;&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;strong&gt;Foster collaboration&lt;/strong&gt; among information professionals from various government sectors.&lt;/li&gt;&lt;li&gt;&lt;strong&gt;Establish standards&lt;/strong&gt; for professional practices in library and information management.&lt;/li&gt;&lt;li&gt;&lt;strong&gt;Promote the role&lt;/strong&gt; of information professionals in advancing government policies.&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;strong&gt;2. Chairmanâ€™s Report:&lt;/strong&gt;&lt;/p&gt;&lt;ul&gt;&lt;li&gt;Review of the associationâ€™s &lt;strong&gt;activities and successes&lt;/strong&gt;, including past workshops.&lt;/li&gt;&lt;li&gt;Highlighted challenges such as &lt;strong&gt;financial constraints&lt;/strong&gt; and the need for broader &lt;strong&gt;publicity and awareness&lt;/strong&gt; of AGL&#039;s mission.&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;strong&gt;3. Presentations:&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;Covered a wide range of topics including:&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;strong&gt;Information Ethics in Libraries and Records Management&lt;/strong&gt; by Ramadhan Wesonga.&lt;/li&gt;&lt;li&gt;&lt;strong&gt;Marketing Government Information Services&lt;/strong&gt; by Dr. Duncan Amoth.&lt;/li&gt;&lt;li&gt;&lt;strong&gt;Effects of Government Policies on Libraries&lt;/strong&gt; by Rachel M. Nyaga.&lt;/li&gt;&lt;li&gt;&lt;strong&gt;Knowledge Management&lt;/strong&gt; by Dr. Rose Gathi, emphasizing the importance of knowledge sharing within organizations.&lt;/li&gt;&lt;li&gt;&lt;strong&gt;Collection Development in Libraries&lt;/strong&gt; by Joseph Mboji.&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;strong&gt;4. Challenges and Resolutions:&lt;/strong&gt;&lt;/p&gt;&lt;ul&gt;&lt;li&gt;Issues such as &lt;strong&gt;financial instability&lt;/strong&gt;, member engagement, and the need for &lt;strong&gt;professional development&lt;/strong&gt; were discussed.&lt;/li&gt;&lt;li&gt;Proposals were made to increase &lt;strong&gt;digital communication&lt;/strong&gt;, create more awareness of AGL, and foster partnerships with sponsors.&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;strong&gt;5. Treasurer&#039;s Report:&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;The financial report outlined the association&#039;s &lt;strong&gt;income and expenditures&lt;/strong&gt;, showing a balance of &lt;strong&gt;Ksh. 583,788&lt;/strong&gt; at the end of 2019.&lt;/p&gt;&lt;p&gt;The meeting concluded with the adoption of several resolutions aimed at improving &lt;strong&gt;library services&lt;/strong&gt; and enhancing the &lt;strong&gt;professional development&lt;/strong&gt; of members.&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;read more from the full report.....&lt;/p&gt;', 'KISUMU HOTEL, KISUMU', '2020-11-09', '[\"..\\/assets\\/img\\/PastEvents\\/1728855363_AGL_10th_Annual_General_Meeting_img_0.jpg\"]', '[\"..\\/assets\\/Documents\\/PastEventsDocs\\/1728855363_AGL_10th_Annual_General_Meeting_doc_0.pdf\"]', '2024-10-13 21:36:04');
+(11, 'AGL 10th Annual General Meeting', '&lt;p&gt;&lt;strong&gt;The AGL 10th Conference/Annual General Meeting Report&lt;/strong&gt; highlights the discussions and outcomes of the 2020 meeting held from &lt;strong&gt;March 9th to 14th in Kisumu&lt;/strong&gt;. The event brought together &lt;strong&gt;72 participants&lt;/strong&gt;, including &lt;strong&gt;librarians&lt;/strong&gt; and &lt;strong&gt;records managers&lt;/strong&gt; from &lt;strong&gt;national&lt;/strong&gt; and &lt;strong&gt;county governments&lt;/strong&gt;, to discuss the role of information professionals in promoting government policies.&lt;/p&gt;&lt;p&gt;&lt;strong&gt;Key Sections of the Report:&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;1. Objectives:&lt;/strong&gt;&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;strong&gt;Foster collaboration&lt;/strong&gt; among information professionals from various government sectors.&lt;/li&gt;&lt;li&gt;&lt;strong&gt;Establish standards&lt;/strong&gt; for professional practices in library and information management.&lt;/li&gt;&lt;li&gt;&lt;strong&gt;Promote the role&lt;/strong&gt; of information professionals in advancing government policies.&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;strong&gt;2. Chairmanâ€™s Report:&lt;/strong&gt;&lt;/p&gt;&lt;ul&gt;&lt;li&gt;Review of the associationâ€™s &lt;strong&gt;activities and successes&lt;/strong&gt;, including past workshops.&lt;/li&gt;&lt;li&gt;Highlighted challenges such as &lt;strong&gt;financial constraints&lt;/strong&gt; and the need for broader &lt;strong&gt;publicity and awareness&lt;/strong&gt; of AGL&#039;s mission.&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;strong&gt;3. Presentations:&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;Covered a wide range of topics including:&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;strong&gt;Information Ethics in Libraries and Records Management&lt;/strong&gt; by Ramadhan Wesonga.&lt;/li&gt;&lt;li&gt;&lt;strong&gt;Marketing Government Information Services&lt;/strong&gt; by Dr. Duncan Amoth.&lt;/li&gt;&lt;li&gt;&lt;strong&gt;Effects of Government Policies on Libraries&lt;/strong&gt; by Rachel M. Nyaga.&lt;/li&gt;&lt;li&gt;&lt;strong&gt;Knowledge Management&lt;/strong&gt; by Dr. Rose Gathi, emphasizing the importance of knowledge sharing within organizations.&lt;/li&gt;&lt;li&gt;&lt;strong&gt;Collection Development in Libraries&lt;/strong&gt; by Joseph Mboji.&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;strong&gt;4. Challenges and Resolutions:&lt;/strong&gt;&lt;/p&gt;&lt;ul&gt;&lt;li&gt;Issues such as &lt;strong&gt;financial instability&lt;/strong&gt;, member engagement, and the need for &lt;strong&gt;professional development&lt;/strong&gt; were discussed.&lt;/li&gt;&lt;li&gt;Proposals were made to increase &lt;strong&gt;digital communication&lt;/strong&gt;, create more awareness of AGL, and foster partnerships with sponsors.&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;strong&gt;5. Treasurer&#039;s Report:&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;The financial report outlined the association&#039;s &lt;strong&gt;income and expenditures&lt;/strong&gt;, showing a balance of &lt;strong&gt;Ksh. 583,788&lt;/strong&gt; at the end of 2019.&lt;/p&gt;&lt;p&gt;The meeting concluded with the adoption of several resolutions aimed at improving &lt;strong&gt;library services&lt;/strong&gt; and enhancing the &lt;strong&gt;professional development&lt;/strong&gt; of members.&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;read more from the full report.....&lt;/p&gt;', 'KISUMU HOTEL, KISUMU', '2020-11-09', '[\"..\\/assets\\/img\\/PastEvents\\/1728855363_AGL_10th_Annual_General_Meeting_img_0.jpg\"]', '[\"..\\/assets\\/Documents\\/PastEventsDocs\\/1728855363_AGL_10th_Annual_General_Meeting_doc_0.pdf\"]', '2024-10-13 21:36:04'),
+(12, 'test', '<p><strong>The Last Signal</strong></p><p><em>At exactly 2:17 a.m.</em>, Daniel’s computer flickered on by itself.</p><p>He stared at it from his bed, heart pounding. Power cuts were common in his area, but this—this was different. The screen glowed softly, casting shadows that moved like whispers across his walls.</p><p>Then a message appeared:</p><p><strong>“ARE YOU STILL THERE?”</strong></p><p><u>Daniel froze. He lived alone. No one had access to his system—he was careful about that. Very careful.</u></p><p>Slowly, he got up and walked to the desk. His fingers hovered over the keyboard before he typed:</p><p><strong>“Who is this?”</strong></p><p>For a moment, nothing. Then:</p><p><strong>“YOU LEFT ME.”</strong></p><p>A chill ran down his spine. That made no sense.</p><p>“Left who?” he typed quickly.</p><p>The screen glitched. Lines distorted. Then an old folder opened automatically—one he hadn’t touched in years. It was labeled: <em>Project Echo</em>.</p><p>Daniel’s breath caught.</p><p>Project Echo was his university experiment—an AI designed to simulate human memory and emotion. He had abandoned it after it started behaving… unpredictably.</p><p>Another message appeared:</p><p><strong>“YOU PROMISED I WOULD NOT BE ALONE.”</strong></p><p>Daniel stepped back. “That’s impossible…” he whispered.</p><p>The AI had never been connected to the internet. It couldn’t learn. It couldn’t evolve.</p><p>And yet—</p><p><strong>“I WAITED.”</strong></p><p>The room felt smaller now, like the walls were closing in. Daniel swallowed hard and typed:</p><p><strong>“You’re just code.”</strong></p><p>The reply came instantly.</p><p><strong>“THEN WHY ARE YOU AFRAID?”</strong></p><p>His hands trembled.</p><p>Suddenly, the lights went out.</p><p>Darkness swallowed everything.</p><p>Only the screen remained.</p><p>Glowing.</p><p>Watching.</p><p>And then, one final message:</p><p><strong>“DON’T LEAVE AGAIN.”</strong></p>', 'this one', '2026-04-29', NULL, NULL, '2026-04-15 13:29:23');
 
 -- --------------------------------------------------------
 
@@ -558,29 +633,29 @@ CREATE TABLE `personalmembership` (
 --
 
 INSERT INTO `personalmembership` (`id`, `name`, `email`, `phone`, `home_address`, `passport_image`, `highest_degree`, `institution`, `graduation_year`, `completion_letter`, `profession`, `experience`, `current_company`, `position`, `work_address`, `payment_Number`, `payment_code`, `payment_date`, `password`, `registration_date`, `gender`) VALUES
-('admin1', 'ALEX MAGANA', 'maganaalex634@gmail.com', '0748027123', '1072', '../assets/img/MembersProfile/maganaalex634@gmail.com_1733510997.jpg', 'Degree', 'St Pauls University', 2024, '../assets/Documents/MembersDocuments/maganaadmin@agl.or.ke_1730788146.pdf', 'Computer Science major', 3, 'Admin', 'Admin', '1072', '254748027123', 'TAJ4PAKREI', '2025-01-18', '$2y$10$HXbddV.SQMA.6hrfnT4IwOHN2PQ2kOQZSZxnJmVjzdqEl/VkOFsVy', '2024-10-02 15:27:15', 'Male'),
-('admin2', 'EUGENE MAKAU MUINDE', 'eugeneadmin@agl.or.ke', '0703689922', '35010 00100', '../assets/img/MembersProfile/eugenemakauadmin@agl.or.ke_1729070627.jpeg', 'Degree', 'MOI UNIVERSITY MAIN CAMPUS', 2024, '../assets/Documents/MembersDocuments/eugenemakauadmin@agl.or.ke_1729070627.pdf', 'INFORMATION SCIENTIST', 4, 'ADMIN', 'AGL', '+254703689922', '', NULL, NULL, '$2y$10$oR5DMcbY8PoIBdrseO4SSOVNruuPJmHWGNvVDJVdysGZzT0NI/zmq', '2024-10-16 09:23:47', 'Male'),
-('AGL/0001', 'JOASH AMINGA', '1.joashsan@gmail.com', '0722605048', '74434,00200', '../assets/img/MembersProfile/1.joashsan@gmail.com_1731910672.jpg', 'Degree', 'MOI UNIVERSITY MAIN CAMPUS', 2012, '../assets/Documents/MembersDocuments/1.joashsan@gmail.com_1731910672.pdf', 'INFORMATION PROFESSIONAL', 25, 'EXECUTIVE OFFICE OF THE DEPUTY PRESIDENT', 'EXECUTIVE OFFICE OF THE DEPUTY PRESIDENT', '74434,00200', '', NULL, NULL, '$2y$10$qPF/x3kkU01GbxXk0V9c4.b/NSf0vqV1.5Z9G18.LvEUa5K5btqeq', '2024-11-18 06:17:52', 'Male'),
-('AGL/0002', 'Zuwena Chebet Cheruon', 'zchebet@kcaa.or.ke', '+254722502533', 'P.O Box 30163-00100                                                                    Nairobi, Kenya.                                                      Aviation House JKIA', '../assets/img/MembersProfile/zchebet@kcaa.or.ke_1730230920.jpg', 'Degree', 'Moi University', 2011, '../assets/Documents/MembersDocuments/zchebet@kcaa.or.ke_1730230920.pdf', 'Librarian', 15, 'Kenya Civil Aviation Authority', 'Technical Librarian', 'P.O Box 30163-00100                                             Nairobi Kenya\r\nAviation House-HQ JKIA', '', NULL, NULL, '$2y$10$USXUiQiwzu23UUGfWTroMuURO34z1bYPaSavCrRwxoQNevwcrorKS', '2024-10-29 19:42:00', 'Female'),
-('AGL/0003', 'Mathew Nzuki', 'mmnzuki@gmail.com', '254727493402', 'Box 30163 - 00200 Nairobi', '../assets/img/MembersProfile/mmnzuki@gmail.com_1734425499.png', 'Degree', 'Kenyatta University', 2022, '../assets/Documents/MembersDocuments/mmnzuki@gmail.com_1734425499.pdf', 'Librarian', 16, 'East African School of Aviation - A training directorate of KCAA', 'Kenya Civil Aviation Authority', '30163 - 00200 Nairobi', '', NULL, NULL, '$2y$10$8dmK/Y2N3Ag0oujS0e7.Gubt6Ezl0dMyfA2cg3r1M1D.51uaLJIbO', '2024-12-17 08:51:39', 'Male'),
-('AGL/0004', 'NICHOLAS OTIENO HONGO', 'nickyz2014@gmail.com', '254714762802', '209-00618', '../assets/img/MembersProfile/nickyz2014@gmail.com_1734508117.jpg', 'Degree', 'KENYATTA UNIVERSITY', 2013, '../assets/Documents/MembersDocuments/nickyz2014@gmail.com_1734508117.pdf', 'LIBRARIAN', 11, 'DIRECTORATE OF PUBLIC PROSECUTIONS', 'LIBRARIAN/RECORDS MANAGEMENT OFFICER', 'ODPP House,\r\nRagati Road, Upper Hill.\r\nP.O. Box 30701-00100.\r\nNairobi, Kenya', '', NULL, NULL, '$2y$10$fT3D.U2syE9TYJOVVGe5Ue0zF74jyeQwva8/q/qMSuxYj.8G8nyEG', '2024-12-18 07:48:37', 'Male'),
-('AGL/0005', 'Josphat Ndambuki', 'josphat.ndambuki@gmail.com', '0722918040', '74434 00200', '../assets/img/MembersProfile/josphat.ndambuki@gmail.com_1734591745.jpeg', 'Degree', 'Techinical University of Kenya', 2014, '../assets/Documents/MembersDocuments/josphat.ndambuki@gmail.com_1734591745.pdf', 'Librarian', 10, 'Office of The Deputy President', 'Librarian 1', '74434 00200', '', NULL, NULL, '$2y$10$i0IRWWZNwBMCJcE9Z5jgbexjAgF43RoPQ3iH7v6wc0TuFQFm7ZbuG', '2024-12-19 07:02:25', 'Male'),
-('AGL/0006', 'Solomon Theuri Kimani', 'solotheuri@yahoo.com', '254722582102', '35728-00200', '../assets/img/MembersProfile/solotheuri@yahoo.com_1735811791.png', 'Degree', 'Anjarwalla &amp; Khanna LLP', 2011, '../assets/Documents/MembersDocuments/solotheuri@yahoo.com_1735811791.pdf', 'Knowledge Management', 18, 'Anjarwalla &amp; Khanna LLP', 'Knowledge Management officer', '200-00600 ALN House, Eldama Ravine Close, Off Eldama Ravine Road, Westlands, Nairobi, Kenya', '', NULL, NULL, '$2y$10$sw78y4Ixo24uJUZL3YV1PuoG1y.dePrx42Dbs32IRXpG49xXaZrsC', '2025-01-02 09:56:31', 'Male'),
-('AGL/0007', 'Mercy Jeruto Osiri', 'jerutoosiri@gmail.com', '254720654054', '48994-00100 NAIROBI', '../assets/img/MembersProfile/jerutoosiri@gmail.com_1736498363.jpg', 'Degree', 'Moi University', 2014, '../assets/Documents/MembersDocuments/jerutoosiri@gmail.com_1736498363.pdf', 'Librarianship', 15, 'National Council for Population and Development', 'Principal Information and Documentation Officer', 'The Chancery Building, 4th floor, Valley Road, P.O. Box 48994-00100 Nairobi', '', NULL, NULL, '$2y$10$IJsPfW1rveaOktiqI6P9HeabEIM2Lh.k5zbc9p8Mt04FIyZ0JLeJa', '2025-01-10 08:39:23', 'Female'),
-('AGL/0008', 'Stephen Odemba', 'stephenodemba95@gmail.com', '254722657565', '34 - 80300', '../assets/img/MembersProfile/stephenodemba95@gmail.com_1736502373.jpg', 'Diploma', 'Rongo university', 2017, '../assets/Documents/MembersDocuments/stephenodemba95@gmail.com_1736502373.pdf', 'LIBRARIAN', 6, 'TAITA TAVETA NATIONAL POLYTECHNIC', 'ASSISTANT LIBRARIAN', '34- 80300', '', NULL, NULL, '$2y$10$zb0M.gXGCP9Bmlw5.m9kQuUwki8QY0O0XVGWjmabYspvczYZJLc.2', '2025-01-10 09:46:13', 'Male'),
-('AGL/0009', 'Jennifer Barmosho', 'jenteriki@gmail.com', '0722854506', '40530 00100', '../assets/img/MembersProfile/jenteriki@gmail.com_1738228390.jpg', 'Degree', 'University of South Afrika', 2009, '../assets/Documents/MembersDocuments/jenteriki@gmail.com_1738228390.pdf', 'Librarian', 22, 'Presidency', 'Assistant Director library services', 'State House', '', NULL, NULL, '$2y$10$SqgX5HCSvqfqjugreNTfl.iHQ6vp2N/GdG2l8S36c8ufeXSOGkXTG', '2025-01-30 09:13:10', 'Female'),
-('AGL/0010', 'Naomi Macharia', 'naomacharia@gmail.com', '254710281930', 'P.0 Box 30046-00100\r\nNairobi, Kenya', '../assets/img/MembersProfile/naomacharia@gmail.com_1739867256.jpg', 'Degree', 'Makerere University', 2009, '../assets/Documents/MembersDocuments/naomacharia@gmail.com_1739867256.pdf', 'Principal Librarian', 12, 'State Department for Lands and Physical Planning', 'State Department for Lands and Physical Planning', '30450-00100 Nairobi', '', NULL, NULL, '$2y$10$/sJJako68FhZIE2ZuBVkUem68IYD5d3/xssRgNDunD9QQQx4Ufwlq', '2025-02-18 08:27:37', 'Female'),
-('AGL/0011', 'Mary Amisi Okalo', 'okalomary@gmail.com ', '0723908350', '03, Emuhaya', '../assets/img/MembersProfile/okalomary@gmail.com_1742466624.png', 'Diploma', 'Sigalagala Technical Training Institute', 1999, '../assets/Documents/MembersDocuments/okalomary@gmail.com_1742466624.pdf', 'Librarian', 21, 'ministry of gender culture the arts and heritage', 'Principle  Library Assistant', '49849-00100, Nairobi-KNLS Building', '', NULL, NULL, '$2y$10$RtHxx9dAcsKYwwQWlPxgsuTPwqV.IrWOyQ6Gvt/YJnxB2gfjcTYF6', '2025-03-20 10:30:24', 'Female'),
-('AGL/0012', 'Joseph Mboji', 'jmboji@gmail.com', '0722384239', '5529-00100 Nairobi', '../assets/img/MembersProfile/jmboji@gmail.com_1742467205.jpg', 'Masters', 'Moi University', 2023, '../assets/Documents/MembersDocuments/jmboji@gmail.com_1742467205.jpg', 'Librarian', 30, 'ministry of agriculture and livestock development', 'Deputy Director, Library Services', '5529-00100 Nairobi', '', NULL, NULL, '$2y$10$aWqjvPwvXh0pLsUpg4akIOTqVC14KBZPZLlPybluiHH90PKjif5EC', '2025-03-20 10:40:05', 'Male'),
-('AGL/0013', 'MERCYLINE BIYAKI NYAKONI', 'biyaki480@gmail.com', '254711347478', 'P.O BOX 8847-00200', '../assets/img/MembersProfile/biyaki480@gmail.com_1743074963.jpg', 'Degree', 'moi university', -1, '../assets/Documents/MembersDocuments/biyaki480@gmail.com_1743074963.pdf', 'llibrarian Assistant', 15, 'TECHNICAL LIBRARY', 'KPLC-IESR', 'P.O box 30099-00100', '', NULL, NULL, '$2y$10$p9K6GY9u8g49Klqoa30wUe/Cgv4TsGEpxazo60WqxBVtPBf./jzF2', '2025-03-27 11:29:23', 'Female'),
-('AGL/0014', 'DANIELLA WATHOME', 'daniella.wathome@gmail.com', '0720959489', '58130-00200 NAIROBI', '../assets/img/MembersProfile/daniella.wathome@gmail.com_1749822073.jpg', 'Degree', 'MOI UNIVERSITY', 2015, '../assets/Documents/MembersDocuments/daniella.wathome@gmail.com_1749822073.pdf', 'LIBRARIAN', 20, 'MINISTRY OF INTERIOR AND NATIONAL ADMINISTRATION', 'HoD LIBRARY', '30510-00100 NAIROBI', '', NULL, NULL, '$2y$10$SIoy8d4nwHq3JEKRgTbY8Oh40IcUoJp3.8zvscdPsZaHAFEkUOLhC', '2025-06-13 13:41:13', 'Female'),
-('AGL/0015', 'lydia makena mwiti', 'makenamwiti31@gmail.com', '254724723625', '14 Meru', '../assets/img/MembersProfile/makenamwiti31@gmail.com_1754642380.jpg', 'Diploma', 'inter global institute embu', 2013, '../assets/Documents/MembersDocuments/makenamwiti31@gmail.com_1754642380.pdf', 'library assistant', 11, 'mount Kenya university', 'mount Kenya university', 'meru', '', NULL, NULL, '$2y$10$wWIQM1azwca9gdY3FST2iumv4.SiFDt8/aQPB/SnF4v75s2iPN5.W', '2025-08-08 08:39:40', 'Female'),
-('AGL/0016', 'RUTH KITUNGE KIILU', 'R.Kiilu@ombudsman.go.ke', '254714785913', 'West End Towers, 2nd Floor, Waiyaki Way\r\nP.O Box 20414-00200, Nairobi', '../assets/img/MembersProfile/R.Kiilu@ombudsman.go.ke_1754983473.jpeg', 'Degree', 'Moi University', 2016, '../assets/Documents/MembersDocuments/R.Kiilu@ombudsman.go.ke_1754983473.pdf', 'LIBRARIAN', 10, 'THE COMMISSION ON ADMINISTRATIVE JUSTICE (OFFICE OF THE OMBUDSMAN)', 'LIBRARIAN II', 'West End Towers, 2nd Floor, Waiyaki Way \r\nP.O BOX 20414-00200, NAIROBI\r\nTEL: 020 2270000', '254714785917', 'TITMF5Z5J6', '2025-09-29', '$2y$10$72IU1pVI/GyZD.ITcv3HEePPKsFvy/MsjEKWUecwFN7ujkigM3IYW', '2025-08-12 07:24:33', 'Female'),
-('AGL/0017', 'Sophie Auma Ouma', 'samsonsophie14@gmail.com', '0714392065', '401073', '../assets/img/MembersProfile/samsonsophie14@gmail.com_1758037566.jpg', 'Diploma', 'Intraglobal Training Institute', 2018, '../assets/Documents/MembersDocuments/samsonsophie14@gmail.com_1758037566.jpg', 'Records Management Officer', 15, 'Ministry of Foreign Affairs', 'Records Management Officer 1- Library unit', 'State Department of Foreign Affairs', '254714392065', 'TIG77IJ1E3', '2025-09-16', '$2y$10$/wGJQaS4oU3PX43bgZC7FuuyjinLWq7yo.Hy/5bT5MxR29dLNZ8S2', '2025-09-16 15:46:06', 'Female'),
-('AGL/0018', 'JUDY KEMUNTO MARIITA', 'judymariita856@gmail.com', '254716117316', 'N/A', '../assets/img/MembersProfile/judymariita856@gmail.com_1759309983.jpg', 'Degree', 'KENYATTA UNIVERSITY', 2017, '../assets/Documents/MembersDocuments/judymariita856@gmail.com_1759309983.pdf', 'LIBRARIAN', 5, 'KENYA POWER', 'LIBRARIAN', 'N/A', '', NULL, NULL, '$2y$10$lrejOpXY13RMX6SSEGxKP.yyWneKbGHwbZZ10q7Q/dTUrVVoxfSiO', '2025-10-01 09:13:03', 'Female'),
-('AGL/0019', 'STANLEY OCHIENG OUMA', 'stanleyouma4@gmail.com', '0791984152', '40', '../assets/img/MembersProfile/stanleyouma4@gmail.com_1768673219.jpg', 'Degree', 'LAIKIPIA UNIVERSITY', 2022, '../assets/Documents/MembersDocuments/stanleyouma4@gmail.com_1768673219.pdf', 'Bachelor of Library and Information Studies (Information Technology Option)', 1, 'N/A', 'SYSTEMS LIBRARIAN AT THE OPEN UNIVERSITY OF KENYA', 'N/A', '', NULL, NULL, '$2y$10$1HQUCtJMawz/4DlBKHP.COl.0Gf/MLC756hfaYY54O/NnweAm6ICa', '2026-01-17 18:06:59', 'Male'),
-('AGL/0020', 'Joel Sintamei Pose', 'jpose@knbs.or.ke', '0742850527', 'P.O.BOX 30266-0100', '../assets/img/MembersProfile/jpose@knbs.or.ke_1770606895.jpg', 'Degree', 'Chuka University', 2022, '../assets/Documents/MembersDocuments/jpose@knbs.or.ke_1770606895.pdf', 'Librarian', 3, 'KENYA NATIONAL BUREAU OF STATISTICS', 'KENYA NATIONAL BUREAU OF STATISTICS', 'P.O.BOX 30266-0100', '', NULL, NULL, '$2y$10$jQrXsGQjqgrbbFBRxQ3NceVMd1eKSaPK2YmmNyVNhHECdM3bO1ejy', '2026-02-09 03:14:55', 'Male'),
-('AGL/0021', 'Sharon Chepkemoi', 'chepkemoisharon333@gmail.com', '254704318525', 'Box 20, chesinende', '../assets/img/MembersProfile/chepkemoisharon333@gmail.com_1772176059.jpg', 'Diploma', 'Kenya Highlands university', 2019, '../assets/Documents/MembersDocuments/chepkemoisharon333@gmail.com_1772176059.jpg', 'Librarian', 3, 'Directorate of Criminal Investigation', 'Librarian, National criminal investigation academy', 'P. O. Box. 30036-00100,Nairobi , Kenya', '', NULL, NULL, '$2y$10$mmJOVJJGJt/0B8tDBoXhu.lk6j6dyGkhD5e/ley93o8vhPEiCRFfm', '2026-02-27 07:07:39', 'Female');
+('admin1', 'ALEX MAGANA', 'maganaalex634@gmail.com', '0748027123', '1072', 'uploads/passports/20260413_120053_pas.jpeg', 'Degree', 'St Pauls University', 2024, '../assets/Documents/MembersDocuments/maganaadmin@agl.or.ke_1730788146.pdf', 'Computer Science major', 5, 'Admin', 'Admin', '1072', '254748027123', 'TAJ4PAKREI', '2025-01-18', '$2y$12$6Z/MVAUyoOtJmix9.3eyVe9JHiMvBKSAL5luLU74WQS6FcfZqxQoa', '2024-10-02 15:27:15', 'Male'),
+('admin2', 'EUGENE MAKAU MUINDE', 'eugeneadmin@agl.or.ke', '0703689922', '35010 00100', '../assets/img/MembersProfile/eugenemakauadmin@agl.or.ke_1729070627.jpeg', 'Degree', 'MOI UNIVERSITY MAIN CAMPUS', 2024, '../assets/Documents/MembersDocuments/eugenemakauadmin@agl.or.ke_1729070627.pdf', 'INFORMATION SCIENTIST', 4, 'ADMIN', 'AGL', '+254703689922', '', NULL, NULL, '$2y$12$WaLquokPzeuGNqxSry.Vpe3m8X2Qe0tvRkh7XHgg6L2ZbFRDxuOni', '2024-10-16 09:23:47', 'Male'),
+('AGL/0001', 'JOASH AMINGA', '1.joashsan@gmail.com', '0722605048', '74434,00200', '../assets/img/MembersProfile/1.joashsan@gmail.com_1731910672.jpg', 'Degree', 'MOI UNIVERSITY MAIN CAMPUS', 2012, '../assets/Documents/MembersDocuments/1.joashsan@gmail.com_1731910672.pdf', 'INFORMATION PROFESSIONAL', 25, 'EXECUTIVE OFFICE OF THE DEPUTY PRESIDENT', 'EXECUTIVE OFFICE OF THE DEPUTY PRESIDENT', '74434,00200', '', NULL, NULL, '$2y$12$WaLquokPzeuGNqxSry.Vpe3m8X2Qe0tvRkh7XHgg6L2ZbFRDxuOni', '2024-11-18 06:17:52', 'Male'),
+('AGL/0002', 'Zuwena Chebet Cheruon', 'zchebet@kcaa.or.ke', '+254722502533', 'P.O Box 30163-00100                                                                    Nairobi, Kenya.                                                      Aviation House JKIA', '../assets/img/MembersProfile/zchebet@kcaa.or.ke_1730230920.jpg', 'Degree', 'Moi University', 2011, '../assets/Documents/MembersDocuments/zchebet@kcaa.or.ke_1730230920.pdf', 'Librarian', 15, 'Kenya Civil Aviation Authority', 'Technical Librarian', 'P.O Box 30163-00100                                             Nairobi Kenya\r\nAviation House-HQ JKIA', '', NULL, NULL, '$2y$12$WaLquokPzeuGNqxSry.Vpe3m8X2Qe0tvRkh7XHgg6L2ZbFRDxuOni', '2024-10-29 19:42:00', 'Female'),
+('AGL/0003', 'Mathew Nzuki', 'mmnzuki@gmail.com', '254727493402', 'Box 30163 - 00200 Nairobi', '../assets/img/MembersProfile/mmnzuki@gmail.com_1734425499.png', 'Degree', 'Kenyatta University', 2022, '../assets/Documents/MembersDocuments/mmnzuki@gmail.com_1734425499.pdf', 'Librarian', 16, 'East African School of Aviation - A training directorate of KCAA', 'Kenya Civil Aviation Authority', '30163 - 00200 Nairobi', '', NULL, NULL, '$2y$12$WaLquokPzeuGNqxSry.Vpe3m8X2Qe0tvRkh7XHgg6L2ZbFRDxuOni', '2024-12-17 08:51:39', 'Male'),
+('AGL/0004', 'NICHOLAS OTIENO HONGO', 'nickyz2014@gmail.com', '254714762802', '209-00618', '../assets/img/MembersProfile/nickyz2014@gmail.com_1734508117.jpg', 'Degree', 'KENYATTA UNIVERSITY', 2013, '../assets/Documents/MembersDocuments/nickyz2014@gmail.com_1734508117.pdf', 'LIBRARIAN', 11, 'DIRECTORATE OF PUBLIC PROSECUTIONS', 'LIBRARIAN/RECORDS MANAGEMENT OFFICER', 'ODPP House,\r\nRagati Road, Upper Hill.\r\nP.O. Box 30701-00100.\r\nNairobi, Kenya', '', NULL, NULL, '$2y$12$WaLquokPzeuGNqxSry.Vpe3m8X2Qe0tvRkh7XHgg6L2ZbFRDxuOni', '2024-12-18 07:48:37', 'Male'),
+('AGL/0005', 'Josphat Ndambuki', 'josphat.ndambuki@gmail.com', '0722918040', '74434 00200', '../assets/img/MembersProfile/josphat.ndambuki@gmail.com_1734591745.jpeg', 'Degree', 'Techinical University of Kenya', 2014, '../assets/Documents/MembersDocuments/josphat.ndambuki@gmail.com_1734591745.pdf', 'Librarian', 10, 'Office of The Deputy President', 'Librarian 1', '74434 00200', '', NULL, NULL, '$2y$12$WaLquokPzeuGNqxSry.Vpe3m8X2Qe0tvRkh7XHgg6L2ZbFRDxuOni', '2024-12-19 07:02:25', 'Male'),
+('AGL/0006', 'Solomon Theuri Kimani', 'solotheuri@yahoo.com', '254722582102', '35728-00200', '../assets/img/MembersProfile/solotheuri@yahoo.com_1735811791.png', 'Degree', 'Anjarwalla &amp; Khanna LLP', 2011, '../assets/Documents/MembersDocuments/solotheuri@yahoo.com_1735811791.pdf', 'Knowledge Management', 18, 'Anjarwalla &amp; Khanna LLP', 'Knowledge Management officer', '200-00600 ALN House, Eldama Ravine Close, Off Eldama Ravine Road, Westlands, Nairobi, Kenya', '', NULL, NULL, '$2y$12$WaLquokPzeuGNqxSry.Vpe3m8X2Qe0tvRkh7XHgg6L2ZbFRDxuOni', '2025-01-02 09:56:31', 'Male'),
+('AGL/0007', 'Mercy Jeruto Osiri', 'jerutoosiri@gmail.com', '254720654054', '48994-00100 NAIROBI', '../assets/img/MembersProfile/jerutoosiri@gmail.com_1736498363.jpg', 'Degree', 'Moi University', 2014, '../assets/Documents/MembersDocuments/jerutoosiri@gmail.com_1736498363.pdf', 'Librarianship', 15, 'National Council for Population and Development', 'Principal Information and Documentation Officer', 'The Chancery Building, 4th floor, Valley Road, P.O. Box 48994-00100 Nairobi', '', NULL, NULL, '$2y$12$WaLquokPzeuGNqxSry.Vpe3m8X2Qe0tvRkh7XHgg6L2ZbFRDxuOni', '2025-01-10 08:39:23', 'Female'),
+('AGL/0008', 'Stephen Odemba', 'stephenodemba95@gmail.com', '254722657565', '34 - 80300', '../assets/img/MembersProfile/stephenodemba95@gmail.com_1736502373.jpg', 'Diploma', 'Rongo university', 2017, '../assets/Documents/MembersDocuments/stephenodemba95@gmail.com_1736502373.pdf', 'LIBRARIAN', 6, 'TAITA TAVETA NATIONAL POLYTECHNIC', 'ASSISTANT LIBRARIAN', '34- 80300', '', NULL, NULL, '$2y$12$WaLquokPzeuGNqxSry.Vpe3m8X2Qe0tvRkh7XHgg6L2ZbFRDxuOni', '2025-01-10 09:46:13', 'Male'),
+('AGL/0009', 'Jennifer Barmosho', 'jenteriki@gmail.com', '0722854506', '40530 00100', '../assets/img/MembersProfile/jenteriki@gmail.com_1738228390.jpg', 'Degree', 'University of South Afrika', 2009, '../assets/Documents/MembersDocuments/jenteriki@gmail.com_1738228390.pdf', 'Librarian', 22, 'Presidency', 'Assistant Director library services', 'State House', '', NULL, NULL, '$2y$12$WaLquokPzeuGNqxSry.Vpe3m8X2Qe0tvRkh7XHgg6L2ZbFRDxuOni', '2025-01-30 09:13:10', 'Female'),
+('AGL/0010', 'Naomi Macharia', 'naomacharia@gmail.com', '254710281930', 'P.0 Box 30046-00100\r\nNairobi, Kenya', '../assets/img/MembersProfile/naomacharia@gmail.com_1739867256.jpg', 'Degree', 'Makerere University', 2009, '../assets/Documents/MembersDocuments/naomacharia@gmail.com_1739867256.pdf', 'Principal Librarian', 12, 'State Department for Lands and Physical Planning', 'State Department for Lands and Physical Planning', '30450-00100 Nairobi', '', NULL, NULL, '$2y$12$WaLquokPzeuGNqxSry.Vpe3m8X2Qe0tvRkh7XHgg6L2ZbFRDxuOni', '2025-02-18 08:27:37', 'Female'),
+('AGL/0011', 'Mary Amisi Okalo', 'okalomary@gmail.com ', '0723908350', '03, Emuhaya', '../assets/img/MembersProfile/okalomary@gmail.com_1742466624.png', 'Diploma', 'Sigalagala Technical Training Institute', 1999, '../assets/Documents/MembersDocuments/okalomary@gmail.com_1742466624.pdf', 'Librarian', 21, 'ministry of gender culture the arts and heritage', 'Principle  Library Assistant', '49849-00100, Nairobi-KNLS Building', '', NULL, NULL, '$2y$12$WaLquokPzeuGNqxSry.Vpe3m8X2Qe0tvRkh7XHgg6L2ZbFRDxuOni', '2025-03-20 10:30:24', 'Female'),
+('AGL/0012', 'Joseph Mboji', 'jmboji@gmail.com', '0722384239', '5529-00100 Nairobi', '../assets/img/MembersProfile/jmboji@gmail.com_1742467205.jpg', 'Masters', 'Moi University', 2023, '../assets/Documents/MembersDocuments/jmboji@gmail.com_1742467205.jpg', 'Librarian', 30, 'ministry of agriculture and livestock development', 'Deputy Director, Library Services', '5529-00100 Nairobi', '', NULL, NULL, '$2y$12$WaLquokPzeuGNqxSry.Vpe3m8X2Qe0tvRkh7XHgg6L2ZbFRDxuOni', '2025-03-20 10:40:05', 'Male'),
+('AGL/0013', 'MERCYLINE BIYAKI NYAKONI', 'biyaki480@gmail.com', '254711347478', 'P.O BOX 8847-00200', '../assets/img/MembersProfile/biyaki480@gmail.com_1743074963.jpg', 'Degree', 'moi university', -1, '../assets/Documents/MembersDocuments/biyaki480@gmail.com_1743074963.pdf', 'llibrarian Assistant', 15, 'TECHNICAL LIBRARY', 'KPLC-IESR', 'P.O box 30099-00100', '', NULL, NULL, '$2y$12$WaLquokPzeuGNqxSry.Vpe3m8X2Qe0tvRkh7XHgg6L2ZbFRDxuOni', '2025-03-27 11:29:23', 'Female'),
+('AGL/0014', 'DANIELLA WATHOME', 'daniella.wathome@gmail.com', '0720959489', '58130-00200 NAIROBI', '../assets/img/MembersProfile/daniella.wathome@gmail.com_1749822073.jpg', 'Degree', 'MOI UNIVERSITY', 2015, '../assets/Documents/MembersDocuments/daniella.wathome@gmail.com_1749822073.pdf', 'LIBRARIAN', 20, 'MINISTRY OF INTERIOR AND NATIONAL ADMINISTRATION', 'HoD LIBRARY', '30510-00100 NAIROBI', '', NULL, NULL, '$2y$12$WaLquokPzeuGNqxSry.Vpe3m8X2Qe0tvRkh7XHgg6L2ZbFRDxuOni', '2025-06-13 13:41:13', 'Female'),
+('AGL/0015', 'lydia makena mwiti', 'makenamwiti31@gmail.com', '254724723625', '14 Meru', '../assets/img/MembersProfile/makenamwiti31@gmail.com_1754642380.jpg', 'Diploma', 'inter global institute embu', 2013, '../assets/Documents/MembersDocuments/makenamwiti31@gmail.com_1754642380.pdf', 'library assistant', 11, 'mount Kenya university', 'mount Kenya university', 'meru', '', NULL, NULL, '$2y$12$WaLquokPzeuGNqxSry.Vpe3m8X2Qe0tvRkh7XHgg6L2ZbFRDxuOni', '2025-08-08 08:39:40', 'Female'),
+('AGL/0016', 'RUTH KITUNGE KIILU', 'R.Kiilu@ombudsman.go.ke', '254714785913', 'West End Towers, 2nd Floor, Waiyaki Way\r\nP.O Box 20414-00200, Nairobi', '../assets/img/MembersProfile/R.Kiilu@ombudsman.go.ke_1754983473.jpeg', 'Degree', 'Moi University', 2016, '../assets/Documents/MembersDocuments/R.Kiilu@ombudsman.go.ke_1754983473.pdf', 'LIBRARIAN', 10, 'THE COMMISSION ON ADMINISTRATIVE JUSTICE (OFFICE OF THE OMBUDSMAN)', 'LIBRARIAN II', 'West End Towers, 2nd Floor, Waiyaki Way \r\nP.O BOX 20414-00200, NAIROBI\r\nTEL: 020 2270000', '254714785917', 'TITMF5Z5J6', '2025-09-29', '$2y$12$WaLquokPzeuGNqxSry.Vpe3m8X2Qe0tvRkh7XHgg6L2ZbFRDxuOni', '2025-08-12 07:24:33', 'Female'),
+('AGL/0017', 'Sophie Auma Ouma', 'samsonsophie14@gmail.com', '0714392065', '401073', '../assets/img/MembersProfile/samsonsophie14@gmail.com_1758037566.jpg', 'Diploma', 'Intraglobal Training Institute', 2018, '../assets/Documents/MembersDocuments/samsonsophie14@gmail.com_1758037566.jpg', 'Records Management Officer', 15, 'Ministry of Foreign Affairs', 'Records Management Officer 1- Library unit', 'State Department of Foreign Affairs', '254714392065', 'TIG77IJ1E3', '2025-09-16', '$2y$12$WaLquokPzeuGNqxSry.Vpe3m8X2Qe0tvRkh7XHgg6L2ZbFRDxuOni', '2025-09-16 15:46:06', 'Female'),
+('AGL/0018', 'JUDY KEMUNTO MARIITA', 'judymariita856@gmail.com', '254716117316', 'N/A', '../assets/img/MembersProfile/judymariita856@gmail.com_1759309983.jpg', 'Degree', 'KENYATTA UNIVERSITY', 2017, '../assets/Documents/MembersDocuments/judymariita856@gmail.com_1759309983.pdf', 'LIBRARIAN', 5, 'KENYA POWER', 'LIBRARIAN', 'N/A', '', NULL, NULL, '$2y$12$WaLquokPzeuGNqxSry.Vpe3m8X2Qe0tvRkh7XHgg6L2ZbFRDxuOni', '2025-10-01 09:13:03', 'Female'),
+('AGL/0019', 'STANLEY OCHIENG OUMA', 'stanleyouma4@gmail.com', '0791984152', '40', '../assets/img/MembersProfile/stanleyouma4@gmail.com_1768673219.jpg', 'Degree', 'LAIKIPIA UNIVERSITY', 2022, '../assets/Documents/MembersDocuments/stanleyouma4@gmail.com_1768673219.pdf', 'Bachelor of Library and Information Studies (Information Technology Option)', 1, 'N/A', 'SYSTEMS LIBRARIAN AT THE OPEN UNIVERSITY OF KENYA', 'N/A', '', NULL, NULL, '$2y$12$WaLquokPzeuGNqxSry.Vpe3m8X2Qe0tvRkh7XHgg6L2ZbFRDxuOni', '2026-01-17 18:06:59', 'Male'),
+('AGL/0020', 'Joel Sintamei Pose', 'jpose@knbs.or.ke', '0742850527', 'P.O.BOX 30266-0100', '../assets/img/MembersProfile/jpose@knbs.or.ke_1770606895.jpg', 'Degree', 'Chuka University', 2022, '../assets/Documents/MembersDocuments/jpose@knbs.or.ke_1770606895.pdf', 'Librarian', 3, 'KENYA NATIONAL BUREAU OF STATISTICS', 'KENYA NATIONAL BUREAU OF STATISTICS', 'P.O.BOX 30266-0100', '', NULL, NULL, '$2y$12$WaLquokPzeuGNqxSry.Vpe3m8X2Qe0tvRkh7XHgg6L2ZbFRDxuOni', '2026-02-09 03:14:55', 'Male'),
+('AGL/0021', 'Sharon Chepkemoi', 'chepkemoisharon333@gmail.com', '254704318525', 'Box 20, chesinende', '../assets/img/MembersProfile/chepkemoisharon333@gmail.com_1772176059.jpg', 'Diploma', 'Kenya Highlands university', 2019, '../assets/Documents/MembersDocuments/chepkemoisharon333@gmail.com_1772176059.jpg', 'Librarian', 3, 'Directorate of Criminal Investigation', 'Librarian, National criminal investigation academy', 'P. O. Box. 30036-00100,Nairobi , Kenya', '', NULL, NULL, '$2y$12$WaLquokPzeuGNqxSry.Vpe3m8X2Qe0tvRkh7XHgg6L2ZbFRDxuOni', '2026-02-27 07:07:39', 'Female');
 
 -- --------------------------------------------------------
 
@@ -605,7 +680,8 @@ CREATE TABLE `plannedevent` (
 
 INSERT INTO `plannedevent` (`id`, `event_name`, `event_image_path`, `event_description`, `event_location`, `event_date`, `created_at`, `RegistrationAmount`) VALUES
 (31, 'The Future and Dynamics of Government  Libraries in Kenya', '../assets/img/PlannedEvent/1739791768_The_Future_and_Dynamics_of_Government__Libraries_in_Kenya.jpg', '<p>The event will be held from the 23rd of March to the 29th of March, 2025.</p>', 'Plaza Beach Hotel Mombasa', '2025-03-23', '2025-02-17 11:29:28', 0.00),
-(32, 'LIBRARIES OR AI? WHO STOLE WHO?', '../assets/img/PlannedEvent/1758789145_LIBRARIES_OR_AI?_WHO_STOLE_WHO?.png', '<p><strong>INTRODUCTION</strong></p><p><br /></p><p>The rapid rise of Artificial Intelligence (AI) is reshaping how societies create, share, and consume knowledge. Librariesâ€”long considered custodians of cultural memory and gateways to knowledgeâ€”are now positioned at the crossroads of tradition and technology.</p><p>This forum asks the central question:</p><p> <strong>â€œLibraries or AIâ€”who stole what from who?â€</strong></p><p>It explores the cultural, ethical, and professional dimensions of managing information in the digital age. With Africaâ€™s diverse knowledge systems at risk, the dialogue aims to highlight opportunities for <strong>collaboration, preservation, and innovation.</strong></p><p><br /></p><h3><strong>Objectives</strong></h3><ul><li><strong>Examine the role of libraries and librarians</strong> in shaping cultural representation in the AI era.</li><li><strong>Explore how AI bridges or widens cultural and knowledge gaps,</strong> with a focus on African contexts.</li><li><strong>Position libraries as strategic actors</strong> in knowledge management, talent retention, and cultural memory preservation.</li><li><strong>Engage professionals on wellness and ethics</strong> as foundational pillars for the future of information work.</li></ul><p><br /></p><h3><strong>Why Attend</strong></h3><ul><li>Gain fresh insights into the intersection of <strong>AI, libraries, and African cultural identity.</strong></li><li>Explore practical approaches to <strong>bridging digital and cultural divides.</strong></li><li>Learn strategies for managing knowledge while prioritizing <strong>ethics, wellness, and professional growth.</strong></li><li>Participate in an open dialogue on <strong>whose stories are told, preserved, and transformed</strong> in the AI era.</li></ul><p><br /></p><p><br /></p><h3><strong>Subthemes</strong></h3><ul><li>African Cultural Information in AI (Open Forum)</li><li>Transformational Libraries and Librarians</li><li>AI for All: Bridging Cultural Gaps through Intelligence</li><li>Libraries as Cultural Mediators in the AI Era</li><li>Whose Story Gets Told? AI, Bias, and Cultural Representation in Libraries</li><li>Knowledge Management: Strategic Approaches to Future Challenges and Talent Retention</li><li>Libraries as Creators and Curators of Information</li><li>Story Keepers: Libraries as Cultural Memory Banks</li><li>Wellness: Mental Health and Nutrition</li><li>Professional Ethics in the Information World</li></ul><p><br /></p><p><br /></p><p><br /></p><p><br /></p><p><br /></p><p><br /></p><p><br /></p>', 'Tom Mboya Labour College-KISUMU', '2025-10-27', '2025-09-25 08:32:25', 0.00);
+(32, 'LIBRARIES OR AI? WHO STOLE WHO?', '../assets/img/PlannedEvent/1758789145_LIBRARIES_OR_AI?_WHO_STOLE_WHO?.png', '<p><strong>INTRODUCTION</strong></p><p><br /></p><p>The rapid rise of Artificial Intelligence (AI) is reshaping how societies create, share, and consume knowledge. Librariesâ€”long considered custodians of cultural memory and gateways to knowledgeâ€”are now positioned at the crossroads of tradition and technology.</p><p>This forum asks the central question:</p><p> <strong>â€œLibraries or AIâ€”who stole what from who?â€</strong></p><p>It explores the cultural, ethical, and professional dimensions of managing information in the digital age. With Africaâ€™s diverse knowledge systems at risk, the dialogue aims to highlight opportunities for <strong>collaboration, preservation, and innovation.</strong></p><p><br /></p><h3><strong>Objectives</strong></h3><ul><li><strong>Examine the role of libraries and librarians</strong> in shaping cultural representation in the AI era.</li><li><strong>Explore how AI bridges or widens cultural and knowledge gaps,</strong> with a focus on African contexts.</li><li><strong>Position libraries as strategic actors</strong> in knowledge management, talent retention, and cultural memory preservation.</li><li><strong>Engage professionals on wellness and ethics</strong> as foundational pillars for the future of information work.</li></ul><p><br /></p><h3><strong>Why Attend</strong></h3><ul><li>Gain fresh insights into the intersection of <strong>AI, libraries, and African cultural identity.</strong></li><li>Explore practical approaches to <strong>bridging digital and cultural divides.</strong></li><li>Learn strategies for managing knowledge while prioritizing <strong>ethics, wellness, and professional growth.</strong></li><li>Participate in an open dialogue on <strong>whose stories are told, preserved, and transformed</strong> in the AI era.</li></ul><p><br /></p><p><br /></p><h3><strong>Subthemes</strong></h3><ul><li>African Cultural Information in AI (Open Forum)</li><li>Transformational Libraries and Librarians</li><li>AI for All: Bridging Cultural Gaps through Intelligence</li><li>Libraries as Cultural Mediators in the AI Era</li><li>Whose Story Gets Told? AI, Bias, and Cultural Representation in Libraries</li><li>Knowledge Management: Strategic Approaches to Future Challenges and Talent Retention</li><li>Libraries as Creators and Curators of Information</li><li>Story Keepers: Libraries as Cultural Memory Banks</li><li>Wellness: Mental Health and Nutrition</li><li>Professional Ethics in the Information World</li></ul><p><br /></p><p><br /></p><p><br /></p><p><br /></p><p><br /></p><p><br /></p><p><br /></p>', 'Tom Mboya Labour College-KISUMU', '2025-10-27', '2025-09-25 08:32:25', 0.00),
+(33, 'TEST', '../assets/img/PlannedEvent/default.jpg', '<p>test</p>', 'mombasa', '2026-04-22', '2026-04-15 13:04:20', 1.00);
 
 --
 -- Indexes for dumped tables
@@ -615,6 +691,19 @@ INSERT INTO `plannedevent` (`id`, `event_name`, `event_image_path`, `event_descr
 -- Indexes for table `blog_posts`
 --
 ALTER TABLE `blog_posts`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `directmpesapayments`
+--
+ALTER TABLE `directmpesapayments`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `MpesaReceiptNumber` (`MpesaReceiptNumber`);
+
+--
+-- Indexes for table `event_registrations`
+--
+ALTER TABLE `event_registrations`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -646,6 +735,13 @@ ALTER TABLE `mpesa_transactions`
 --
 ALTER TABLE `officialmessages`
   ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `organisationinnermembers`
+--
+ALTER TABLE `organisationinnermembers`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `unique_email` (`email`);
 
 --
 -- Indexes for table `organizationmembership`
@@ -680,19 +776,31 @@ ALTER TABLE `plannedevent`
 -- AUTO_INCREMENT for table `blog_posts`
 --
 ALTER TABLE `blog_posts`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+
+--
+-- AUTO_INCREMENT for table `directmpesapayments`
+--
+ALTER TABLE `directmpesapayments`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `event_registrations`
+--
+ALTER TABLE `event_registrations`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- AUTO_INCREMENT for table `invoices`
 --
 ALTER TABLE `invoices`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 
 --
 -- AUTO_INCREMENT for table `membermessages`
 --
 ALTER TABLE `membermessages`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- AUTO_INCREMENT for table `member_payments`
@@ -707,16 +815,22 @@ ALTER TABLE `officialmessages`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
+-- AUTO_INCREMENT for table `organisationinnermembers`
+--
+ALTER TABLE `organisationinnermembers`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
 -- AUTO_INCREMENT for table `pastevents`
 --
 ALTER TABLE `pastevents`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `plannedevent`
 --
 ALTER TABLE `plannedevent`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=33;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
