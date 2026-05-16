@@ -1,4 +1,5 @@
-const API_BASE_URL = "/api";
+// Use VITE_API_BASE_URL in production, fallback to /api for dev proxy
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
 
 async function postData<T>(endpoint: string, data: T): Promise<{ success: boolean; message: string }> {
   try {

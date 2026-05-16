@@ -13,8 +13,23 @@ import mysql.connector
 
 app = Flask(__name__)
 
-# CORS configuration
-CORS(app, supports_credentials=True, origins=["http://localhost:5173", "http://localhost:3000", "http://localhost:8080", "http://192.168.0.110:8080", "https://agl-member-haven.vercel.app"])
+# CORS configuration - Accept requests from all trusted origins
+# For development: localhost, 127.0.0.1, and local network IPs
+# For production: add your domain explicitly
+allowed_origins = [
+    "http://localhost:5173",
+    "http://localhost:3000",
+    "http://localhost:8080",
+    "http://127.0.0.1:8080",
+    "http://127.0.0.1:5173",
+    "http://127.0.0.1:3000",
+    "http://192.168.0.110:8080",
+    "http://192.168.137.1:8080",
+    "https://agl-member-haven.vercel.app",
+    "https://fadschool.fad.co.ke",
+    "https://member.log.agl.or.ke",
+]
+CORS(app, supports_credentials=True, origins=allowed_origins)
 
 # Database configuration variables (read from .env)
 DB_HOST = os.environ.get("DB_HOST")
@@ -27,9 +42,13 @@ app.config['SESSION_TYPE'] = 'filesystem'
 app.config['SESSION_PERMANENT'] = True
 app.config['PERMANENT_SESSION_LIFETIME'] = 86400  # 24 hours
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
-app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+
+# Session cookie settings for cross-domain/cross-IP requests
+# SameSite=None allows cookies to be sent with cross-site requests (necessary for separate frontend/backend)
+# SECURE must be True in production (HTTPS) but can be False in development (HTTP)
+app.config['SESSION_COOKIE_SAMESITE'] = 'None'
 app.config['SESSION_COOKIE_HTTPONLY'] = True
-app.config['SESSION_COOKIE_SECURE'] = False  # Dev only
+app.config['SESSION_COOKIE_SECURE'] = os.environ.get('FLASK_ENV') == 'production'  # True for HTTPS, False for HTTP dev
 Session(app)
 
 # directory where uploaded files will be stored

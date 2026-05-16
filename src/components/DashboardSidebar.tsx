@@ -117,7 +117,8 @@ export function DashboardSidebar() {
   useEffect(() => {
     const checkUserSession = async () => {
       try {
-        const response = await fetch("/api/auth/session", {
+        const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+        const response = await fetch(`${API_BASE_URL}/api/auth/session`, {
           credentials: "include",
         });
         const data = await response.json();

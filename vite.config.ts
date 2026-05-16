@@ -1,3 +1,5 @@
+// Vite configuration file
+
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
@@ -12,6 +14,9 @@ export default defineConfig(({ mode }) => ({
       "/api": {
         target: "http://localhost:5000",
         changeOrigin: true,
+        // Ensure browser cookies/session are forwarded to Flask
+        // so Flask's server-side session works across /api calls.
+        credentials: true,
       },
     },
     hmr: {
