@@ -69,8 +69,19 @@ app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-i
 # app.config['SESSION_COOKIE_SECURE'] = False  # Dev only
 app.config['SESSION_COOKIE_SAMESITE'] = 'None'
 app.config['SESSION_COOKIE_HTTPONLY'] = True
-app.config['SESSION_COOKIE_SECURE'] = True
+
+# Dev vs Prod cookie security:
+# - In dev your frontend is on http://localhost:8080 (non-HTTPS)
+#   so the session cookie must NOT be marked Secure.
+# - In production, keep Secure=True so cookies are sent only over HTTPS.
+is_local_dev = os.environ.get("FLASK_ENV") == "development" or os.environ.get("DEV") == "1" or os.environ.get("NODE_ENV") == "development"
+# Also treat plain localhost origins as dev if you didn't set env flags.
+frontend_origin = os.environ.get("FRONTEND_ORIGIN", "")
+is_https = (frontend_origin.startswith("https://"))
+app.config['SESSION_COOKIE_SECURE'] = bool((not is_local_dev) and is_https)
+
 Session(app)
+
 
 # directory where uploaded files will be stored
 UPLOAD_DIR = os.environ.get("UPLOAD_DIR", "uploads")

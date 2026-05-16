@@ -1,9 +1,8 @@
 # TODO
 
-## DashboardSidebar.tsx - Replace SidebarGroupLabel text with AGL logo
-- [x] Inspect DashboardSidebar.tsx current import(s) and sidebar label usage
-- [x] Replace the “Navigation” label with the AGLlogo.png (assets/src/assets/AGLlogo.png)
-- [ ] Ensure image renders correctly for collapsed/expanded sidebar
-- [x] Run lint/typecheck (if available) or build to confirm no TS errors
+- [x] Update `backend/app.py` session cookie configuration so `SESSION_COOKIE_SECURE` is `False` on localhost/http and `True` on production/https.
 
+- [ ] Restart backend.
+- [ ] Re-test: login then call `GET /api/dashboard/user-info/profile` from frontend on `http://localhost:8080`.
+- [ ] Verify dashboard loads season/profile data (no 401 from profile endpoint).
 
