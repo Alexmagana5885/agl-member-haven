@@ -1,6 +1,8 @@
 import { MemberType } from "@/services/members";
 
-const API_BASE_URL = "/api";
+// const API_BASE_URL = "/api";
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 function buildDownloadName(path: string | null | undefined, fallback: string) {
   if (!path) return fallback;
@@ -46,7 +48,7 @@ export async function downloadCompletionLetter(
 
 export function getPassportImageUrl(type: MemberType, memberId: string, passportPath: string) {
   // The API returns the image directly. The path is passed for security/lookup.
-  const url = new URL(`${API_BASE_URL}/admin/members/${type}/${memberId}/passport-image`, window.location.origin);
+  const url = new URL(`${API_BASE_URL}/api/admin/members/${type}/${memberId}/passport-image`, window.location.origin);
   url.searchParams.set("path", passportPath);
   return url.toString();
 }
