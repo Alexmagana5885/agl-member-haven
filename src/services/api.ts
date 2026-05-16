@@ -1,4 +1,5 @@
-const API_BASE_URL = "/api";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 
 async function postData<T>(endpoint: string, data: T): Promise<{ success: boolean; message: string }> {
   try {
@@ -243,11 +244,11 @@ export interface ProfileUpdatePayload {
 }
 
 export async function getProfileData(): Promise<ProfileData> {
-  return fetchData("/dashboard/user-info/profile");
+  return fetchData(`${API_BASE_URL}/dashboard/user-info/profile`);
 }
 
 export function updateProfileData(data: ProfileUpdatePayload) {
-  return putData("/dashboard/user-info/profile", data);
+  return putData(`${API_BASE_URL}/dashboard/user-info/profile`, data);
 }
 
 export async function uploadProfileImage(file: File): Promise<{status: string, image_path: string}> {
@@ -285,12 +286,12 @@ export interface Invoice {
 }
 
 export async function getMyInvoices(): Promise<{ invoices: Invoice[] }> {
-  const data = await fetchData("/invoices/my-invoices");
+  const data = await fetchData(`${API_BASE_URL}/invoices/my-invoices`);
   return data;
 }
 
 export async function getSingleBlog(blogId: string): Promise<Blog> {
-  const data = await fetchData(`/admin/blogs/${blogId}`);
+  const data = await fetchData(`${API_BASE_URL}/admin/blogs/${blogId}`);
   if (!data.success || !data.blog) {
     throw new Error("Blog not found");
   }
