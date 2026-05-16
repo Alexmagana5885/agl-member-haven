@@ -1,9 +1,5 @@
 import { fetchData } from "./api";
 
-// ─────────────────────────────
-// TYPES
-// ─────────────────────────────
-
 export interface PlannedEvent {
   id: number;
   event_name: string;
@@ -15,9 +11,7 @@ export interface PlannedEvent {
   RegistrationAmount: number;
 }
 
-// ─────────────────────────────
 // EVENTS API FUNCTIONS
-// ─────────────────────────────
 
 export async function getPlannedEvents(): Promise<PlannedEvent[]> {
   const data = await fetchData("/admin/planned-events");

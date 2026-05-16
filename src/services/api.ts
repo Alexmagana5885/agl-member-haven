@@ -1,12 +1,8 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-// ─────────────────────────────
-// CORE REQUEST HELPERS
-// ─────────────────────────────
-
 async function postData<T>(
   endpoint: string,
-  data: T
+  data: T,
 ): Promise<{ success: boolean; message: string }> {
   const response = await fetch(`${API_BASE_URL}/api${endpoint}`, {
     method: "POST",
@@ -25,7 +21,7 @@ async function postData<T>(
 
 async function putData<T>(
   endpoint: string,
-  data: T
+  data: T,
 ): Promise<{ success: boolean; message: string }> {
   const response = await fetch(`${API_BASE_URL}/api${endpoint}`, {
     method: "PUT",
@@ -58,9 +54,7 @@ async function fetchData(endpoint: string): Promise<any> {
 
 export { fetchData };
 
-// ─────────────────────────────
 // EVENTS / BLOG / MESSAGES
-// ─────────────────────────────
 
 export interface PlannedEventPayload {
   title: string;
@@ -73,7 +67,6 @@ export interface PlannedEventPayload {
 export function createPlannedEvent(data: PlannedEventPayload) {
   return postData("/admin/planned-events", data);
 }
-
 
 export interface PastEventPayload {
   title: string;
@@ -110,9 +103,7 @@ export function sendMessage(data: MessagePayload) {
   return postData("/admin/messages", data);
 }
 
-// ─────────────────────────────
 // SEARCH MEMBERS
-// ─────────────────────────────
 
 export interface MemberSearchResult {
   id: string;
@@ -121,10 +112,12 @@ export interface MemberSearchResult {
   member_type: "personal" | "organization";
 }
 
-export async function searchMembers(query: string): Promise<MemberSearchResult[]> {
+export async function searchMembers(
+  query: string,
+): Promise<MemberSearchResult[]> {
   const response = await fetch(
     `${API_BASE_URL}/api/admin/messages/members/search?q=${encodeURIComponent(query)}&limit=20`,
-    { credentials: "include" }
+    { credentials: "include" },
   );
 
   if (!response.ok) throw new Error(`Request failed (${response.status})`);
@@ -133,9 +126,7 @@ export async function searchMembers(query: string): Promise<MemberSearchResult[]
   return data.members || [];
 }
 
-// ─────────────────────────────
 // USER MESSAGES
-// ─────────────────────────────
 
 export interface UserMessage {
   id: number;
@@ -149,9 +140,12 @@ export interface UserMessage {
 }
 
 export async function getUserMessages(): Promise<UserMessage[]> {
-  const response = await fetch(`${API_BASE_URL}/api/admin/messages/my-messages`, {
-    credentials: "include",
-  });
+  const response = await fetch(
+    `${API_BASE_URL}/api/admin/messages/my-messages`,
+    {
+      credentials: "include",
+    },
+  );
 
   if (!response.ok) throw new Error(`Request failed (${response.status})`);
 
@@ -168,9 +162,7 @@ export function replyToMessage(data: ReplyPayload) {
   return postData("/admin/messages/reply", data);
 }
 
-// ─────────────────────────────
 // PAYMENTS
-// ─────────────────────────────
 
 export interface PaymentPayload {
   email: string;
@@ -204,9 +196,7 @@ export function registerForEvent(data: EventRegistrationPayload) {
   return postData("/payments/events/register", data);
 }
 
-// ─────────────────────────────
 // PROFILE
-// ─────────────────────────────
 
 export interface BillToData {
   member_type: "personal" | "organization";
@@ -270,7 +260,7 @@ export async function uploadProfileImage(file: File) {
       method: "POST",
       credentials: "include",
       body: formData,
-    }
+    },
   );
 
   if (!response.ok) {
@@ -281,9 +271,7 @@ export async function uploadProfileImage(file: File) {
   return response.json();
 }
 
-// ─────────────────────────────
 // BLOG + INVOICES
-// ─────────────────────────────
 
 export interface Blog {
   id: number;
@@ -315,12 +303,11 @@ export async function getSingleBlog(blogId: string): Promise<Blog> {
   return data.blog;
 }
 
-// ─────────────────────────────
 // EVENTS (FIXED EXPORTS)
-// ─────────────────────────────
 
 export async function getPlannedEvents() {
-  return fetchData("/admin/planned-events");
+  const data = await fetchData("/admin/planned-events");
+  return data?.events || [];
 }
 
 export async function getPastEvents() {
@@ -328,9 +315,7 @@ export async function getPastEvents() {
 }
 
 export async function getRegisteredEvents(email: string) {
-  return fetchData(
-    `/events/registered?email=${encodeURIComponent(email)}`
-  );
+  return fetchData(`/events/registered?email=${encodeURIComponent(email)}`);
 }
 
 export async function getBlogs() {
