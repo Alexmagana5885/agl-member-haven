@@ -1,6 +1,8 @@
 // My Members CRUD service (organization members only)
 
-const API_BASE_URL = "/api";
+// const API_BASE_URL = "/api";
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 async function getJson<T>(endpoint: string): Promise<T> {
   const res = await fetch(`${API_BASE_URL}${endpoint}`, {
@@ -16,7 +18,7 @@ async function getJson<T>(endpoint: string): Promise<T> {
 }
 
 async function postJson<TReq, TRes>(endpoint: string, body: TReq, method: "POST" | "PUT" | "DELETE"): Promise<TRes> {
-  const res = await fetch(`${API_BASE_URL}${endpoint}`, {
+  const res = await fetch(`${API_BASE_URL}/api/${endpoint}`, {
     method,
     headers: { "Content-Type": "application/json" },
     credentials: "include",

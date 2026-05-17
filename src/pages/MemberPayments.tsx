@@ -35,6 +35,7 @@ const MemberPaymentsPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   useEffect(() => {
     fetchPayments();
@@ -43,7 +44,10 @@ const MemberPaymentsPage = () => {
   const fetchPayments = async () => {
     try {
       setLoading(true);
-      const response = await fetch("/api/admin/payments/member-payments", { credentials: "include" });
+      const response = await fetch(
+        `${API_BASE_URL}/api/admin/payments/member-payments`,
+        { credentials: "include" },
+      );
 
       if (!response.ok) {
         throw new Error("Failed to fetch payments");
@@ -177,62 +181,66 @@ const MemberPaymentsPage = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {payments.filter((m) => {
-                      if (!searchTerm.trim()) return true;
-                      const term = searchTerm.toLowerCase();
-                      return (
-                        m.name.toLowerCase().includes(term) ||
-                        m.contacts.email.toLowerCase().includes(term) ||
-                        m.paymentCode.toLowerCase().includes(term) ||
-                        m.paymentNumber.toLowerCase().includes(term)
-                      );
-                    }).map((m, i) => (
-                      <tr
-                        key={m.id}
-                        className="border-b border-border/50 hover:bg-accent/30 transition-colors"
-                      >
-                        <td className="py-3 px-2 text-muted-foreground">{i + 1}</td>
-                        <td className="py-3 px-2 font-medium text-foreground whitespace-nowrap">
-                          {m.name}
-                        </td>
-                        <td className="py-3 px-2 text-muted-foreground hidden sm:table-cell">
-                          <div className="flex flex-col text-xs whitespace-nowrap">
-                            <span>{m.contacts.email}</span>
-                            <span>{m.contacts.phone}</span>
-                          </div>
-                        </td>
-                        <td className="py-3 px-2 text-foreground hidden sm:table-cell whitespace-nowrap">
-                          {m.paymentCode}
-                        </td>
-                        <td className="py-3 px-2 text-muted-foreground whitespace-nowrap">
-                          <div className="flex flex-col items-start text-xs">
-                            <span className="flex items-center gap-1">
-                              <CalendarDays className="h-3 w-3" />
-                              {m.paymentDate.split(",")[0]}
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <Clock className="h-3 w-3" />
-                              {m.paymentDate.split(",")[1]?.trim()}
-                            </span>
-                          </div>
-                        </td>
-                        <td className="py-3 px-2 font-medium text-foreground whitespace-nowrap">
-                          {formatAmount(m.amount)}
-                        </td>
-                        <td className="py-3 px-2 text-muted-foreground hidden sm:table-cell whitespace-nowrap">
-                          {m.paymentNumber}
-                        </td>
-                        <td className="py-3 px-2 sticky right-0 z-10 bg-background shadow-[-4px_0_6px_-4px_rgba(0,0,0,0.1)]">
-                          <button
-                            onClick={() => generateReceipt(m)}
-                            className="flex items-center gap-1 bg-primary text-primary-foreground px-3 py-1 rounded-md hover:bg-primary/90 text-sm whitespace-nowrap"
-                          >
-                            <Download className="h-4 w-4" />
-                            Print Receipt
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
+                    {payments
+                      .filter((m) => {
+                        if (!searchTerm.trim()) return true;
+                        const term = searchTerm.toLowerCase();
+                        return (
+                          m.name.toLowerCase().includes(term) ||
+                          m.contacts.email.toLowerCase().includes(term) ||
+                          m.paymentCode.toLowerCase().includes(term) ||
+                          m.paymentNumber.toLowerCase().includes(term)
+                        );
+                      })
+                      .map((m, i) => (
+                        <tr
+                          key={m.id}
+                          className="border-b border-border/50 hover:bg-accent/30 transition-colors"
+                        >
+                          <td className="py-3 px-2 text-muted-foreground">
+                            {i + 1}
+                          </td>
+                          <td className="py-3 px-2 font-medium text-foreground whitespace-nowrap">
+                            {m.name}
+                          </td>
+                          <td className="py-3 px-2 text-muted-foreground hidden sm:table-cell">
+                            <div className="flex flex-col text-xs whitespace-nowrap">
+                              <span>{m.contacts.email}</span>
+                              <span>{m.contacts.phone}</span>
+                            </div>
+                          </td>
+                          <td className="py-3 px-2 text-foreground hidden sm:table-cell whitespace-nowrap">
+                            {m.paymentCode}
+                          </td>
+                          <td className="py-3 px-2 text-muted-foreground whitespace-nowrap">
+                            <div className="flex flex-col items-start text-xs">
+                              <span className="flex items-center gap-1">
+                                <CalendarDays className="h-3 w-3" />
+                                {m.paymentDate.split(",")[0]}
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <Clock className="h-3 w-3" />
+                                {m.paymentDate.split(",")[1]?.trim()}
+                              </span>
+                            </div>
+                          </td>
+                          <td className="py-3 px-2 font-medium text-foreground whitespace-nowrap">
+                            {formatAmount(m.amount)}
+                          </td>
+                          <td className="py-3 px-2 text-muted-foreground hidden sm:table-cell whitespace-nowrap">
+                            {m.paymentNumber}
+                          </td>
+                          <td className="py-3 px-2 sticky right-0 z-10 bg-background shadow-[-4px_0_6px_-4px_rgba(0,0,0,0.1)]">
+                            <button
+                              onClick={() => generateReceipt(m)}
+                              className="flex items-center gap-1 bg-primary text-primary-foreground px-3 py-1 rounded-md hover:bg-primary/90 text-sm whitespace-nowrap"
+                            >
+                              <Download className="h-4 w-4" />
+                              Print Receipt
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
                   </tbody>
                 </table>
               </div>

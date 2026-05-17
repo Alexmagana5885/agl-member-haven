@@ -324,7 +324,7 @@ export default function OnlinePayments() {
               </Label>
               <Input
                 id="reg-amount"
-                value="1"
+                value="2000"
                 readOnly
                 className="bg-muted/50 font-mono text-lg"
               />
@@ -345,10 +345,10 @@ export default function OnlinePayments() {
             <Button
               onClick={() =>
                 makePayment(
-                  `${API_BASE_URL}/api/payments/premium/pay`,
-                  premiumAmount,
-                  premPhone,
-                  "premium",
+                  `${API_BASE_URL}/api/payments/register-fee`,
+                  1,
+                  regPhone,
+                  "registration",
                 )
               }
               disabled={submitting || !regPhone || !profile?.email}

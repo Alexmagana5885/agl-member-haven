@@ -17,7 +17,7 @@ export async function downloadCompletionLetter(
   completionLetterPath: string
 ): Promise<void> {
   const res = await fetch(
-    `${API_BASE_URL}/admin/members/${type}/${memberId}/completion-letter`,
+    `${API_BASE_URL}/api/admin/members/${type}/${memberId}/completion-letter`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },

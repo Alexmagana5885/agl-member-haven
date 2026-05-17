@@ -1,4 +1,6 @@
-const API_BASE_URL = "/api";
+// const API_BASE_URL = "/api";
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 async function postJson<TReq, TRes>(endpoint: string, body: TReq, method: "POST" | "PUT" | "DELETE"): Promise<TRes> {
   const res = await fetch(`${API_BASE_URL}${endpoint}`, {
@@ -16,7 +18,7 @@ async function postJson<TReq, TRes>(endpoint: string, body: TReq, method: "POST"
 }
 
 async function getJson<T>(endpoint: string): Promise<T> {
-  const res = await fetch(`${API_BASE_URL}${endpoint}`, {
+  const res = await fetch(`${API_BASE_URL}/api/${endpoint}`, {
     method: "GET",
     credentials: "include",
   });
@@ -57,7 +59,7 @@ export async function updateMemberDetails(
   memberId: string,
   payload: Partial<MemberDetails>
 ): Promise<{ success: boolean; message?: string; member?: MemberDetails }> {
-  return postJson(`/admin/members/${type}/${memberId}/details`, payload, "PUT");
+  return postJson(`/api/admin/members/${type}/${memberId}/details`, payload, "PUT");
 }
 
 export async function deleteMember(type: MemberType, memberId: string): Promise<{ success: boolean; message?: string }> {
@@ -69,7 +71,7 @@ export async function deleteMember(type: MemberType, memberId: string): Promise<
 
 
 export async function downloadMembersRecordsPdf(type: MemberType): Promise<void> {
-  const res = await fetch(`${API_BASE_URL}/admin/members/print`, {
+  const res = await fetch(`${API_BASE_URL}/api/admin/members/print`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     credentials: "include",
@@ -97,7 +99,7 @@ export async function downloadMembersRecordsPdf(type: MemberType): Promise<void>
 }
 
 export async function downloadMemberDetailsPdf(type: MemberType, memberId: string): Promise<void> {
-  const res = await fetch(`${API_BASE_URL}/admin/members/${type}/${memberId}/print-details`, {
+  const res = await fetch(`${API_BASE_URL}/api/admin/members/${type}/${memberId}/print-details`, {
     method: "POST",
 
     headers: { "Content-Type": "application/json" },
