@@ -91,11 +91,11 @@ export default function OnlinePayments() {
         amount,
       };
 
-        // console.log(" Sending payment payload:", {
-        //   endpoint,
-        //   type,
-        //   payload,
-        // });
+      // console.log(" Sending payment payload:", {
+      //   endpoint,
+      //   type,
+      //   payload,
+      // });
 
       const response = await fetch(endpoint, {
         method: "POST",
@@ -215,7 +215,8 @@ export default function OnlinePayments() {
                       }
                     >
                       {(() => {
-                        const nextRaw = profile?.payments.next_payment_date || "";
+                        const nextRaw =
+                          profile?.payments.next_payment_date || "";
                         const nextDate = nextRaw ? new Date(nextRaw) : null;
                         const currentYear = new Date().getFullYear();
                         const nextYear = nextDate?.getFullYear();
@@ -227,7 +228,6 @@ export default function OnlinePayments() {
 
                         return formatDate(nextRaw);
                       })()}
-
                     </span>
                   </p>
                 </div>
@@ -269,7 +269,9 @@ export default function OnlinePayments() {
                   <CreditCard className="h-8 w-8 mb-2" />
                   <div>
                     <div className="font-bold text-lg">Annual Premium</div>
-                    <div className="text-sm opacity-90">KES {premiumAmount.toLocaleString()}</div>
+                    <div className="text-sm opacity-90">
+                      KES {premiumAmount.toLocaleString()}
+                    </div>
                   </div>
                 </Button>
               </div>
@@ -343,8 +345,8 @@ export default function OnlinePayments() {
             <Button
               onClick={() =>
                 makePayment(
-                  "/api/payments/register-fee",
-                  2000,
+                  `${API_BASE_URL}/api/payments/register-fee`,
+                  1,
                   regPhone,
                   "registration",
                 )
@@ -369,8 +371,8 @@ export default function OnlinePayments() {
               Premium Payment
             </DialogTitle>
             <DialogDescription>
-              Confirm payment of {premiumAmount.toLocaleString()} Ksh as annual membership fees to the
-              Association of Government Librarians.
+              Confirm payment of {premiumAmount.toLocaleString()} Ksh as annual
+              membership fees to the Association of Government Librarians.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-2 flex-1 overflow-y-auto">
@@ -425,7 +427,7 @@ export default function OnlinePayments() {
             <Button
               onClick={() =>
                 makePayment(
-                  "/api/payments/premium/pay",
+                  `${API_BASE_URL}/api/payments/premium/pay`,
                   premiumAmount,
                   premPhone,
                   "premium",
