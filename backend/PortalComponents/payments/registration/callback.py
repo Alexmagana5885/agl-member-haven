@@ -225,16 +225,36 @@ def registration_payment_callback():
                     # Notify officials (Chairperson, Treasurer, National Secretary) after successful payment.
                     try:
                         official_positions = ("Chairperson", "Treasurer", "National Secretary")
-                        cursor.execute(
-                            """
-                            SELECT os.position, pm.email, pm.name
-                            FROM officialsmembers os
-                            JOIN personalmembership pm
-                              ON pm.email = os.personalmembership_email
-                            WHERE os.position IN (%s, %s, %s)
-                            """,
-                            official_positions,
-                        )
+                        # cursor.execute(
+                        #     """
+                        #     SELECT os.position, pm.email, pm.name
+                        #     FROM officialsmembers os
+                        #     JOIN personalmembership pm
+                        #       ON pm.email = os.personalmembership_email
+                        #     WHERE os.position IN (%s, %s, %s)
+                        #     """,
+                        #     official_positions,
+                        # )
+                        
+                        placeholders = ",".join(["%s"] * len(official_positions))
+
+                        query = f"""
+                        SELECT os.position, pm.email, pm.name
+                        FROM officialsmembers os
+                        JOIN personalmembership pm
+                        ON pm.email = os.personalmembership_email
+                        WHERE os.position IN ({placeholders})
+                        """
+
+                        cursor.execute(query, official_positions)
+                        
+                        # remove
+                        
+                        official_rows = cursor.fetchall() or []
+                        logger.info(f"Officials found: {official_rows}")
+                        
+                        # remove
+                        
                         official_rows = cursor.fetchall() or []
                         officials = []
                         for r in official_rows:
