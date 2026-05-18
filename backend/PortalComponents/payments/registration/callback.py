@@ -221,6 +221,57 @@ def registration_payment_callback():
                         send_confirmation_email(email, phone_number, transaction_id, amount, "registration")
                     except Exception as email_err:
                         logger.error(f"Error sending confirmation email: {email_err}")
+
+                    # Notify officials (Chairperson, Treasurer, National Secretary) after successful payment.
+                    try:
+                        official_positions = ("Chairperson", "Treasurer", "National Secretary")
+                        cursor.execute(
+                            """
+                            SELECT os.position, pm.email, pm.name
+                            FROM officialsmembers os
+                            JOIN personalmembership pm
+                              ON pm.email = os.personalmembership_email
+                            WHERE os.position IN (%s, %s, %s)
+                            """,
+                            official_positions,
+                        )
+                        official_rows = cursor.fetchall() or []
+                        officials = []
+                        for r in official_rows:
+                            officials.append({"position": r[0], "email": r[1], "name": r[2]})
+
+                        # Resolve paying member name (from personalmembership or organizationmembership)
+                        paying_member_name = email
+                        try:
+                            cursor.execute(
+                                "SELECT name FROM personalmembership WHERE email = %s",
+                                (email,),
+                            )
+                            pm_row = cursor.fetchone()
+                            if pm_row and pm_row[0]:
+                                paying_member_name = pm_row[0]
+                            else:
+                                cursor.execute(
+                                    "SELECT contact_person FROM organizationmembership WHERE organization_email = %s",
+                                    (email,),
+                                )
+                                org_row = cursor.fetchone()
+                                if org_row and org_row[0]:
+                                    paying_member_name = org_row[0]
+                        except Exception:
+                            pass
+
+                        send_official_payment_notification_emails(
+                            officials=officials,
+                            member_name=paying_member_name,
+                            payment_reason="Membership Registration Payment",
+                            amount=amount,
+                            transaction_timestamp=timestamp,
+                        )
+
+                    except Exception as official_email_err:
+                        logger.error(f"Error sending official payment notification emails: {official_email_err}")
+
                     
                     logger.info(f"Registration payment processed successfully for {email}")
                     
@@ -266,10 +317,19 @@ def registration_payment_callback():
         }), 500
 
 
+def _get_smtp_config():
+    return {
+        "smtp_host": os.environ.get("SMTP_HOST", "smtp.gmail.com"),
+        "smtp_port": int(os.environ.get("SMTP_PORT", "587")),
+        "smtp_user": os.environ.get("SMTP_USER", "payments@agl.or.ke"),
+        "smtp_password": os.environ.get("SMTP_PASSWORD", ""),
+    }
+
+
 def send_confirmation_email(email, phone_number, transaction_id, amount, payment_type):
     """
     Send confirmation email for successful payment.
-    
+
     Args:
         email: Member's email address
         phone_number: Phone number used for payment
@@ -281,23 +341,19 @@ def send_confirmation_email(email, phone_number, transaction_id, amount, payment
         import smtplib
         from email.mime.text import MIMEText
         from email.mime.multipart import MIMEMultipart
-        
-        # Email configuration
-        smtp_host = os.environ.get("SMTP_HOST", "smtp.gmail.com")
-        smtp_port = int(os.environ.get("SMTP_PORT", "587"))
-        smtp_user = os.environ.get("SMTP_USER", "payments@agl.or.ke")
-        smtp_password = os.environ.get("SMTP_PASSWORD", "")
-        
+
+        smtp_cfg = _get_smtp_config()
+
         # Skip if no SMTP password configured
-        if not smtp_password:
+        if not smtp_cfg["smtp_password"]:
             logger.warning("SMTP password not configured, skipping email")
             return False
-        
+
         # Create message
         msg = MIMEMultipart()
-        msg['From'] = smtp_user
+        msg['From'] = smtp_cfg["smtp_user"]
         msg['To'] = email
-        
+
         if payment_type == "premium":
             msg['Subject'] = "Membership Premium Payment"
             message = f"""Dear Member,
@@ -324,20 +380,84 @@ Kindly download your invoice from the portal.
 Best regards,
 AGL Team
 """
-        
+
         msg.attach(MIMEText(message, 'plain'))
-        
+
         # Send email
-        server = smtplib.SMTP(smtp_host, smtp_port)
+        server = smtplib.SMTP(smtp_cfg["smtp_host"], smtp_cfg["smtp_port"])
         server.starttls()
-        server.login(smtp_user, smtp_password)
-        server.sendmail(smtp_user, email, msg.as_string())
+        server.login(smtp_cfg["smtp_user"], smtp_cfg["smtp_password"])
+        server.sendmail(smtp_cfg["smtp_user"], email, msg.as_string())
         server.quit()
-        
+
         logger.info(f"Confirmation email sent to {email}")
         return True
-        
+
     except Exception as e:
         logger.error(f"Error sending email: {str(e)}")
         return False
+
+
+def send_official_payment_notification_emails(officials, member_name, payment_reason, amount, transaction_timestamp):
+    """Notify officials that a payment has been processed."""
+    if not officials:
+        return
+
+    try:
+        import smtplib
+        from email.mime.text import MIMEText
+        from email.mime.multipart import MIMEMultipart
+
+        smtp_cfg = _get_smtp_config()
+        if not smtp_cfg["smtp_password"]:
+            logger.warning("SMTP password not configured, skipping official notification emails")
+            return
+
+        amount_str = f"{amount}"
+        txn_date = transaction_timestamp.split(" ")[0] if transaction_timestamp else "-"
+        txn_time = transaction_timestamp.split(" ")[1] if len(transaction_timestamp.split(" ")) > 1 else "-"
+
+        for o in officials:
+            recipient_email = (o.get("email") or "").strip()
+            recipient_name = (o.get("name") or "Official").strip() or "Official"
+            if not recipient_email:
+                continue
+
+            msg = MIMEMultipart()
+            msg['From'] = smtp_cfg["smtp_user"]
+            msg['To'] = recipient_email
+            msg['Subject'] = "New Payment Processed"
+
+            message = f"""Dear Official,
+
+This is to notify you that a new payment has been successfully processed in the system.
+
+Payment Details:
+
+Member Name: {member_name}
+Reason for Payment: {payment_reason}
+Amount Paid: KES {amount_str}
+Transaction Date: {txn_date}
+Transaction Time: {txn_time}
+
+Please log into the system for more details if necessary.
+
+Thank you.
+
+Kind regards,
+"""
+
+            msg.attach(MIMEText(message, 'plain'))
+
+            server = smtplib.SMTP(smtp_cfg["smtp_host"], smtp_cfg["smtp_port"])
+            server.starttls()
+            server.login(smtp_cfg["smtp_user"], smtp_cfg["smtp_password"])
+            server.sendmail(smtp_cfg["smtp_user"], recipient_email, msg.as_string())
+            server.quit()
+
+            logger.info(f"Official notification email sent to {recipient_email}")
+
+    except Exception as e:
+        logger.error(f"Error sending official notification emails: {str(e)}")
+
 

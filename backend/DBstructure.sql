@@ -501,17 +501,11 @@ CREATE TABLE `officialsmembers` (
   `number_of_terms` int(11) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `officialsmembers`
---
 
 INSERT INTO `officialsmembers` (`id`, `personalmembership_email`, `position`, `start_date`, `number_of_terms`) VALUES
-(0, 'Maganaalex634@gmail.com', 'admin', '2024-10-09', 1),
-(0, '1.joashsan@gmail.com', 'CHAIRPERSON', '2023-01-01', 1),
-(0, '1.joashsan@gmail.com', 'Chairman', '2023-03-01', 1),
-(0, '1.joashsan@gmail.com', 'Chair Person', '2024-11-23', 2),
-(0, 'maganaalex634@gmail.com', 'admin', '2024-11-23', 2),
-(0, 'Maaganaalex634@gmail.com', 'admin', '2024-11-23', 2);
+
+(0, 'maganaalex634@gmail.com', 'Treasurer', '2024-11-23', 2),
+(0, 'maganaalex634@outlook.com', 'Admin', '2024-11-23', 2);
 
 -- --------------------------------------------------------
 
