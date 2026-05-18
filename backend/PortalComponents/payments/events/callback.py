@@ -35,6 +35,15 @@ def get_db_connection():
         raise
 
 
+def _get_smtp_config():
+    return {
+        "smtp_host": os.environ.get("SMTP_HOST", "smtp.gmail.com"),
+        "smtp_port": int(os.environ.get("SMTP_PORT", "587")),
+        "smtp_user": os.environ.get("SMTP_USER", "payments@agl.or.ke"),
+        "smtp_password": os.environ.get("SMTP_PASSWORD", ""),
+    }
+
+
 def send_confirmation_email(email: str, member_name: str, event_name: str, event_location: str, event_date: str):
     """Send confirmation email for successful event registration."""
     try:
@@ -42,27 +51,15 @@ def send_confirmation_email(email: str, member_name: str, event_name: str, event
         from email.mime.text import MIMEText
         from email.mime.multipart import MIMEMultipart
 
-        smtp_host = os.environ.get("SMTP_HOST", "agl.or.ke")
-        smtp_port = int(os.environ.get("SMTP_PORT", "587"))
-        smtp_user = "aglevents@agl.or.ke"
-        smtp_password = os.environ.get('SMTP_PASSWORD')
+        smtp_cfg = _get_smtp_config()
 
-        # Debug help: log only presence of secrets (avoid printing password)
-        logger.info(
-            "SMTP config: host=%s port=%s user=%s password_configured=%s",
-            smtp_host,
-            smtp_port,
-            smtp_user,
-            bool(smtp_password),
-        )
-
-
-        if not smtp_password:
+        # Skip if no SMTP password configured
+        if not smtp_cfg["smtp_password"]:
             logger.warning("SMTP password not configured, skipping email")
             return False
 
         msg = MIMEMultipart()
-        msg['From'] = smtp_user
+        msg['From'] = smtp_cfg["smtp_user"]
         msg['To'] = email
         msg['Subject'] = "Registration Successful!"
 
@@ -86,10 +83,10 @@ The AGL Team
 
         msg.attach(MIMEText(message, 'plain'))
 
-        server = smtplib.SMTP(smtp_host, smtp_port)
+        server = smtplib.SMTP(smtp_cfg["smtp_host"], smtp_cfg["smtp_port"])
         server.starttls()
-        server.login(smtp_user, smtp_password)
-        server.sendmail(smtp_user, email, msg.as_string())
+        server.login(smtp_cfg["smtp_user"], smtp_cfg["smtp_password"])
+        server.sendmail(smtp_cfg["smtp_user"], email, msg.as_string())
         server.quit()
 
         logger.info(f"Confirmation email sent to {email}")
@@ -98,6 +95,114 @@ The AGL Team
     except Exception as e:
         logger.error(f"Error sending confirmation email: {e}")
         return False
+
+
+def send_official_payment_notification_emails(
+    officials,
+    member_name,
+    event_name,
+    event_location,
+    event_date,
+    amount,
+    transaction_id,
+    transaction_timestamp,
+):
+    """Notify officials that an event registration payment has been processed."""
+
+    if not officials:
+        return
+
+    try:
+        import smtplib
+        from email.mime.text import MIMEText
+        from email.mime.multipart import MIMEMultipart
+
+        smtp_cfg = _get_smtp_config()
+
+        if not smtp_cfg["smtp_password"]:
+            logger.warning(
+                "SMTP password not configured, skipping official notification emails"
+            )
+            return
+
+        txn_date = (
+            transaction_timestamp.split(" ")[0]
+            if transaction_timestamp else "-"
+        )
+
+        txn_time = (
+            transaction_timestamp.split(" ")[1]
+            if transaction_timestamp and len(transaction_timestamp.split(" ")) > 1
+            else "-"
+        )
+
+        for official in officials:
+            recipient_email = (official.get("email") or "").strip()
+            recipient_name = (official.get("name") or "Official").strip()
+
+            if not recipient_email:
+                continue
+
+            msg = MIMEMultipart()
+            msg['From'] = smtp_cfg["smtp_user"]
+            msg['To'] = recipient_email
+            msg['Subject'] = "New Event Registration Payment Processed"
+
+            message = f"""Dear {recipient_name},
+
+This is to notify you that a new event registration payment has been successfully processed.
+
+Event Payment Details:
+
+Member Name: {member_name}
+Event Name: {event_name}
+Event Location: {event_location}
+Event Date: {event_date}
+
+Amount Paid: KES {amount}
+Transaction ID: {transaction_id}
+
+Transaction Date: {txn_date}
+Transaction Time: {txn_time}
+
+Please log into the system for more details.
+
+Thank you.
+
+Kind regards,
+AGL Team
+"""
+
+            msg.attach(MIMEText(message, 'plain'))
+
+            server = smtplib.SMTP(
+                smtp_cfg["smtp_host"],
+                smtp_cfg["smtp_port"],
+            )
+
+            server.starttls()
+            server.login(
+                smtp_cfg["smtp_user"],
+                smtp_cfg["smtp_password"],
+            )
+
+            server.sendmail(
+                smtp_cfg["smtp_user"],
+                recipient_email,
+                msg.as_string(),
+            )
+
+            server.quit()
+
+            logger.info(
+                f"Official event notification email sent to {recipient_email}"
+            )
+
+    except Exception as e:
+        logger.error(
+            f"Error sending official notification emails: {str(e)}"
+        )
+
 
 
 @callback_bp.route('', methods=['POST'])
@@ -220,14 +325,63 @@ def event_payment_callback():
 
             # Send email
             try:
-                send_confirmation_email(email, member_name, event_name, event_location, str(event_date))
+                send_confirmation_email(
+                    email,
+                    member_name,
+                    event_name,
+                    event_location,
+                    str(event_date),
+                )
             except Exception as email_err:
                 logger.error(f"Failed to send confirmation email: {email_err}")
+
+            # Notify officials (Chairperson, Treasurer, National Secretary)
+            try:
+                official_positions = (
+                    "Chairperson",
+                    "Treasurer",
+                    "National Secretary",
+                )
+
+                placeholders = ",".join(["%s"] * len(official_positions))
+
+                query = f"""
+                    SELECT position, personalmembership_email AS email
+                    FROM officialsmembers
+                    WHERE position IN ({placeholders})
+                """
+
+                cursor.execute(query, official_positions)
+                official_rows = cursor.fetchall()
+
+                officials = []
+                for row in official_rows:
+                    officials.append(
+                        {
+                            "position": row["position"],
+                            "email": row["email"],
+                            "name": row["position"],
+                        }
+                    )
+
+                send_official_payment_notification_emails(
+                    officials=officials,
+                    member_name=member_name,
+                    event_name=event_name,
+                    event_location=event_location,
+                    event_date=str(event_date),
+                    amount=amount,
+                    transaction_id=transaction_id,
+                    transaction_timestamp=registration_date,
+                )
+            except Exception as official_err:
+                logger.error(f"Error sending official event emails: {official_err}")
 
             cursor.close()
             conn.close()
 
             # (Optional) Event card generation can be done here if you add event_card.py/call.
+
 
             return jsonify(
                 {
