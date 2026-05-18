@@ -251,15 +251,81 @@ def premium_payment_callback():
                     
                     conn.commit()
                     
-                    # Send confirmation email
+# Send confirmation email
                     try:
                         send_confirmation_email(email, phone_number, transaction_id, amount, "premium")
                     except Exception as email_err:
                         logger.error(f"Error sending confirmation email: {email_err}")
-                    
+
+                    # Notify officials (Chairperson, Treasurer, National Secretary)
+                    try:
+                        official_positions = ("Chairperson", "Treasurer", "National Secretary")
+
+                        placeholders = ",".join(["%s"] * len(official_positions))
+
+                        query = f"""
+                            SELECT position, personalmembership_email AS email
+                            FROM officialsmembers
+                            WHERE position IN ({placeholders})
+                        """
+
+                        cursor.execute(query, official_positions)
+                        official_rows = cursor.fetchall()
+
+                        logger.info(f"Officials found: {official_rows}")
+
+                        officials = []
+                        for r in official_rows:
+                            officials.append({
+                                "position": r["position"],
+                                "email": r["email"],
+                                "name": r["position"],
+                            })
+
+                        # Get paying member name
+                        paying_member_name = email
+                        try:
+                            cursor.execute(
+                                "SELECT name FROM personalmembership WHERE email = %s",
+                                (email,),
+                            )
+                            pm_row = cursor.fetchone()
+
+                            if pm_row and pm_row[0]:
+                                paying_member_name = pm_row[0]
+                            else:
+                                cursor.execute(
+                                    "SELECT contact_person FROM organizationmembership WHERE organization_email = %s",
+                                    (email,),
+                                )
+                                org_row = cursor.fetchone()
+
+                                if org_row and org_row[0]:
+                                    paying_member_name = org_row[0]
+
+                        except Exception as e:
+                            logger.warning(f"Could not resolve member name: {e}")
+
+                        # Send emails only if officials exist
+                        if officials:
+                            send_official_payment_notification_emails(
+                                officials=officials,
+                                member_name=paying_member_name,
+                                payment_reason="Membership Premium Payment",
+                                amount=amount,
+                                transaction_timestamp=timestamp,
+                            )
+                        else:
+                            logger.warning("No officials found for notification")
+
+                    except Exception as official_email_err:
+                        logger.error(f"Error sending official payment notification emails: {official_email_err}")
+
                     logger.info(f"Premium payment processed successfully for {email}")
+
                     
                     cursor.close()
+
                     conn.close()
                     
                     return jsonify({
@@ -317,6 +383,7 @@ def premium_payment_callback():
 
 
 def send_confirmation_email(email, phone_number, transaction_id, amount, payment_type):
+
     """
     Send confirmation email for successful payment.
     
