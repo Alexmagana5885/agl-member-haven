@@ -1,21 +1,24 @@
-# TODO - Official notification on successful payment
+# TODO - directPayments hardening
 
-## Plan summary
-Implement email notifications to officials (Chairperson, Treasurer, National Secretary) after a successful registration payment callback.
+## Step 1: Make confirmation idempotent + safer
+- Update `backend/PortalComponents/payments/directPayments/confirmation.py`:
+  - validate required fields
+  - if `CheckoutRequestID`/`MpesaReceiptNumber` missing => return non-accepted
+  - return non-zero result if saving fails
+  - prevent inserts on duplicates (using DB unique constraints/receipt)
 
-## Steps
-- [x] Update `backend/PortalComponents/payments/registration/callback.py`
-  - [x] Add SQL query to fetch officials from `officialsmembers` for positions: Chairperson, Treasurer, National Secretary
-  - [x] Resolve each official’s email and name by joining `personalmembership` (via `personalmembership_email`)
-  - [x] Add helper to send the official notification email using existing SMTP config
-  - [x] Trigger the helper after payment is marked Completed and DB commit succeeds
-  - [x] Ensure failures in sending emails do not break payment processing (log only)
-- [ ] Smoke test by invoking the events/register endpoint with amount=0 (free event) and verify INSERT succeeds
-- [ ] Smoke test by invoking the events/register endpoint with amount>0 (paid event) and verify:
-  - initial insert goes to eventregcheckout (not event_registrations)
-  - callback inserts into event_registrations without specifying id
-  - eventregcheckout.status becomes Completed
-- [ ] Verify recipients and email body formatting
+## Step 2: Strengthen save layer
+- Update `backend/PortalComponents/payments/directPayments/save_functions.py`:
+  - add `INSERT ... ON DUPLICATE KEY UPDATE` for `MpesaReceiptNumber`
+  - optionally also enforce uniqueness on `CheckoutRequestID` (DB migration)
 
+## Step 3: Strengthen validation endpoint
+- Update `backend/PortalComponents/payments/directPayments/validation.py`:
+  - parse JSON safely
+  - check required request fields
+  - return appropriate ResultCode/Desc
 
+## Step 4: Test locally
+- Run a simple curl/postman simulation of confirmation/validation
+- Verify duplicates don’t create extra rows in `directmpesapayments`
 

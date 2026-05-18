@@ -53,7 +53,19 @@ def save_direct_mpesa_payment(
                 transactionCommited
             )
             VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,'notcommited')
+            ON DUPLICATE KEY UPDATE
+                MerchantRequestID = VALUES(MerchantRequestID),
+                CheckoutRequestID = VALUES(CheckoutRequestID),
+                ResultCode = VALUES(ResultCode),
+                ResultDesc = VALUES(ResultDesc),
+                Amount = VALUES(Amount),
+                Balance = VALUES(Balance),
+                TransactionDate = VALUES(TransactionDate),
+                PhoneNumber = VALUES(PhoneNumber),
+                account = VALUES(account),
+                transactionCommited = 'notcommited'
         """
+
 
         values = (
             merchant_request_id,
