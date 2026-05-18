@@ -46,6 +46,31 @@ export async function downloadCompletionLetter(
   window.URL.revokeObjectURL(url);
 }
 
+export async function uploadCompletionLetter(
+  type: MemberType,
+  memberId: string,
+  file: File
+): Promise<{ success: boolean; completion_letter?: string }>{
+  const form = new FormData();
+  form.append("file", file);
+
+  const res = await fetch(
+    `${API_BASE_URL}/api/admin/members/${type}/${memberId}/completion-letter-upload`,
+    {
+      method: "POST",
+      credentials: "include",
+      body: form,
+    }
+  );
+
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data?.message || `Request failed with status ${res.status}`);
+  }
+
+  return (await res.json().catch(() => ({}))) as any;
+}
+
 export function getPassportImageUrl(type: MemberType, memberId: string, passportPath: string) {
   // The API returns the image directly. The path is passed for security/lookup.
   const url = new URL(`${API_BASE_URL}/api/admin/members/${type}/${memberId}/passport-image`, window.location.origin);

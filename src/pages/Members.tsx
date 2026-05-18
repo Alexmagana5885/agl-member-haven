@@ -13,7 +13,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 
 import { useToast } from "@/hooks/use-toast";
 
-import { 
+import {
   downloadMemberDetailsPdf,
   downloadMembersRecordsPdf,
   fetchMemberDetails,
@@ -25,7 +25,8 @@ import {
   type MemberType,
 } from "@/services/members";
 
-import { downloadCompletionLetter, getPassportImageUrl } from "@/services/members_files";
+import { downloadCompletionLetter, getPassportImageUrl, uploadCompletionLetter } from "@/services/members_files";
+
 
 
 
@@ -47,6 +48,8 @@ export default function MembersPage() {
   const [editing, setEditing] = useState(false);
   const [editDetails, setEditDetails] = useState<MemberDetails | null>(null);
   const [editSubmitting, setEditSubmitting] = useState(false);
+  const [completionLetterFile, setCompletionLetterFile] = useState<File | null>(null);
+
 
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [deleteSubmitting, setDeleteSubmitting] = useState(false);
@@ -110,19 +113,32 @@ export default function MembersPage() {
     if (!selectedMember || !editDetails) return;
     setEditSubmitting(true);
     try {
-      const { member_type, ...rest } = editDetails;
-await updateMemberDetails(selectedMember.member_type, selectedMember.id, rest);
+      const { member_type, completion_letter, ...rest } = editDetails;
+
+      // If a completion letter file is selected, upload it first.
+      // Backend will update the member's completion_letter column.
+      if (completionLetterFile) {
+        await uploadCompletionLetter(selectedMember.member_type, selectedMember.id, completionLetterFile);
+        setCompletionLetterFile(null);
+      }
+
+      // Remove completion_letter from JSON update payload to avoid overwriting
+      // the path column with an empty string during editing.
+      await updateMemberDetails(selectedMember.member_type, selectedMember.id, rest);
+
       const data = await fetchMemberDetails(selectedMember.member_type, selectedMember.id);
       setDetails(data.member);
       setEditing(false);
       setEditDetails(null);
-toast({ title: "Member updated", variant: "default" });
+
+      toast({ title: "Member updated", variant: "default" });
     } catch (e: any) {
       toast({ title: "Update failed", description: e?.message || "Please try again", variant: "destructive" });
     } finally {
       setEditSubmitting(false);
     }
   };
+
 
   const confirmDelete = async () => {
     if (!selectedMember) return;
@@ -374,11 +390,102 @@ toast({ title: "Member deleted", variant: "default" });
                           const value = editing ? (pair[1] ?? "") : (pair[1] ?? "");
 
                           const passportPath = !editing ? (details as any)?.passport_image : null;
-                          if (!editing && (key === "passport_image" || key === "completion_letter" || key === "payment_Number" || key === "payment_code" || key === "payment_date" || key === "password")) {
+                          if (
+                            !editing &&
+                            (key === "passport_image" || key === "completion_letter" || key === "payment_Number" || key === "payment_code" || key === "payment_date" || key === "password")
+                          ) {
                             return null;
                           }
 
-                          // Special render: completion_letter & passport_image
+                          // Special render: Member Position
+                          if (key === "position" && editing) {
+
+
+                            const normalized = String(value ?? "");
+                            const positions = [
+                              "Chairperson",
+                              "Vice Chairperson",
+                              "Treasurer",
+                              "National Secretary",
+                              "Organising Secretary",
+                              "Vice Secretary",
+                              "Committee Member(s)",
+                              "Co-opted Official",
+                              "Admin",
+                              "Member",
+                            ];
+                            const current = normalized || "Member";
+                            return (
+                              <TableRow key={key}>
+                                <TableCell className="w-[260px] font-medium">Member Position</TableCell>
+                                <TableCell>
+                                  <select
+                                    aria-label={"position"}
+                                    className="w-full rounded-md border px-2 py-1 text-sm"
+                                    value={current}
+                                    onChange={(e) =>
+                                      setEditDetails((prev) => {
+                                        if (!prev) return prev;
+                                        return { ...prev, [key]: e.target.value } as MemberDetails;
+                                      })
+                                    }
+                                  >
+                                    {positions.map((p) => (
+                                      <option key={p} value={p}>
+                                        {p}
+                                      </option>
+                                    ))}
+                                  </select>
+                                </TableCell>
+                              </TableRow>
+                            );
+                          }
+
+                          if (key === "completion_letter" && editing) {
+                            return (
+                              <TableRow key={key}>
+                                <TableCell className="w-[260px] font-medium">Completion Letter</TableCell>
+                                <TableCell>
+                                  <div className="space-y-2">
+                                    {details?.completion_letter ? (
+                                      <Button
+                                        type="button"
+                                        variant="outline"
+                                        className="gap-2"
+                                        onClick={async () => {
+                                          try {
+                                            await downloadCompletionLetter(selectedMember!.member_type, selectedMember!.id, String((details as any)?.completion_letter || ""));
+                                          } catch (e: any) {
+                                            toast({ title: "Download failed", description: e?.message || "Please try again", variant: "destructive" });
+                                          }
+                                        }}
+                                      >
+                                        <Download className="h-4 w-4" /> Download Current
+                                      </Button>
+                                    ) : (
+                                      <span className="text-muted-foreground">-</span>
+                                    )}
+
+                                    <label className="sr-only" htmlFor="completion-letter-upload">
+                                      Completion letter file upload
+                                    </label>
+                                    <input
+                                      id="completion-letter-upload"
+                                      type="file"
+                                      accept="application/pdf,.pdf"
+                                      className="w-full text-sm"
+                                      onChange={(e) => {
+                                        const file = e.target.files?.[0] || null;
+                                        setCompletionLetterFile(file);
+                                      }}
+                                    />
+
+                                  </div>
+                                </TableCell>
+                              </TableRow>
+                            );
+                          }
+
                           if (!editing && key === "completion_letter") {
                             const path = String((details as any)?.completion_letter || "");
                             return (
@@ -406,6 +513,9 @@ toast({ title: "Member deleted", variant: "default" });
                               </TableRow>
                             );
                           }
+
+
+
 
                           if (!editing && key === "passport_image") {
                             const path = String((details as any)?.passport_image || "");
@@ -490,6 +600,7 @@ toast({ title: "Member deleted", variant: "default" });
                   <Button onClick={submitEditSave} disabled={!editDetails || editSubmitting} className="bg-primary text-primary-foreground hover:bg-primary/90">
                     {editSubmitting ? "Saving..." : "Save"}
                   </Button>
+
                 </>
               )}
             </DialogFooter>

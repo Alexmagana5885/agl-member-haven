@@ -500,10 +500,53 @@ def update_member_details(member_type: str, member_id: str):
 
     # Allowed columns per table (do not allow id to be updated)
     if mt == "personal":
-        allowed_columns = {"name", "email", "phone", "home_address", "passport_image", "highest_degree", "institution", "graduation_year", "completion_letter", "profession", "experience", "current_company", "position", "work_address", "payment_Number", "payment_code", "payment_date", "password", "registration_date", "gender"}
+        allowed_columns = {
+            "name",
+            "email",
+            "phone",
+            "home_address",
+            "passport_image",
+            "highest_degree",
+            "institution",
+            "graduation_year",
+            "completion_letter",
+            "profession",
+            "experience",
+            "current_company",
+            "position",
+            "work_address",
+            "payment_Number",
+            "payment_code",
+            "payment_date",
+            "password",
+            "registration_date",
+            "gender",
+        }
         table = PERSONAL_TABLE
     else:
-        allowed_columns = {"organization_name", "organization_email", "contact_person", "logo_image", "contact_phone_number", "date_of_registration", "organization_address", "location_country", "location_county", "location_town", "registration_certificate", "organization_type", "start_date", "what_you_do", "payment_Number", "payment_code", "payment_date", "password", "created_at", "registration_date", "organization_address"}
+        allowed_columns = {
+            "organization_name",
+            "organization_email",
+            "contact_person",
+            "logo_image",
+            "contact_phone_number",
+            "date_of_registration",
+            "organization_address",
+            "location_country",
+            "location_county",
+            "location_town",
+            "registration_certificate",
+            "organization_type",
+            "start_date",
+            "what_you_do",
+            "payment_Number",
+            "payment_code",
+            "payment_date",
+            "password",
+            "created_at",
+            "registration_date",
+            "organization_address",
+        }
         table = ORG_TABLE
 
     set_clauses = []
@@ -523,13 +566,76 @@ def update_member_details(member_type: str, member_id: str):
     values.append(member_id)
     sql = f"UPDATE {table} SET {', '.join(set_clauses)} WHERE id=%s"
 
+    # Official positions that must be mirrored into officialsmembers
+    OFFICIAL_POSITIONS = {
+        "chairperson",
+        "vice chairperson",
+        "treasurer",
+        "national secretary",
+        "organising secretary",
+        "vice secretary",
+        "committee member(s)",
+        "co-opted official",
+        "admin",
+    }
+
+    def _norm_position(p: str | None) -> str:
+        return (p or "").strip().lower()
+
     conn = get_db_connection()
     try:
+        # For officialsmembers we only have personalmembership_email column,
+        # so we only support mirroring for personal members.
+        prev_position = None
+        member_email = None
+        if mt == "personal":
+            cur2 = conn.cursor(dictionary=True)
+            cur2.execute(f"SELECT email, position FROM {PERSONAL_TABLE} WHERE id=%s", (member_id,))
+            prev = cur2.fetchone() or {}
+            member_email = prev.get("email")
+            prev_position = prev.get("position")
+            cur2.close()
+
         cursor = conn.cursor()
         cursor.execute(sql, tuple(values))
         conn.commit()
         if cursor.rowcount == 0:
             return jsonify({"success": False, "message": "Member not found"}), 404
+
+        # After update, re-read position/email to decide mirroring.
+        if mt == "personal" and member_email:
+            cur3 = conn.cursor(dictionary=True)
+            cur3.execute(f"SELECT position, email FROM {PERSONAL_TABLE} WHERE id=%s", (member_id,))
+            now = cur3.fetchone() or {}
+            new_position = now.get("position")
+            cur3.close()
+
+            is_official = _norm_position(new_position) in OFFICIAL_POSITIONS
+            official_table = "officialsmembers"
+
+            if is_official:
+                # Upsert: ensure a row exists for this personal membership email.
+                # officialsmembers.id isn't reliable as a primary key (no unique constraint),
+                # so we delete then insert to keep it simple and deterministic.
+                cursor2 = conn.cursor()
+                cursor2.execute(
+                    f"DELETE FROM {official_table} WHERE personalmembership_email=%s",
+                    (member_email,),
+                )
+                cursor2.execute(
+                    f"INSERT INTO {official_table} (personalmembership_email, position, start_date, number_of_terms) VALUES (%s, %s, %s, %s)",
+                    (member_email, new_position, None, 0),
+                )
+                conn.commit()
+                cursor2.close()
+            else:
+                cursor2 = conn.cursor()
+                cursor2.execute(
+                    f"DELETE FROM officialsmembers WHERE personalmembership_email=%s",
+                    (member_email,),
+                )
+                conn.commit()
+                cursor2.close()
 
         # Return fresh details
         cursor.close()
@@ -541,6 +647,7 @@ def update_member_details(member_type: str, member_id: str):
 
     # Re-fetch using existing endpoint logic
     return member_details(mt, member_id)
+
 
 @admin_members_bp.route("/<member_type>/<member_id>/details", methods=["DELETE"])
 @login_required
@@ -646,9 +753,58 @@ def _guess_mime(filename: str) -> str:
     }.get(ext, "application/octet-stream")
 
 
+@admin_members_bp.route("/<member_type>/<member_id>/completion-letter-upload", methods=["POST"])
+@login_required
+def completion_letter_upload(member_type: str, member_id: str):
+    mt = (member_type or "").strip().lower()
+    if mt not in ["personal", "organization"]:
+        return jsonify({"success": False, "message": "Invalid member_type"}), 400
+    if not member_id:
+        return jsonify({"success": False, "message": "member_id is required"}), 400
+    if "file" not in request.files:
+        return jsonify({"success": False, "message": "Missing file"}), 400
+
+    file = request.files["file"]
+    if not file or file.filename == "":
+        return jsonify({"success": False, "message": "No file selected"}), 400
+
+    upload_base = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "uploads")
+    target_dir = os.path.join(upload_base, "completion_letters")
+    os.makedirs(target_dir, exist_ok=True)
+
+    # Store with a deterministic prefix to avoid collisions
+    from werkzeug.utils import secure_filename
+    from datetime import datetime
+
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    filename = f"{mt}_{member_id}_{timestamp}_{secure_filename(file.filename)}"
+    filepath = os.path.join(target_dir, filename)
+    file.save(filepath)
+
+    # Update member completion_letter column to the stored relative path convention: uploads/.../file
+    stored_path = f"uploads/completion_letters/{filename}"
+    table = PERSONAL_TABLE if mt == "personal" else ORG_TABLE
+    completion_col = "completion_letter"  # currently used by personal membership; harmless for org if column exists
+
+    conn = get_db_connection()
+    try:
+        cur = conn.cursor()
+        cur.execute(f"UPDATE {table} SET {completion_col}=%s WHERE id=%s", (stored_path, member_id))
+        conn.commit()
+        if cur.rowcount == 0:
+            return jsonify({"success": False, "message": "Member not found"}), 404
+        return jsonify({"success": True, "completion_letter": stored_path}), 200
+    except mysql.connector.Error as e:
+        logger.exception("DB error uploading completion letter")
+        return jsonify({"success": False, "message": str(e)}), 500
+    finally:
+        conn.close()
+
+
 @admin_members_bp.route("/<member_type>/<member_id>/completion-letter", methods=["POST"])
 @login_required
 def completion_letter_file(member_type: str, member_id: str):
+
     mt = (member_type or "").strip().lower()
     if mt not in ["personal", "organization"]:
         return jsonify({"success": False, "message": "Invalid member_type"}), 400
