@@ -42,10 +42,20 @@ def send_confirmation_email(email: str, member_name: str, event_name: str, event
         from email.mime.text import MIMEText
         from email.mime.multipart import MIMEMultipart
 
-        smtp_host = os.environ.get("SMTP_HOST", "smtp.gmail.com")
+        smtp_host = os.environ.get("SMTP_HOST", "agl.or.ke")
         smtp_port = int(os.environ.get("SMTP_PORT", "587"))
-        smtp_user = os.environ.get("SMTP_USER", "events@agl.or.ke")
-        smtp_password = os.environ.get("SMTP_PASSWORD", "")
+        smtp_user = "aglevents@agl.or.ke"
+        smtp_password = os.environ.get('SMTP_PASSWORD')
+
+        # Debug help: log only presence of secrets (avoid printing password)
+        logger.info(
+            "SMTP config: host=%s port=%s user=%s password_configured=%s",
+            smtp_host,
+            smtp_port,
+            smtp_user,
+            bool(smtp_password),
+        )
+
 
         if not smtp_password:
             logger.warning("SMTP password not configured, skipping email")
