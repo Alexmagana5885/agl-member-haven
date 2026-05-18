@@ -24,7 +24,7 @@ events_bp = Blueprint('events', __name__, url_prefix='/api/payments/events')
 MPESA_BUSINESS_SHORT_CODE = os.environ.get("MY_BUSINESS_SHORT_CODE", "6175135")
 MPESA_PASSKEY = os.environ.get("MY_PASS_KEY", "your_passkey_here")
 MPESA_CALLBACK_URL = os.environ.get(
-    "REGISTRATION_CALLBACK_URL",
+    "EVENTS_CALLBACK_URL",
     "https://member.log.agl.or.ke/members/forms/Payment/Mpesa-Daraja-Api-main/callbackEventR.php",
 )
 MPESA_ENVIRONMENT = os.environ.get("MPESA_ENVIRONMENT", "sandbox")
