@@ -225,17 +225,7 @@ def registration_payment_callback():
                     # Notify officials (Chairperson, Treasurer, National Secretary) after successful payment.
                     try:
                         official_positions = ("Chairperson", "Treasurer", "National Secretary")
-                        # cursor.execute(
-                        #     """
-                        #     SELECT os.position, pm.email, pm.name
-                        #     FROM officialsmembers os
-                        #     JOIN personalmembership pm
-                        #       ON pm.email = os.personalmembership_email
-                        #     WHERE os.position IN (%s, %s, %s)
-                        #     """,
-                        #     official_positions,
-                        # )
-                        
+
                         placeholders = ",".join(["%s"] * len(official_positions))
 
                         query = f"""
@@ -247,18 +237,21 @@ def registration_payment_callback():
                         """
 
                         cursor.execute(query, official_positions)
-                        
+
                         # remove
-                        
+
                         official_rows = cursor.fetchall() or []
                         logger.info(f"Officials found: {official_rows}")
-                        
+
                         # remove
-                        
-                        official_rows = cursor.fetchall() or []
+
                         officials = []
                         for r in official_rows:
-                            officials.append({"position": r[0], "email": r[1], "name": r[2]})
+                            officials.append({
+                                "position": r.get("position"),
+                                "email": r.get("email"),
+                                "name": r.get("name")
+                            })
 
                         # Resolve paying member name (from personalmembership or organizationmembership)
                         paying_member_name = email
