@@ -346,7 +346,7 @@ export default function OnlinePayments() {
               onClick={() =>
                 makePayment(
                   `${API_BASE_URL}/api/payments/register-fee`,
-                  1,
+                  2000,
                   regPhone,
                   "registration",
                 )
@@ -428,7 +428,8 @@ export default function OnlinePayments() {
               onClick={() =>
                 makePayment(
                   `${API_BASE_URL}/api/payments/premium/pay`,
-                  premiumAmount,
+                  // premiumAmount,
+                  1,
                   premPhone,
                   "premium",
                 )
