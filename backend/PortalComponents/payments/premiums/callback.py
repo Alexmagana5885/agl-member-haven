@@ -382,7 +382,83 @@ def premium_payment_callback():
         }), 500
 
 
+
+
+
+def _get_smtp_config():
+    return {
+        "smtp_host": os.environ.get("SMTP_HOST", "smtp.gmail.com"),
+        "smtp_port": int(os.environ.get("SMTP_PORT", "587")),
+        "smtp_user": os.environ.get("SMTP_USER", "payments@agl.or.ke"),
+        "smtp_password": os.environ.get("SMTP_PASSWORD", ""),
+    }
+
+
+def send_official_payment_notification_emails(officials, member_name, payment_reason, amount, transaction_timestamp):
+    """Notify officials that a payment has been processed."""
+    if not officials:
+        return
+
+    try:
+        import smtplib
+        from email.mime.text import MIMEText
+        from email.mime.multipart import MIMEMultipart
+
+        smtp_cfg = _get_smtp_config()
+        if not smtp_cfg["smtp_password"]:
+            logger.warning("SMTP password not configured, skipping official notification emails")
+            return
+
+        amount_str = f"{amount}"
+        txn_date = transaction_timestamp.split(" ")[0] if transaction_timestamp else "-"
+        txn_time = transaction_timestamp.split(" ")[1] if len(transaction_timestamp.split(" ")) > 1 else "-"
+
+        for o in officials:
+            recipient_email = (o.get("email") or "").strip()
+            recipient_name = (o.get("name") or "Official").strip() or "Official"
+            if not recipient_email:
+                continue
+
+            msg = MIMEMultipart()
+            msg['From'] = smtp_cfg["smtp_user"]
+            msg['To'] = recipient_email
+            msg['Subject'] = "New Payment Processed"
+
+            message = f"""Dear {recipient_name},
+
+This is to notify you that a new payment has been successfully processed in the system.
+
+Payment Details:
+
+Member Name: {member_name}
+Reason for Payment: {payment_reason}
+Amount Paid: KES {amount_str}
+Transaction Date: {txn_date}
+Transaction Time: {txn_time}
+
+Please log into the system for more details if necessary.
+
+Thank you.
+
+Kind regards,
+"""
+
+            msg.attach(MIMEText(message, 'plain'))
+
+            server = smtplib.SMTP(smtp_cfg["smtp_host"], smtp_cfg["smtp_port"])
+            server.starttls()
+            server.login(smtp_cfg["smtp_user"], smtp_cfg["smtp_password"])
+            server.sendmail(smtp_cfg["smtp_user"], recipient_email, msg.as_string())
+            server.quit()
+
+            logger.info(f"Official notification email sent to {recipient_email}")
+
+    except Exception as e:
+        logger.error(f"Error sending official payment notification emails: {str(e)}")
+
+
 def send_confirmation_email(email, phone_number, transaction_id, amount, payment_type):
+
 
     """
     Send confirmation email for successful payment.
