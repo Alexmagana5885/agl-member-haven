@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 validation_bp = Blueprint(
     "validation_bp",
     __name__,
-    url_prefix="/api/payments/c2b"
+    url_prefix="/api/payments/directPayments"
 )
 
 

@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 confirmation_bp = Blueprint(
     "confirmation_bp",
     __name__,
-    url_prefix="/api/payments/c2b"
+    url_prefix="/api/payments/directPayments"
 )
 
 

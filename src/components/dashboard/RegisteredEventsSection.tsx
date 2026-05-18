@@ -6,7 +6,7 @@ import { CalendarCheck2, MapPin, Download, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { getProfileData, ProfileData } from "@/services/api";
 import { getRegisteredEvents } from "@/services/events";
-import type { PlannedEvent } from "@/services/events"; // Reuse for type safety
+import type { PlannedEvent } from "@/services/events";
 
 interface RegisteredEvent {
   id: number;
@@ -25,6 +25,7 @@ export function RegisteredEventsSection() {
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -35,7 +36,7 @@ export function RegisteredEventsSection() {
         // Step 1: Get profile to extract email
         const profileData = await getProfileData();
         setProfile(profileData);
-        
+
         if (!profileData.email) {
           throw new Error("User email not found");
         }
@@ -54,14 +55,16 @@ export function RegisteredEventsSection() {
     fetchData();
   }, []);
 
-  const [downloadingEventId, setDownloadingEventId] = useState<number | null>(null);
+  const [downloadingEventId, setDownloadingEventId] = useState<number | null>(
+    null,
+  );
 
   const formatDate = (dateStr: string) => {
     try {
       return new Date(dateStr).toLocaleDateString("en-GB", {
         day: "numeric",
         month: "short",
-        year: "numeric"
+        year: "numeric",
       });
     } catch {
       return "Date unavailable";
@@ -73,8 +76,8 @@ export function RegisteredEventsSection() {
       return;
     }
 
-    const url = `/api/events/registered/download-card?email=${encodeURIComponent(profile.email)}&event_id=${eventId}`;
-
+    const url = `${API_BASE_URL}/api/events/registered/download-card?email=${encodeURIComponent(profile.email)}&event_id=${eventId}`;
+    
     try {
       setDownloadingEventId(eventId);
       const response = await fetch(url);
@@ -84,9 +87,14 @@ export function RegisteredEventsSection() {
       }
 
       const blob = await response.blob();
-      const contentDisposition = response.headers.get("content-disposition") || "";
-      const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
-      const filename = filenameMatch ? filenameMatch[1].replace(/['"]/g, "") : `event_card_${eventId}.pdf`;
+      const contentDisposition =
+        response.headers.get("content-disposition") || "";
+      const filenameMatch = contentDisposition.match(
+        /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/,
+      );
+      const filename = filenameMatch
+        ? filenameMatch[1].replace(/['"]/g, "")
+        : `event_card_${eventId}.pdf`;
 
       const blobUrl = window.URL.createObjectURL(blob);
       const anchor = document.createElement("a");
@@ -146,9 +154,9 @@ export function RegisteredEventsSection() {
         {error ? (
           <div className="text-center py-8 text-destructive text-sm">
             {error}
-            <Button 
-              variant="link" 
-              size="sm" 
+            <Button
+              variant="link"
+              size="sm"
               onClick={() => window.location.reload()}
               className="mt-2 p-0 h-auto"
             >
@@ -158,13 +166,18 @@ export function RegisteredEventsSection() {
         ) : events.length === 0 ? (
           <div className="text-center py-12 text-muted-foreground">
             <CalendarCheck2 className="h-12 w-12 mx-auto mb-4 opacity-50" />
-<p className="text-sm">You have not registered on any event.</p>
-            <p className="text-xs mt-1">Register for upcoming events to see them here.</p>
+            <p className="text-sm">You have not registered on any event.</p>
+            <p className="text-xs mt-1">
+              Register for upcoming events to see them here.
+            </p>
           </div>
         ) : (
           <div className="space-y-3">
             {events.map((evt) => (
-              <div key={evt.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-lg border border-border p-4 hover:bg-accent">
+              <div
+                key={evt.id}
+                className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-lg border border-border p-4 hover:bg-accent"
+              >
                 <div className="space-y-1 flex-1">
                   <h4 className="font-display text-sm font-semibold text-foreground line-clamp-2">
                     {evt.event_name}
@@ -187,16 +200,18 @@ export function RegisteredEventsSection() {
                   <Badge variant="secondary" className="text-xs">
                     {evt.payment_code}
                   </Badge>
-                  <Button 
+                  <Button
                     type="button"
-                    size="sm" 
-                    variant="outline" 
+                    size="sm"
+                    variant="outline"
                     className="shrink-0 border-primary text-accent-foreground hover:bg-accent"
                     onClick={() => handleDownloadInvitation(evt.event_id)}
                     disabled={downloadingEventId === evt.event_id}
                   >
                     <Download className="mr-1 h-3 w-3" />
-                    {downloadingEventId === evt.event_id ? "Downloading" : "Card"}
+                    {downloadingEventId === evt.event_id
+                      ? "Downloading"
+                      : "Card"}
                   </Button>
                 </div>
               </div>
