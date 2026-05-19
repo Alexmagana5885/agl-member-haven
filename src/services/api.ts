@@ -1,6 +1,25 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
+function buildAssetUrl(path?: string): string {
+  if (!path) return "";
+
+  const trimmed = path.trim();
+  if (!trimmed) return "";
+
+  // Already an absolute URL
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+
+  // Remove leading dots like ./assets/... or ../assets/...
+  const cleaned = trimmed.replace(/^\.\/+/, "").replace(/^\.\.\/+/, "");
+
+  // Remove leading slashes to avoid double '//' when joining
+  const normalized = cleaned.replace(/^\/+/, "");
+
+  return `${API_BASE_URL}/api/${normalized}`;
+}
+
 async function postData<T>(
+
   endpoint: string,
   data: T,
 ): Promise<{ success: boolean; message: string }> {
@@ -52,7 +71,8 @@ async function fetchData(endpoint: string): Promise<any> {
   return response.json();
 }
 
-export { fetchData };
+export { fetchData, buildAssetUrl };
+
 
 // EVENTS / BLOG / MESSAGES
 

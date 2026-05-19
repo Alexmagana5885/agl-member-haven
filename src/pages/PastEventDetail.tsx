@@ -4,7 +4,11 @@ import { DashboardLayout } from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, CalendarDays, MapPin, Users, FileText, Image, Download, Loader2 } from "lucide-react";
+
+import { buildAssetUrl } from "@/services/api";
 import { getPastEvent } from "@/services/events";
+
+
 import { useToast } from "@/hooks/use-toast";
 
 interface PastEvent {
@@ -131,7 +135,8 @@ const PastEventDetail = () => {
             {/* Optional Highlights - fallback to part of details if needed */}
             {event.highlights && (
               <div className="flex gap-3">
-                <Target className="h-5 w-5 text-accent-foreground mt-0.5 shrink-0" />
+
+                <FileText className="h-5 w-5 text-accent-foreground mt-0.5 shrink-0" />
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-medium text-foreground mb-1">Highlights</p>
                   <div
@@ -141,6 +146,7 @@ const PastEventDetail = () => {
                 </div>
               </div>
             )}
+
           </CardContent>
         </Card>
 
@@ -157,11 +163,12 @@ const PastEventDetail = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-6">
                 {event.event_image_paths.map((imgPath, index) => (
                   <div key={index} className="relative group">
-                    <img
-                      src={imgPath}
+<img
+                      src={buildAssetUrl(imgPath)}
                       alt={`Event image ${index + 1}`}
                       className="w-full h-48 object-cover rounded-lg shadow-md group-hover:shadow-lg transition-shadow"
                     />
+
                   </div>
                 ))}
               </div>
@@ -187,9 +194,15 @@ const PastEventDetail = () => {
                   asChild
                   className="w-full justify-start text-left flex gap-2"
                 >
-                  <a href={docPath} target="_blank" rel="noopener noreferrer" download>
+<a
+                    href={buildAssetUrl(docPath) || docPath}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    download
+                  >
                     📄 Document {index + 1}
                   </a>
+
                 </Button>
               ))}
             </CardContent>

@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { BookOpen, ArrowRight } from "lucide-react";
 import { getBlogs } from "@/services/events";
 import { stripHtml } from "@/lib/utils";
+import { buildAssetUrl } from "@/services/api";
+
 
 export function BlogsSection() {
   const [blogsData, setBlogsData] = useState([]);
@@ -68,9 +70,14 @@ export function BlogsSection() {
     id: blog.id.toString(),
     title: blog.title,
     desc: stripHtml(blog.content, 120),
-    date: new Date(blog.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }),
-    image_path: blog.image_path
+    date: new Date(blog.created_at).toLocaleDateString("en-GB", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    }),
+    image_path: blog.image_path,
   }));
+
 
   return (
     <Card className="shadow-card hover:shadow-card-hover transition-shadow">
@@ -83,7 +90,17 @@ export function BlogsSection() {
       <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {blogs.map((blog) => (
-            <div key={blog.id} className="group rounded-lg border border-border p-4 hover:border-primary/30 hover:shadow-card transition-all">
+            <div
+              key={blog.id}
+              className="group rounded-lg border border-border p-4 hover:border-primary/30 hover:shadow-card transition-all"
+            >
+              {blog.image_path ? (
+                <img
+                  src={buildAssetUrl(blog.image_path)}
+                  alt={blog.title}
+                  className="w-full h-28 object-cover rounded-md mb-2"
+                />
+              ) : null}
               <p className="text-xs text-muted-foreground mb-2">{blog.date}</p>
               <h4 className="font-display text-sm font-semibold text-foreground mb-1 line-clamp-2">{blog.title}</h4>
               <p className="text-xs text-muted-foreground line-clamp-2 mb-3">{blog.desc}</p>
@@ -92,6 +109,7 @@ export function BlogsSection() {
               </Button>
             </div>
           ))}
+
           {blogs.length === 0 && (
             <div className="col-span-full text-center py-8 text-muted-foreground">
               No blogs available

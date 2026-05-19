@@ -1,24 +1,11 @@
-# TODO - directPayments hardening
-
-## Step 1: Make confirmation idempotent + safer
-- Update `backend/PortalComponents/payments/directPayments/confirmation.py`:
-  - validate required fields
-  - if `CheckoutRequestID`/`MpesaReceiptNumber` missing => return non-accepted
-  - return non-zero result if saving fails
-  - prevent inserts on duplicates (using DB unique constraints/receipt)
-
-## Step 2: Strengthen save layer
-- Update `backend/PortalComponents/payments/directPayments/save_functions.py`:
-  - add `INSERT ... ON DUPLICATE KEY UPDATE` for `MpesaReceiptNumber`
-  - optionally also enforce uniqueness on `CheckoutRequestID` (DB migration)
-
-## Step 3: Strengthen validation endpoint
-- Update `backend/PortalComponents/payments/directPayments/validation.py`:
-  - parse JSON safely
-  - check required request fields
-  - return appropriate ResultCode/Desc
-
-## Step 4: Test locally
-- Run a simple curl/postman simulation of confirmation/validation
-- Verify duplicates don’t create extra rows in `directmpesapayments`
+# TODO
+- [ ] Add asset URL helper using `const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;`
+  - [ ] Implement `buildAssetUrl(path)` in `src/services/api.ts`
+- [ ] Wire asset URLs into blog rendering
+  - [ ] Update `src/pages/BlogDetail.tsx` to use `buildAssetUrl(blog.image_path)`
+  - [ ] Update `src/components/dashboard/BlogsSection.tsx` to render blog cover images using `buildAssetUrl(blog.image_path)`
+- [ ] Wire asset URLs into past event rendering
+  - [ ] Update `src/pages/PastEventDetail.tsx` to prefix `event_image_paths` + `event_document_paths` via `buildAssetUrl`
+- [ ] Build/test the frontend
+  - [ ] Run `npm run build` (and `npm test` if available)
 
