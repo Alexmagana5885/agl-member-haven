@@ -474,6 +474,40 @@ def get_message(message_id):
         return jsonify({"success": False, "message": "Error fetching message details"}), 500
 
 
+@communications_bp.route('/<int:message_id>', methods=['DELETE'])
+def delete_message(message_id):
+    """Delete a message if the requester is the original sender."""
+    try:
+        user_email = get_user_email_from_session()
+        if not user_email:
+            return jsonify({"success": False, "message": "Not authenticated"}), 401
+
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT sender_email FROM membermessages WHERE id = %s", (message_id,))
+        message_record = cursor.fetchone()
+
+        if not message_record:
+            cursor.close()
+            conn.close()
+            return jsonify({"success": False, "message": "Message not found"}), 404
+
+        if message_record.get('sender_email') != user_email:
+            cursor.close()
+            conn.close()
+            return jsonify({"success": False, "message": "Not authorized to delete this message"}), 403
+
+        cursor.execute("DELETE FROM membermessages WHERE id = %s", (message_id,))
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        return jsonify({"success": True, "message": "Message deleted successfully"}), 200
+    except Exception as e:
+        logger.error(f"Error deleting message: {str(e)}")
+        return jsonify({"success": False, "message": "Error deleting message"}), 500
+
+
 # ==================== Helper Functions ====================
 
 def _get_official_emails():

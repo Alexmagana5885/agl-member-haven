@@ -4,11 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { RichTextEditor } from "@/components/ui/RichTextEditor";
 import { CalendarDays, MapPin, Mail, Phone, UserCheck, Loader2, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import type { PlannedEvent, ProfileData } from "@/services/api";
-import { getPlannedEvents, registerForEvent, getProfileData } from "@/services/api";
+import type { PlannedEvent } from "@/services/events";
+import type { ProfileData, PlannedEventPayload } from "@/services/api";
+import { getPlannedEvents, registerForEvent, getProfileData, getSessionInfo, updatePlannedEvent, deletePlannedEvent } from "@/services/api";
 // import { Skeleton } from "@/components/ui/skeleton";
 
 export function PlannedEventsSection() {
@@ -19,6 +21,16 @@ export function PlannedEventsSection() {
   const [name, setName] = useState("");
   const [contact, setContact] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [isOfficial, setIsOfficial] = useState(false);
+  const [editingEvent, setEditingEvent] = useState<PlannedEvent | null>(null);
+  const [editSubmitting, setEditSubmitting] = useState(false);
+  const [editForm, setEditForm] = useState<PlannedEventPayload>({
+    title: "",
+    date: "",
+    venue: "",
+    description: "",
+    regAmount: "",
+  });
   const { toast } = useToast();
   const [profile, setProfile] = useState<ProfileData | null>(null);
 
@@ -56,6 +68,92 @@ export function PlannedEventsSection() {
     fetchProfile();
   }, []);
 
+  useEffect(() => {
+    const fetchSession = async () => {
+      try {
+        const session = await getSessionInfo();
+        setIsOfficial(!!session?.user?.is_official);
+      } catch (err) {
+        setIsOfficial(false);
+      }
+    };
+    fetchSession();
+  }, []);
+
+  const resetEditForm = () => {
+    setEditForm({
+      title: "",
+      date: "",
+      venue: "",
+      description: "",
+      regAmount: "",
+    });
+  };
+
+  const handleOpenEdit = (event: PlannedEvent) => {
+    setEditingEvent(event);
+    setEditForm({
+      title: event.event_name,
+      date: event.event_date ? event.event_date.slice(0, 10) : "",
+      venue: event.event_location,
+      description: event.event_description || "",
+      regAmount: event.RegistrationAmount?.toString() || "0",
+    });
+  };
+
+  const handleCloseEdit = () => {
+    setEditingEvent(null);
+    resetEditForm();
+  };
+
+  const handleUpdateEvent = async () => {
+    if (!editingEvent) return;
+    setEditSubmitting(true);
+    try {
+      await updatePlannedEvent(String(editingEvent.id), editForm);
+      setEvents((prevEvents) =>
+        prevEvents.map((evt) =>
+          evt.id === editingEvent.id
+            ? {
+                ...evt,
+                event_name: editForm.title,
+                event_date: editForm.date,
+                event_location: editForm.venue,
+                event_description: editForm.description,
+                RegistrationAmount: Number(editForm.regAmount || 0),
+              }
+            : evt,
+        ),
+      );
+      handleCloseEdit();
+      toast({ title: "Event updated successfully", variant: "default" });
+    } catch (err: any) {
+      toast({
+        title: "Update failed",
+        description: err.message || "Failed to update event",
+        variant: "destructive",
+      });
+    } finally {
+      setEditSubmitting(false);
+    }
+  };
+
+  const handleDeleteEvent = async (eventId: number) => {
+    const confirmed = window.confirm("Delete this planned event? This cannot be undone.");
+    if (!confirmed) return;
+
+    try {
+      await deletePlannedEvent(String(eventId));
+      setEvents((prevEvents) => prevEvents.filter((evt) => evt.id !== eventId));
+      toast({ title: "Event deleted successfully", variant: "default" });
+    } catch (err: any) {
+      toast({
+        title: "Delete failed",
+        description: err.message || "Failed to delete event",
+        variant: "destructive",
+      });
+    }
+  };
 
   const handleClose = () => {
     setRegEvent(null);
@@ -148,10 +246,28 @@ export function PlannedEventsSection() {
                   </div>
 
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-border">
-                    <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
+                    <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                       <Badge variant="secondary" className="text-xs">
                         Ksh {evt.RegistrationAmount.toLocaleString()}
                       </Badge>
+                      {isOfficial && (
+                        <div className="flex flex-wrap gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleOpenEdit(evt)}
+                          >
+                            Edit
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => handleDeleteEvent(evt.id)}
+                          >
+                            Delete
+                          </Button>
+                        </div>
+                      )}
                     </div>
                     <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90" onClick={() => setRegEvent(evt)}>
                       Register for Event
@@ -215,6 +331,80 @@ export function PlannedEventsSection() {
               ) : (
                 "Register"
               )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!editingEvent} onOpenChange={(open) => { if (!open) handleCloseEdit(); }}>
+        <DialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 font-display">
+              <CalendarDays className="h-5 w-5 text-primary" /> Edit Planned Event
+            </DialogTitle>
+            <DialogDescription>
+              Update the details for the selected planned event.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3 py-2 overflow-y-auto flex-1 pr-2">
+            <div className="space-y-1.5">
+              <Label>Event Title *</Label>
+              <Input
+                placeholder="Enter event title"
+                value={editForm.title}
+                onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label>Event Date *</Label>
+                <Input
+                  type="date"
+                  value={editForm.date}
+                  onChange={(e) => setEditForm({ ...editForm, date: e.target.value })}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label>Registration Amount (Ksh) *</Label>
+                <Input
+                  type="number"
+                  placeholder="0"
+                  value={editForm.regAmount}
+                  onChange={(e) => setEditForm({ ...editForm, regAmount: e.target.value })}
+                />
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <Label>Event Location/Venue *</Label>
+              <Input
+                placeholder="Enter event venue"
+                value={editForm.venue}
+                onChange={(e) => setEditForm({ ...editForm, venue: e.target.value })}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Event Description *</Label>
+              <RichTextEditor
+                value={editForm.description}
+                onChange={(val) => setEditForm({ ...editForm, description: val })}
+                placeholder="Describe the event"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={handleCloseEdit}
+              disabled={editSubmitting}
+            >
+              Cancel
+            </Button>
+            <Button
+              className="bg-primary text-primary-foreground hover:bg-primary/90"
+              disabled={editSubmitting}
+              onClick={handleUpdateEvent}
+            >
+              {editSubmitting ? "Saving..." : "Save Changes"}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -11,6 +11,8 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { ArrowLeft, CalendarDays, Loader2, Mail, MessageSquare, Search, Send, User, UserCheck, Users, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import {
+  deleteMessage,
+  getSessionInfo,
   getUserMessages,
   replyToMessage,
   searchMembers,
@@ -48,6 +50,7 @@ const MessagesPage = () => {
   const [subject, setSubject] = useState("");
   const [senderName, setSenderName] = useState("AGL Admin");
   const [senderEmail, setSenderEmail] = useState("admin@agl.or.ke");
+  const [currentUserEmail, setCurrentUserEmail] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -59,6 +62,19 @@ const MessagesPage = () => {
 
   useEffect(() => {
     fetchUserMessages();
+  }, []);
+
+  useEffect(() => {
+    const fetchSession = async () => {
+      try {
+        const session = await getSessionInfo();
+        setCurrentUserEmail(session?.user?.email ?? null);
+      } catch (error) {
+        console.error("Error fetching session info:", error);
+      }
+    };
+
+    fetchSession();
   }, []);
 
   useEffect(() => {
@@ -202,6 +218,21 @@ if (recipientType === "specific_recipients" && selectedRecipients.length === 0) 
       console.error("Error sending reply:", error);
     } finally {
       setSendingReply(false);
+    }
+  };
+
+  const handleDeleteMessage = async () => {
+    if (!selectedMessage) return;
+
+    const confirmed = window.confirm("Delete this message? This action cannot be undone.");
+    if (!confirmed) return;
+
+    try {
+      await deleteMessage(selectedMessage.id);
+      setUserMessages((prev) => prev.filter((msg) => msg.id !== selectedMessage.id));
+      setSelectedMessage(null);
+    } catch (error) {
+      console.error("Error deleting message:", error);
     }
   };
 
@@ -454,23 +485,30 @@ onFocus={() => searchResults.length > 0 && setShowDropdown(true)}
           <div className="space-y-3 pt-4 border-t">
             <Label htmlFor="reply">Reply</Label>
             <RichTextEditor value={replyText} onChange={setReplyText} placeholder="Type your reply..." />
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setSelectedMessage(null)}>
-                Close
-              </Button>
-              <Button onClick={handleSendReply} disabled={!getPlainText(replyText) || sendingReply}>
-                {sendingReply ? (
-                  <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Sending...
-                  </>
-                ) : (
-                  <>
-                    <Send className="h-4 w-4 mr-2" />
-                    Send Reply
-                  </>
-                )}
-              </Button>
+            <DialogFooter className="justify-between">
+              {currentUserEmail && selectedMessage?.sender_email === currentUserEmail ? (
+                <Button variant="destructive" onClick={handleDeleteMessage}>
+                  Delete Message
+                </Button>
+              ) : <div />}
+              <div className="flex items-center gap-2">
+                <Button variant="outline" onClick={() => setSelectedMessage(null)}>
+                  Close
+                </Button>
+                <Button onClick={handleSendReply} disabled={!getPlainText(replyText) || sendingReply}>
+                  {sendingReply ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Sending...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="h-4 w-4 mr-2" />
+                      Send Reply
+                    </>
+                  )}
+                </Button>
+              </div>
             </DialogFooter>
           </div>
         </DialogContent>

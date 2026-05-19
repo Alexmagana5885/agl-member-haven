@@ -2,16 +2,24 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { RichTextEditor } from "@/components/ui/RichTextEditor";
 import { BookOpen, ArrowRight } from "lucide-react";
 import { getBlogs } from "@/services/events";
 import { stripHtml } from "@/lib/utils";
-import { buildAssetUrl } from "@/services/api";
+import { buildAssetUrl, getSessionInfo, updateBlog, deleteBlog, type BlogPayload } from "@/services/api";
 
 
 export function BlogsSection() {
   const [blogsData, setBlogsData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [isOfficial, setIsOfficial] = useState(false);
+  const [editingBlog, setEditingBlog] = useState<any | null>(null);
+  const [editForm, setEditForm] = useState<BlogPayload>({ title: "", content: "" });
+  const [editSubmitting, setEditSubmitting] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -29,6 +37,67 @@ export function BlogsSection() {
     };
     loadBlogs();
   }, []);
+
+  useEffect(() => {
+    const fetchSession = async () => {
+      try {
+        const session = await getSessionInfo();
+        setIsOfficial(!!session?.user?.is_official);
+      } catch {
+        setIsOfficial(false);
+      }
+    };
+    fetchSession();
+  }, []);
+
+  const handleOpenEdit = (blog: any) => {
+    setEditingBlog(blog);
+    setEditForm({
+      title: blog.title,
+      content: blog.content,
+    });
+  };
+
+  const handleCloseEdit = () => {
+    setEditingBlog(null);
+    setEditForm({ title: "", content: "" });
+  };
+
+  const handleUpdateBlog = async () => {
+    if (!editingBlog) return;
+    setEditSubmitting(true);
+    try {
+      await updateBlog(String(editingBlog.id), {
+        title: editForm.title,
+        content: editForm.content,
+        imagePath: editingBlog.image_path || "../assets/img/Blogs/default.jpg",
+      });
+      setBlogsData((prevBlogs: any[]) =>
+        prevBlogs.map((blog) =>
+          blog.id === editingBlog.id ? { ...blog, title: editForm.title, content: editForm.content } : blog,
+        ),
+      );
+      handleCloseEdit();
+    } catch (err: any) {
+      console.error(err);
+      setError(err.message || "Failed to update blog");
+    } finally {
+      setEditSubmitting(false);
+    }
+  };
+
+  const handleDeleteBlog = async (blogId: number) => {
+    const confirmed = window.confirm("Delete this blog post? This cannot be undone.");
+    if (!confirmed) return;
+
+    try {
+      await deleteBlog(String(blogId));
+      setBlogsData((prevBlogs: any[]) => prevBlogs.filter((blog) => blog.id !== blogId));
+    } catch (err: any) {
+      console.error(err);
+      setError(err.message || "Failed to delete blog");
+    }
+  };
 
   if (loading) {
     return (
@@ -69,6 +138,7 @@ export function BlogsSection() {
   const blogs = blogsData.slice(0, 3).map((blog) => ({
     id: blog.id.toString(),
     title: blog.title,
+    content: blog.content,
     desc: stripHtml(blog.content, 120),
     date: new Date(blog.created_at).toLocaleDateString("en-GB", {
       day: "numeric",
@@ -94,6 +164,24 @@ export function BlogsSection() {
               key={blog.id}
               className="group rounded-lg border border-border p-4 hover:border-primary/30 hover:shadow-card transition-all"
             >
+              {isOfficial && (
+                <div className="flex justify-end gap-2 mb-3">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleOpenEdit(blog)}
+                  >
+                    Edit
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    onClick={() => handleDeleteBlog(blog.id)}
+                  >
+                    Delete
+                  </Button>
+                </div>
+              )}
               {blog.image_path ? (
                 <img
                   src={buildAssetUrl(blog.image_path)}
@@ -117,6 +205,48 @@ export function BlogsSection() {
           )}
         </div>
       </CardContent>
+      <Dialog open={!!editingBlog} onOpenChange={(open) => { if (!open) handleCloseEdit(); }}>
+        <DialogContent className="sm:max-w-2xl max-h-[85vh] flex flex-col">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 font-display">
+              <BookOpen className="h-5 w-5 text-primary" /> Edit Blog Post
+            </DialogTitle>
+            <DialogDescription>
+              Change the blog title or content before saving.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3 py-2 overflow-y-auto flex-1 pr-2">
+            <div className="space-y-1.5">
+              <Label>Blog Title *</Label>
+              <Input
+                placeholder="Enter blog title"
+                value={editForm.title}
+                onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Blog Content *</Label>
+              <RichTextEditor
+                value={editForm.content}
+                onChange={(val) => setEditForm({ ...editForm, content: val })}
+                placeholder="Write the full blog content..."
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={handleCloseEdit} disabled={editSubmitting}>
+              Cancel
+            </Button>
+            <Button
+              className="bg-primary text-primary-foreground hover:bg-primary/90"
+              disabled={editSubmitting}
+              onClick={handleUpdateBlog}
+            >
+              {editSubmitting ? "Saving..." : "Save Changes"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }

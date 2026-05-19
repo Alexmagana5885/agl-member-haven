@@ -59,6 +59,22 @@ async function putData<T>(
   return response.json();
 }
 
+async function deleteData(
+  endpoint: string,
+): Promise<{ success: boolean; message: string }> {
+  const response = await fetch(`${API_BASE_URL}/api${endpoint}`, {
+    method: "DELETE",
+    credentials: "include",
+  });
+
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}));
+    throw new Error(err.message || `Request failed (${response.status})`);
+  }
+
+  return response.json();
+}
+
 async function fetchData(endpoint: string): Promise<any> {
   const response = await fetch(`${API_BASE_URL}/api${endpoint}`, {
     method: "GET",
@@ -90,6 +106,14 @@ export function createPlannedEvent(data: PlannedEventPayload) {
   return postData("/admin/planned-events", data);
 }
 
+export function updatePlannedEvent(eventId: string, data: PlannedEventPayload) {
+  return putData(`/admin/planned-events/${eventId}`, data);
+}
+
+export function deletePlannedEvent(eventId: string) {
+  return deleteData(`/admin/planned-events/${eventId}`);
+}
+
 export interface PastEventPayload {
   title: string;
   date: string;
@@ -101,6 +125,14 @@ export function createPastEvent(data: PastEventPayload) {
   return postData("/admin/past-events", data);
 }
 
+export function updatePastEvent(eventId: string, data: PastEventPayload) {
+  return putData(`/admin/past-events/${eventId}`, data);
+}
+
+export function deletePastEvent(eventId: string) {
+  return deleteData(`/admin/past-events/${eventId}`);
+}
+
 export interface BlogPayload {
   title: string;
   content: string;
@@ -108,6 +140,14 @@ export interface BlogPayload {
 
 export function createBlog(data: BlogPayload) {
   return postData("/admin/blogs", data);
+}
+
+export function updateBlog(blogId: string, data: BlogPayload & { imagePath?: string }) {
+  return putData(`/admin/blogs/${blogId}`, data);
+}
+
+export function deleteBlog(blogId: string) {
+  return deleteData(`/admin/blogs/${blogId}`);
 }
 
 export async function uploadBlogCoverImage(blogId: string, file: File): Promise<{ success: boolean; message?: string; image_path?: string }> {
@@ -168,6 +208,10 @@ export interface MessagePayload {
 
 export function sendMessage(data: MessagePayload) {
   return postData("/admin/messages", data);
+}
+
+export function deleteMessage(messageId: number | string) {
+  return deleteData(`/admin/messages/${messageId}`);
 }
 
 // SEARCH MEMBERS
@@ -315,6 +359,10 @@ export async function getProfileData(): Promise<ProfileData> {
 
 export function updateProfileData(data: ProfileUpdatePayload) {
   return putData("/dashboard/user-info/profile", data);
+}
+
+export async function getSessionInfo() {
+  return fetchData("/auth/session");
 }
 
 export async function uploadProfileImage(file: File) {
