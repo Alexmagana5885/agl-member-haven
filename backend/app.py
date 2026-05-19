@@ -264,5 +264,22 @@ def uploaded_file(filename):
     upload_folder = os.path.join(os.path.dirname(__file__), UPLOAD_DIR)
     return send_from_directory(upload_folder, filename)
 
+
+@app.route('/api/assets/<path:filename>')
+def serve_api_assets(filename: str):
+    """Serve images/documents stored under backend/assets.
+
+    Frontend uses buildAssetUrl() => `${API_BASE_URL}/api/${normalized}`
+    where normalized includes paths like:
+      - assets/img/Blogs/default.jpg
+      - assets/img/PastEvents/<file>.jpg
+      - assets/Documents/PastEventsDocs/<file>.pdf
+    """
+    # Assets are stored under backend/backend/assets in this repo
+    assets_dir = os.path.join(os.path.dirname(__file__), 'backend', 'assets')
+    return send_from_directory(assets_dir, filename)
+
+
 if __name__ == "__main__":
     app.run(debug=True, use_reloader=False)
+

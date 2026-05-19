@@ -15,7 +15,9 @@ function buildAssetUrl(path?: string): string {
   // Remove leading slashes to avoid double '//' when joining
   const normalized = cleaned.replace(/^\/+/, "");
 
-  return `${API_BASE_URL}/api/${normalized}`;
+  const withoutAssetsPrefix = normalized.replace(/^assets\//, "");
+
+  return `${API_BASE_URL}/api/assets/${withoutAssetsPrefix}`;
 }
 
 async function postData<T>(
