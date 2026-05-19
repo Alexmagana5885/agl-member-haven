@@ -53,6 +53,8 @@ import {
   createPastEvent,
   createBlog,
   sendMessage as sendMessageApi,
+  uploadPastEventFiles,
+  uploadBlogCoverImage,
   type PlannedEventPayload,
   type PastEventPayload,
   type BlogPayload,
@@ -159,7 +161,10 @@ export function DashboardSidebar() {
     venue: "",
     description: "",
   });
+  const [pastEventImages, setPastEventImages] = useState<File[]>([]);
+  const [pastEventDocuments, setPastEventDocuments] = useState<File[]>([]);
   const [blog, setBlog] = useState<BlogPayload>({ title: "", content: "" });
+  const [blogCoverImage, setBlogCoverImage] = useState<File | null>(null);
   const [message, setMessage] = useState(emptyMessage);
 
   const closeDialog = () => {
@@ -172,7 +177,10 @@ export function DashboardSidebar() {
       regAmount: "",
     });
     setPastEvent({ title: "", date: "", venue: "", description: "" });
+    setPastEventImages([]);
+    setPastEventDocuments([]);
     setBlog({ title: "", content: "" });
+    setBlogCoverImage(null);
     setMessage(emptyMessage);
   };
 
@@ -532,6 +540,32 @@ export function DashboardSidebar() {
                 placeholder="Describe the event details"
               />
             </div>
+
+            <div className="space-y-1.5">
+              <Label>Event Images</Label>
+              <Input
+                type="file"
+                multiple
+                accept="image/*"
+                onChange={(e) => {
+                  const files = Array.from(e.target.files || []);
+                  setPastEventImages(files);
+                }}
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label>Event Documents</Label>
+              <Input
+                type="file"
+                multiple
+                accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt"
+                onChange={(e) => {
+                  const files = Array.from(e.target.files || []);
+                  setPastEventDocuments(files);
+                }}
+              />
+            </div>
           </div>
           <DialogFooter>
             <Button
@@ -544,12 +578,32 @@ export function DashboardSidebar() {
             <Button
               className="bg-primary text-primary-foreground hover:bg-primary/90"
               disabled={submitting}
-              onClick={() =>
-                handleSubmit(
-                  () => createPastEvent(pastEvent),
-                  "Past event saved successfully",
-                )
-              }
+              onClick={async () => {
+                setSubmitting(true);
+                try {
+                  const res = (await createPastEvent(pastEvent)) as any;
+                  if (!res?.success) throw new Error(res?.message || "Failed to create past event");
+
+                  const eventId = String((res as any).event_id);
+                  if ((pastEventImages?.length || 0) > 0 || (pastEventDocuments?.length || 0) > 0) {
+                    await uploadPastEventFiles(eventId, {
+                      images: pastEventImages,
+                      documents: pastEventDocuments,
+                    });
+                  }
+
+                  toast({ title: "Past event saved successfully", variant: "default" });
+                  closeDialog();
+                } catch (e: any) {
+                  toast({
+                    title: "Action failed",
+                    description: e?.message || "Please try again.",
+                    variant: "destructive",
+                  });
+                } finally {
+                  setSubmitting(false);
+                }
+              }}
             >
               {submitting ? "Saving..." : "Save Event"}
             </Button>
@@ -583,6 +637,18 @@ export function DashboardSidebar() {
               />
             </div>
             <div className="space-y-1.5">
+              <Label>Blog Cover Image</Label>
+              <Input
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const f = (e.target.files || [])[0];
+                  setBlogCoverImage(f || null);
+                }}
+              />
+            </div>
+
+            <div className="space-y-1.5">
               <Label>Full Content *</Label>
               <RichTextEditor
                 value={blog.content}
@@ -602,12 +668,29 @@ export function DashboardSidebar() {
             <Button
               className="bg-primary text-primary-foreground hover:bg-primary/90"
               disabled={submitting}
-              onClick={() =>
-                handleSubmit(
-                  () => createBlog(blog),
-                  "Blog published successfully",
-                )
-              }
+              onClick={async () => {
+                setSubmitting(true);
+                try {
+                  const res = (await createBlog(blog)) as any;
+                  if (!res?.success) throw new Error(res?.message || "Failed to create blog");
+
+                  const blogId = String((res as any).blog_id);
+                  if (blogCoverImage) {
+                    await uploadBlogCoverImage(blogId, blogCoverImage);
+                  }
+
+                  toast({ title: "Blog published successfully", variant: "default" });
+                  closeDialog();
+                } catch (e: any) {
+                  toast({
+                    title: "Action failed",
+                    description: e?.message || "Please try again.",
+                    variant: "destructive",
+                  });
+                } finally {
+                  setSubmitting(false);
+                }
+              }}
             >
               {submitting ? "Publishing..." : "Publish Blog"}
             </Button>

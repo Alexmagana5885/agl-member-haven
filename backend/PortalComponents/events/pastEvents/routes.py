@@ -5,6 +5,8 @@ import logging
 from flask import Blueprint, jsonify, request
 import mysql.connector
 
+from .upload_utils import allowed_image_file, allowed_document_file, save_uploaded_file
+
 # Configure logger
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -242,6 +244,97 @@ def create_past_event():
             "success": False,
             "message": "An unexpected error occurred. Please try again."
         }), 500
+
+
+@past_events_bp.route('/<int:event_id>/upload', methods=['POST'])
+def upload_past_event_files(event_id):
+    """Upload images and documents for a past event.
+
+    Form fields:
+      - eventImages: multiple files (optional)
+      - eventDocuments: multiple files (optional)
+
+    Stores JSON arrays in:
+      - pastevents.event_image_paths
+      - pastevents.event_document_paths
+    """
+    try:
+        if 'eventImages' not in request.files and 'eventDocuments' not in request.files:
+            return jsonify({"success": False, "message": "No files provided"}), 400
+
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute(
+            "SELECT event_image_paths, event_document_paths FROM pastevents WHERE id = %s",
+            (event_id,),
+        )
+        row = cursor.fetchone()
+        if not row:
+            cursor.close(); conn.close()
+            return jsonify({"success": False, "message": "Event not found"}), 404
+
+        def to_list(val):
+            if not val:
+                return []
+            try:
+                parsed = json.loads(val)
+                return parsed if isinstance(parsed, list) else []
+            except Exception:
+                return []
+
+        image_paths = to_list(row.get('event_image_paths'))
+        document_paths = to_list(row.get('event_document_paths'))
+
+        # Ensure upload dirs exist and save under repo public assets
+        uploads_base = os.path.join(os.getcwd(), 'backend', 'assets')
+
+        # Images
+        images = request.files.getlist('eventImages') if hasattr(request.files, 'getlist') else []
+        for f in images:
+            if not f or not getattr(f, 'filename', ''):
+                continue
+            if not allowed_image_file(f.filename):
+                continue
+            upload_dir = os.path.join(uploads_base, 'img', 'PastEventsDocs')  # placeholder; overridden below
+            # Use separate subfolders
+            upload_dir = os.path.join(uploads_base, 'img', 'PastEvents')
+            saved = save_uploaded_file(f, upload_dir=upload_dir, relative_subdir=os.path.join('img', 'PastEvents'))
+            image_paths.append(saved)
+
+        # Documents
+        documents = request.files.getlist('eventDocuments') if hasattr(request.files, 'getlist') else []
+        for f in documents:
+            if not f or not getattr(f, 'filename', ''):
+                continue
+            if not allowed_document_file(f.filename):
+                continue
+            upload_dir = os.path.join(uploads_base, 'Documents', 'PastEventsDocs')
+            saved = save_uploaded_file(f, upload_dir=upload_dir, relative_subdir=os.path.join('Documents', 'PastEventsDocs'))
+            document_paths.append(saved)
+
+        event_image_paths_json = json.dumps(image_paths) if image_paths else None
+        event_document_paths_json = json.dumps(document_paths) if document_paths else None
+
+        cursor.execute(
+            """UPDATE pastevents
+               SET event_image_paths=%s, event_document_paths=%s
+               WHERE id=%s""",
+            (event_image_paths_json, event_document_paths_json, event_id),
+        )
+        conn.commit()
+
+        cursor.close(); conn.close()
+        return jsonify({
+            "success": True,
+            "message": "Files uploaded successfully",
+            "event_id": event_id,
+            "event_image_paths": image_paths,
+            "event_document_paths": document_paths,
+        }), 200
+
+    except Exception as e:
+        logger.error(f"Error uploading past event files: {str(e)}")
+        return jsonify({"success": False, "message": "Upload failed"}), 500
 
 
 @past_events_bp.route('/<int:event_id>', methods=['PUT'])

@@ -4,6 +4,8 @@ import logging
 from flask import Blueprint, jsonify, request
 import mysql.connector
 
+from .upload_utils import allowed_image_file, save_uploaded_file
+
 # Configure logger
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -205,6 +207,56 @@ def create_blog():
             "success": False,
             "message": "An unexpected error occurred. Please try again."
         }), 500
+
+
+@blogs_bp.route('/<int:blog_id>/upload-image', methods=['POST'])
+def upload_blog_cover_image(blog_id):
+    """Upload/replace blog cover image.
+
+    Form field:
+      - image (single file)
+
+    Updates:
+      - blog_posts.image_path
+    """
+    try:
+        if 'image' not in request.files:
+            return jsonify({"success": False, "message": "No image provided"}), 400
+
+        file = request.files['image']
+        if not file or not getattr(file, 'filename', ''):
+            return jsonify({"success": False, "message": "No image provided"}), 400
+
+        if not allowed_image_file(file.filename):
+            return jsonify({"success": False, "message": "Invalid image type"}), 400
+
+        uploads_base = os.path.join(os.getcwd(), 'backend', 'assets')
+        upload_dir = os.path.join(uploads_base, 'img', 'Blogs')
+
+        saved_path = save_uploaded_file(
+            file,
+            upload_dir=upload_dir,
+            subdir=os.path.join('img', 'Blogs'),
+        )
+
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            "UPDATE blog_posts SET image_path=%s WHERE id=%s",
+            (saved_path, blog_id),
+        )
+        conn.commit()
+
+        if cursor.rowcount == 0:
+            cursor.close(); conn.close()
+            return jsonify({"success": False, "message": "Blog not found"}), 404
+
+        cursor.close(); conn.close()
+        return jsonify({"success": True, "message": "Image uploaded", "image_path": saved_path}), 200
+
+    except Exception as e:
+        logger.error(f"Error uploading blog cover image: {str(e)}")
+        return jsonify({"success": False, "message": "Upload failed"}), 500
 
 
 @blogs_bp.route('/<int:blog_id>', methods=['PUT'])

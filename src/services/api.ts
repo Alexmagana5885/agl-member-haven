@@ -88,6 +88,51 @@ export function createBlog(data: BlogPayload) {
   return postData("/admin/blogs", data);
 }
 
+export async function uploadBlogCoverImage(blogId: string, file: File): Promise<{ success: boolean; message?: string; image_path?: string }> {
+  const formData = new FormData();
+  formData.append("image", file);
+
+  const response = await fetch(`${API_BASE_URL}/api/admin/blogs/${blogId}/upload-image`, {
+    method: "POST",
+    credentials: "include",
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}));
+    throw new Error(err.message || `Upload failed (${response.status})`);
+  }
+
+  return response.json();
+}
+
+export async function uploadPastEventFiles(
+  eventId: string,
+  {
+    images,
+    documents,
+  }: { images?: File[]; documents?: File[] },
+): Promise<{ success: boolean; message?: string; event_image_paths?: string[]; event_document_paths?: string[] }> {
+  const formData = new FormData();
+
+  (images || []).forEach((f) => formData.append("eventImages", f));
+  (documents || []).forEach((f) => formData.append("eventDocuments", f));
+
+  const response = await fetch(`${API_BASE_URL}/api/admin/past-events/${eventId}/upload`, {
+    method: "POST",
+    credentials: "include",
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}));
+    throw new Error(err.message || `Upload failed (${response.status})`);
+  }
+
+  return response.json();
+}
+
+
 export interface MessagePayload {
   recipient_group: {
     type: "all_members" | "officials" | "specific_recipients";
