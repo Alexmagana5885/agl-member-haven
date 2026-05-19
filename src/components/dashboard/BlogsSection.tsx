@@ -2,7 +2,15 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RichTextEditor } from "@/components/ui/RichTextEditor";
@@ -86,18 +94,31 @@ export function BlogsSection() {
     }
   };
 
-  const handleDeleteBlog = async (blogId: number) => {
-    const confirmed = window.confirm("Delete this blog post? This cannot be undone.");
-    if (!confirmed) return;
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [deleteSubmitting, setDeleteSubmitting] = useState(false);
+  const [pendingDeleteBlogId, setPendingDeleteBlogId] = useState<number | null>(null);
 
+  const handleRequestDeleteBlog = (blogId: number) => {
+    setPendingDeleteBlogId(blogId);
+    setDeleteConfirmOpen(true);
+  };
+
+  const handleConfirmDeleteBlog = async () => {
+    if (!pendingDeleteBlogId) return;
+    setDeleteSubmitting(true);
     try {
-      await deleteBlog(String(blogId));
-      setBlogsData((prevBlogs: any[]) => prevBlogs.filter((blog) => blog.id !== blogId));
+      await deleteBlog(String(pendingDeleteBlogId));
+      setBlogsData((prevBlogs: any[]) => prevBlogs.filter((blog) => blog.id !== pendingDeleteBlogId));
+      setDeleteConfirmOpen(false);
+      setPendingDeleteBlogId(null);
     } catch (err: any) {
       console.error(err);
       setError(err.message || "Failed to delete blog");
+    } finally {
+      setDeleteSubmitting(false);
     }
   };
+
 
   if (loading) {
     return (
@@ -173,13 +194,14 @@ export function BlogsSection() {
                   >
                     Edit
                   </Button>
-                  <Button
-                    size="sm"
-                    variant="destructive"
-                    onClick={() => handleDeleteBlog(blog.id)}
-                  >
-                    Delete
-                  </Button>
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      onClick={() => handleRequestDeleteBlog(blog.id)}
+                    >
+                      Delete
+                    </Button>
+
                 </div>
               )}
               {blog.image_path ? (
@@ -205,8 +227,34 @@ export function BlogsSection() {
           )}
         </div>
       </CardContent>
+      <Dialog open={deleteConfirmOpen} onOpenChange={(open) => { if (!open) { setDeleteConfirmOpen(false); setPendingDeleteBlogId(null); } }}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Delete blog post?</DialogTitle>
+            <DialogDescription>This action cannot be undone.</DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => { setDeleteConfirmOpen(false); setPendingDeleteBlogId(null); }}
+              disabled={deleteSubmitting}
+            >
+              Cancel
+            </Button>
+            <Button
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={handleConfirmDeleteBlog}
+              disabled={deleteSubmitting}
+            >
+              {deleteSubmitting ? "Deleting..." : "Delete"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <Dialog open={!!editingBlog} onOpenChange={(open) => { if (!open) handleCloseEdit(); }}>
         <DialogContent className="sm:max-w-2xl max-h-[85vh] flex flex-col">
+
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 font-display">
               <BookOpen className="h-5 w-5 text-primary" /> Edit Blog Post

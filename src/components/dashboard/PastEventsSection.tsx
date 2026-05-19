@@ -76,9 +76,10 @@ export function PastEventsSection() {
       title: event.event_name,
       date: event.event_date ? event.event_date.slice(0, 10) : "",
       venue: event.event_location,
-      description: event.event_details || "",
+      description: (event as any).event_details || event.event_description || "",
     });
   };
+
 
   const handleCloseEdit = () => {
     setEditingEvent(null);
@@ -121,22 +122,35 @@ export function PastEventsSection() {
     }
   };
 
-  const handleDeleteEvent = async (eventId: number) => {
-    const confirmed = window.confirm("Delete this past event? This cannot be undone.");
-    if (!confirmed) return;
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [deleteSubmitting, setDeleteSubmitting] = useState(false);
+  const [pendingDeleteEventId, setPendingDeleteEventId] = useState<number | null>(null);
 
+  const handleRequestDeleteEvent = (eventId: number) => {
+    setPendingDeleteEventId(eventId);
+    setDeleteConfirmOpen(true);
+  };
+
+  const handleConfirmDeleteEvent = async () => {
+    if (!pendingDeleteEventId) return;
+    setDeleteSubmitting(true);
     try {
-      await deletePastEvent(String(eventId));
-      setEvents((prevEvents) => prevEvents.filter((evt) => evt.id !== eventId));
+      await deletePastEvent(String(pendingDeleteEventId));
+      setEvents((prevEvents) => prevEvents.filter((evt) => evt.id !== pendingDeleteEventId));
       toast({ title: "Past event deleted successfully", variant: "default" });
+      setDeleteConfirmOpen(false);
+      setPendingDeleteEventId(null);
     } catch (err: any) {
       toast({
         title: "Delete failed",
         description: err.message || "Failed to delete event",
         variant: "destructive",
       });
+    } finally {
+      setDeleteSubmitting(false);
     }
   };
+
 
   const formatDate = (dateStr: string) => {
     try {
@@ -233,7 +247,8 @@ export function PastEventsSection() {
                         variant="destructive"
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleDeleteEvent(evt.id);
+                          handleRequestDeleteEvent(evt.id);
+
                         }}
                       >
                         Delete
@@ -257,7 +272,45 @@ export function PastEventsSection() {
           </div>
         )}
       </CardContent>
+
+      <Dialog
+        open={deleteConfirmOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            setDeleteConfirmOpen(false);
+            setPendingDeleteEventId(null);
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Delete past event?</DialogTitle>
+            <DialogDescription>This action cannot be undone.</DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setDeleteConfirmOpen(false);
+                setPendingDeleteEventId(null);
+              }}
+              disabled={deleteSubmitting}
+            >
+              Cancel
+            </Button>
+            <Button
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={handleConfirmDeleteEvent}
+              disabled={deleteSubmitting}
+            >
+              {deleteSubmitting ? "Deleting..." : "Delete"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <Dialog open={!!editingEvent} onOpenChange={(open) => { if (!open) handleCloseEdit(); }}>
+
         <DialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 font-display">
