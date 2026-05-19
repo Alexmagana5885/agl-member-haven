@@ -42,6 +42,7 @@ const MemberPaymentsPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   useEffect(() => {
     fetchPayments();
@@ -50,7 +51,7 @@ const MemberPaymentsPage = () => {
   const fetchPayments = async () => {
     try {
       setLoading(true);
-      const response = await fetch("/api/admin/payments/member-premiums-payments", { credentials: "include" });
+      const response = await fetch(`${API_BASE_URL}/api/admin/payments/member-premiums-payments`, { credentials: "include" });
       
       if (!response.ok) {
         throw new Error("Failed to fetch payments");
