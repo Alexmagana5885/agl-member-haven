@@ -138,22 +138,35 @@ export function PlannedEventsSection() {
     }
   };
 
-  const handleDeleteEvent = async (eventId: number) => {
-    const confirmed = window.confirm("Delete this planned event? This cannot be undone.");
-    if (!confirmed) return;
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [deleteSubmitting, setDeleteSubmitting] = useState(false);
+  const [pendingDeleteEventId, setPendingDeleteEventId] = useState<number | null>(null);
 
+  const handleRequestDeleteEvent = (eventId: number) => {
+    setPendingDeleteEventId(eventId);
+    setDeleteConfirmOpen(true);
+  };
+
+  const handleConfirmDeleteEvent = async () => {
+    if (!pendingDeleteEventId) return;
+    setDeleteSubmitting(true);
     try {
-      await deletePlannedEvent(String(eventId));
-      setEvents((prevEvents) => prevEvents.filter((evt) => evt.id !== eventId));
+      await deletePlannedEvent(String(pendingDeleteEventId));
+      setEvents((prevEvents) => prevEvents.filter((evt) => evt.id !== pendingDeleteEventId));
       toast({ title: "Event deleted successfully", variant: "default" });
+      setDeleteConfirmOpen(false);
+      setPendingDeleteEventId(null);
     } catch (err: any) {
       toast({
         title: "Delete failed",
         description: err.message || "Failed to delete event",
         variant: "destructive",
       });
+    } finally {
+      setDeleteSubmitting(false);
     }
   };
+
 
   const handleClose = () => {
     setRegEvent(null);
@@ -262,8 +275,9 @@ export function PlannedEventsSection() {
                           <Button
                             size="sm"
                             variant="destructive"
-                            onClick={() => handleDeleteEvent(evt.id)}
+                            onClick={() => handleRequestDeleteEvent(evt.id)}
                           >
+
                             Delete
                           </Button>
                         </div>
@@ -336,8 +350,26 @@ export function PlannedEventsSection() {
         </DialogContent>
       </Dialog>
 
+      <Dialog open={deleteConfirmOpen} onOpenChange={(open) => { if (!open) { setDeleteConfirmOpen(false); setPendingDeleteEventId(null); } }}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Delete Planned Event</DialogTitle>
+            <DialogDescription>This action cannot be undone.</DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setDeleteConfirmOpen(false); setPendingDeleteEventId(null); }} disabled={deleteSubmitting}>
+              Cancel
+            </Button>
+            <Button onClick={handleConfirmDeleteEvent} disabled={deleteSubmitting} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              {deleteSubmitting ? "Deleting..." : "Delete"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <Dialog open={!!editingEvent} onOpenChange={(open) => { if (!open) handleCloseEdit(); }}>
         <DialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col">
+
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 font-display">
               <CalendarDays className="h-5 w-5 text-primary" /> Edit Planned Event
