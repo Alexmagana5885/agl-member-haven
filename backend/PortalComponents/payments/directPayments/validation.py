@@ -18,10 +18,17 @@ def validation():
 
     logger.info(f"C2B VALIDATION: {data}")
 
-    # Basic schema validation for required fields
-    missing = []
-    for k in ("CheckoutRequestID", "MpesaReceiptNumber"):
-        if data.get(k) in (None, ""):
+            
+    required = [
+    "TransID",
+    "TransAmount",
+    "MSISDN"
+   ]
+
+    missing=[]
+
+    for k in required:
+        if not data.get(k):
             missing.append(k)
 
     if missing:
