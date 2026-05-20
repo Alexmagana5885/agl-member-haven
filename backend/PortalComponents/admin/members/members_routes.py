@@ -13,6 +13,8 @@ from flask import Blueprint, jsonify, request, send_file, abort, make_response
 
 from fpdf import FPDF
 from login.decorators import login_required
+from flask import session
+
 
 # --- PDF styling helpers (modern bluish theme) ---
 
@@ -488,6 +490,27 @@ def _generate_member_details_pdf(member_type: str, member: Dict[str, str]):
 @admin_members_bp.route("/<member_type>/<member_id>/details", methods=["PUT"])
 @login_required
 def update_member_details(member_type: str, member_id: str):
+    # Enforce Admin official position for updates
+    requester_email = session.get("user_email")
+    if not requester_email:
+        return jsonify({"success": False, "message": "Authentication required"}), 401
+
+    conn_auth = get_db_connection()
+    try:
+        cur_auth = conn_auth.cursor()
+        cur_auth.execute(
+            "SELECT COUNT(*) FROM officialsmembers WHERE personalmembership_email = %s AND position = %s",
+            (requester_email, "admin"),
+        )
+        row = cur_auth.fetchone()
+        is_admin = (row[0] if row else 0) > 0
+        cur_auth.close()
+    finally:
+        conn_auth.close()
+
+    if not is_admin:
+        return jsonify({"success": False, "message": "Not authorized"}), 403
+
     mt = (member_type or "").strip().lower()
     if mt not in ["personal", "organization"]:
         return jsonify({"success": False, "message": "Invalid member_type"}), 400
@@ -652,6 +675,27 @@ def update_member_details(member_type: str, member_id: str):
 @admin_members_bp.route("/<member_type>/<member_id>/details", methods=["DELETE"])
 @login_required
 def delete_member_details(member_type: str, member_id: str):
+    # Enforce Admin official position for deletes
+    requester_email = session.get("user_email")
+    if not requester_email:
+        return jsonify({"success": False, "message": "Authentication required"}), 401
+
+    conn_auth = get_db_connection()
+    try:
+        cur_auth = conn_auth.cursor()
+        cur_auth.execute(
+            "SELECT COUNT(*) FROM officialsmembers WHERE personalmembership_email = %s AND position = %s",
+            (requester_email, "admin"),
+        )
+        row = cur_auth.fetchone()
+        is_admin = (row[0] if row else 0) > 0
+        cur_auth.close()
+    finally:
+        conn_auth.close()
+
+    if not is_admin:
+        return jsonify({"success": False, "message": "Not authorized"}), 403
+
     mt = (member_type or "").strip().lower()
     if mt not in ["personal", "organization"]:
         return jsonify({"success": False, "message": "Invalid member_type"}), 400

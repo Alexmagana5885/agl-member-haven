@@ -36,6 +36,30 @@ export default function MembersPage() {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  const [canEditDelete, setCanEditDelete] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    const loadSession = async () => {
+      try {
+        const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/auth/session`, {
+          credentials: "include",
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!cancelled && data?.status === "success" && data?.user) {
+          setCanEditDelete(!!data.user.is_admin_official);
+        }
+      } catch {
+        if (!cancelled) setCanEditDelete(false);
+      }
+    };
+    loadSession();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+
   const [memberType, setMemberType] = useState<MemberType>("personal");
   const [members, setMembers] = useState<BasicMember[]>([]);
   const [loading, setLoading] = useState(true);
@@ -145,7 +169,8 @@ export default function MembersPage() {
     setDeleteSubmitting(true);
     try {
       await deleteMember(selectedMember.member_type, selectedMember.id);
-toast({ title: "Member deleted", variant: "default" });
+      toast({ title: "Member deleted", variant: "default" });
+
       setDeleteConfirmOpen(false);
       setMoreOpen(false);
       setSelectedMember(null);
@@ -576,17 +601,22 @@ toast({ title: "Member deleted", variant: "default" });
                     Close
                   </Button>
                   <div className="flex items-center gap-2">
-                    <Button variant="outline" onClick={enterEditMode} disabled={!details || detailsLoading} className="gap-2">
-                      <Pencil className="h-4 w-4" /> Edit
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      onClick={() => setDeleteConfirmOpen(true)}
-                      disabled={!details || detailsLoading}
-                      className="gap-2"
-                    >
-                      <Trash2 className="h-4 w-4" /> Delete
-                    </Button>
+                    {canEditDelete && (
+                      <>
+                        <Button variant="outline" onClick={enterEditMode} disabled={!details || detailsLoading} className="gap-2">
+                          <Pencil className="h-4 w-4" /> Edit
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          onClick={() => setDeleteConfirmOpen(true)}
+                          disabled={!details || detailsLoading}
+                          className="gap-2"
+                        >
+                          <Trash2 className="h-4 w-4" /> Delete
+                        </Button>
+                      </>
+                    )}
+
                   </div>
                   <Button onClick={handlePrintSelected} disabled={!selectedMember || detailsLoading} className="bg-primary text-primary-foreground hover:bg-primary/90">
                     <Download className="h-4 w-4 mr-2" /> Print Information

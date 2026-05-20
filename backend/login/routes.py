@@ -164,6 +164,27 @@ def login():
     is_official = check_is_official(email)
     session['is_official'] = is_official
     logger.debug(f"User official status: {is_official}")
+
+    # Check if the logged-in official has Admin position
+    is_admin_official = False
+    try:
+        conn2 = get_db_connection()
+        cur2 = conn2.cursor()
+        cur2.execute(
+            "SELECT COUNT(*) FROM officialsmembers WHERE personalmembership_email = %s AND position = %s",
+            (email, "admin"),
+        )
+        row2 = cur2.fetchone()
+        is_admin_official = (row2[0] if row2 else 0) > 0
+        cur2.close()
+        conn2.close()
+    except Exception as e:
+        logger.error(f"Error checking admin official status: {str(e)}")
+        is_admin_official = False
+
+    session['is_admin_official'] = is_admin_official
+    logger.debug(f"User admin official status: {is_admin_official}")
+
     
     # Get member data and create season
     member_data = get_member_data(email, user_type)
@@ -302,6 +323,8 @@ def get_session():
             "type": session['user_type'],
             "name": user_name,
             "is_official": session.get('is_official', False),
+            "is_admin_official": session.get('is_admin_official', False),
+
             "member_type": session.get('member_type', session['user_type']),
             "payments_status": payments_status
         },
