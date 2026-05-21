@@ -24,7 +24,7 @@ CORS(
         "http://localhost:5173",
         "http://localhost:3000",
         "http://localhost:8080",
-        "http://192.168.0.110:8080",
+        "https://members.agl.or.ke",
         "https://agl-member-haven.vercel.app"
     ],
     allow_headers=["Content-Type", "Authorization"],
@@ -40,8 +40,8 @@ def after_request(response):
         "http://localhost:5173",
         "http://localhost:3000",
         "http://localhost:8080",
-        "http://192.168.0.110:8080",
-        "https://agl-member-haven.vercel.app"
+        "https://agl-member-haven.vercel.app",
+        "https://members.agl.or.ke"
     ]
 
     if origin in allowed:
